@@ -6,29 +6,27 @@ import { Page } from "@/components/Page";
 import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { Textarea } from "@/components/Textarea";
+import { CertificationManager } from "@/components/CertificationManager";
 import { supabase } from "@/lib/supabaseClient";
-import type { Profile, ServiceRates } from "@/lib/types";
+import type { Profile, ServiceRates, Certification } from "@/lib/types";
 import { SERVICES, type ServiceKey } from "@/lib/services";
-
-function publicUrl(bucket: string, path: string | null | undefined) {
-  if (!path) return null;
-  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
-}
-
-async function uploadFile(bucket: string, path: string, file: File) {
-  const up = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
-  if (up.error) throw new Error(up.error.message);
-  return path;
-}
+import { uploadFile, getPublicUrl, generateFilePath } from "@/lib/storage";
+import { LoadingPage } from "@/components/LoadingSpinner";
 
 export default function ProfileSetupPage() {
   const [meId, setMeId] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
   const [fullName, setFullName] = useState("");
+  const [bio, setBio] = useState("");
   const [nicNo, setNicNo] = useState("");
   const [address, setAddress] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [district, setDistrict] = useState("");
+  const [city, setCity] = useState("");
 
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [coverFile, setCoverFile] = useState<File | null>(null);
@@ -36,48 +34,79 @@ export default function ProfileSetupPage() {
   const [serviceRates, setServiceRates] = useState<ServiceRates>({});
   const [serviceFiles, setServiceFiles] = useState<Record<string, File | null>>({});
 
+  const [certifications, setCertifications] = useState<Certification[]>([]);
+
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  const avatarPreview = useMemo(() => (avatarFile ? URL.createObjectURL(avatarFile) : null), [avatarFile]);
-  const coverPreview = useMemo(() => (coverFile ? URL.createObjectURL(coverFile) : null), [coverFile]);
+  const avatarPreview = useMemo(
+    () => (avatarFile ? URL.createObjectURL(avatarFile) : null),
+    [avatarFile]
+  );
+  const coverPreview = useMemo(
+    () => (coverFile ? URL.createObjectURL(coverFile) : null),
+    [coverFile]
+  );
 
   useEffect(() => {
     const load = async () => {
-      setMsg(null);
-      const { data: s } = await supabase.auth.getSession();
-      const user = s.session?.user;
-      if (!user) return;
+      try {
+        const { data: s } = await supabase.auth.getSession();
+        const user = s.session?.user;
+        if (!user) return;
 
-      setMeId(user.id);
+        setMeId(user.id);
 
-      const p = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-      if (p.error) {
-        setMsg(p.error.message);
-        return;
-      }
+        const p = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
 
-      const prof = (p.data ?? null) as Profile | null;
-      setProfile(prof);
+        if (p.error) throw p.error;
 
-      setFullName(prof?.full_name ?? "");
-      setNicNo(prof?.nic_no ?? "");
-      setAddress(prof?.address ?? "");
-      setWhatsapp(prof?.whatsapp ?? "");
-      setServiceRates((prof?.service_rates ?? {}) as ServiceRates);
+        const prof = (p.data ?? null) as Profile | null;
+        setProfile(prof);
 
-      // if not tiler, redirect away
-      if (prof?.role && prof.role !== "tiler") {
-        window.location.href = "/profile";
-        return;
+        if (prof?.role && prof.role !== "tiler") {
+          window.location.href = "/profile";
+          return;
+        }
+
+        setFullName(prof?.full_name ?? "");
+        setBio(prof?.bio ?? "");
+        setNicNo(prof?.nic_no ?? "");
+        setAddress(prof?.address ?? "");
+        setWhatsapp(prof?.whatsapp ?? "");
+        setDistrict(prof?.district ?? "");
+        setCity(prof?.city ?? "");
+        setServiceRates((prof?.service_rates ?? {}) as ServiceRates);
+
+        const { data: certs } = await supabase
+          .from("certifications")
+          .select("*")
+          .eq("tiler_id", user.id)
+          .order("created_at", { ascending: false });
+
+        setCertifications((certs as Certification[]) ?? []);
+      } catch (err: any) {
+        setMsg(err?.message || "Failed to load profile");
+      } finally {
+        setLoading(false);
       }
     };
 
     load();
   }, []);
 
-  const existingAvatar = useMemo(() => publicUrl("profile-avatars", profile?.avatar_path), [profile?.avatar_path]);
-  const existingCover = useMemo(() => publicUrl("profile-covers", profile?.cover_path), [profile?.cover_path]);
+  const existingAvatar = useMemo(
+    () => getPublicUrl("profile-avatars", profile?.avatar_path),
+    [profile?.avatar_path]
+  );
+  const existingCover = useMemo(
+    () => getPublicUrl("profile-covers", profile?.cover_path),
+    [profile?.cover_path]
+  );
 
   const updateRate = (key: ServiceKey, rateStr: string) => {
     const rate = rateStr ? Number(rateStr) : null;
@@ -91,6 +120,49 @@ export default function ProfileSetupPage() {
     }));
   };
 
+  const handleAddCertification = async (formData: any) => {
+    if (!meId) throw new Error("Not authenticated");
+
+    let image_path = null;
+
+    if (formData.image) {
+      const path = generateFilePath(meId, "certifications", formData.image);
+      image_path = await uploadFile("certifications", path, formData.image);
+    }
+
+    const { error } = await supabase.from("certifications").insert({
+      tiler_id: meId,
+      title: formData.title.trim(),
+      issuer: formData.issuer.trim(),
+      issue_date: formData.issue_date,
+      expiry_date: formData.expiry_date || null,
+      certificate_number: formData.certificate_number.trim() || null,
+      description: formData.description.trim() || null,
+      image_path,
+    });
+
+    if (error) throw error;
+
+    const { data: updated } = await supabase
+      .from("certifications")
+      .select("*")
+      .eq("tiler_id", meId)
+      .order("created_at", { ascending: false });
+
+    setCertifications((updated as Certification[]) ?? []);
+  };
+
+  const handleRemoveCertification = async (id: string) => {
+    const { error } = await supabase
+      .from("certifications")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+
+    setCertifications((prev) => prev.filter((c) => c.id !== id));
+  };
+
   const save = async () => {
     setSaving(true);
     setMsg(null);
@@ -100,44 +172,42 @@ export default function ProfileSetupPage() {
       const user = s.session?.user;
       if (!user) throw new Error("Please login.");
 
-      // basic validation
       if (!fullName.trim()) throw new Error("Enter your name.");
       if (!whatsapp.trim()) throw new Error("Enter WhatsApp number.");
       if (!nicNo.trim()) throw new Error("Enter NIC number.");
       if (!address.trim()) throw new Error("Enter address.");
+      if (!district.trim()) throw new Error("Enter district.");
+      if (!city.trim()) throw new Error("Enter city.");
 
-      // upload avatar/cover if selected
       let avatar_path = profile?.avatar_path ?? null;
       let cover_path = profile?.cover_path ?? null;
 
       if (avatarFile) {
-        const ext = avatarFile.name.split(".").pop() || "jpg";
-        avatar_path = await uploadFile("profile-avatars", `${user.id}/avatar.${ext}`, avatarFile);
+        const path = generateFilePath(user.id, "avatar", avatarFile);
+        avatar_path = await uploadFile("profile-avatars", path, avatarFile);
       }
 
       if (coverFile) {
-        const ext = coverFile.name.split(".").pop() || "jpg";
-        cover_path = await uploadFile("profile-covers", `${user.id}/cover.${ext}`, coverFile);
+        const path = generateFilePath(user.id, "cover", coverFile);
+        cover_path = await uploadFile("profile-covers", path, coverFile);
       }
 
-      // upload service photos (if selected)
       const updatedRates: ServiceRates = { ...(serviceRates ?? {}) };
 
       for (const svc of SERVICES) {
         const f = serviceFiles[svc.key];
-        if (!f) continue;
+        if (f) {
+          const path = generateFilePath(user.id, `portfolio/${svc.key}`, f);
+          const uploaded = await uploadFile("profile-portfolio", path, f);
 
-        const ext = f.name.split(".").pop() || "jpg";
-        const path = await uploadFile("profile-portfolio", `${user.id}/${svc.key}.${ext}`, f);
-
-        updatedRates[svc.key] = {
-          rate: updatedRates[svc.key]?.rate ?? null,
-          unit: svc.unit,
-          photo_path: path,
-        };
+          updatedRates[svc.key] = {
+            rate: updatedRates[svc.key]?.rate ?? null,
+            unit: svc.unit,
+            photo_path: uploaded,
+          };
+        }
       }
 
-      // ensure unit exists for every saved item
       for (const svc of SERVICES) {
         if (updatedRates[svc.key]) {
           updatedRates[svc.key] = {
@@ -148,13 +218,16 @@ export default function ProfileSetupPage() {
         }
       }
 
-      const u = await supabase
+      const { error } = await supabase
         .from("profiles")
         .update({
           full_name: fullName.trim(),
+          bio: bio.trim() || null,
           nic_no: nicNo.trim(),
           address: address.trim(),
           whatsapp: whatsapp.trim(),
+          district: district.trim(),
+          city: city.trim(),
           avatar_path,
           cover_path,
           service_rates: updatedRates,
@@ -162,137 +235,320 @@ export default function ProfileSetupPage() {
         })
         .eq("id", user.id);
 
-      if (u.error) throw new Error(u.error.message);
+      if (error) throw error;
 
       window.location.href = "/profile";
     } catch (e: any) {
       setMsg(e?.message || "Failed to save profile.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setSaving(false);
     }
   };
 
+  if (loading) return <LoadingPage message="Loading profile setup..." />;
+
+  const canProceedStep1 =
+    fullName.trim() && nicNo.trim() && whatsapp.trim() && address.trim() && district.trim() && city.trim();
+
   return (
     <RequireAuth>
-      <Page title="Complete Profile">
-        <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
-          {msg && <div className="rounded-xl border bg-neutral-50 p-3 text-sm">{msg}</div>}
-
-          {/* Cover */}
-          <div className="rounded-2xl border bg-white p-4">
-            <div className="text-sm font-semibold">Cover Image</div>
-            <div className="mt-3 rounded-2xl overflow-hidden border bg-neutral-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={coverPreview || existingCover || "/placeholder-cover.png"}
-                alt="cover"
-                className="h-40 w-full object-cover"
-              />
+      <Page title="Complete Your Tiler Profile">
+        <div className="max-w-4xl mx-auto px-4 py-6 space-y-5">
+          {msg && (
+            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 animate-fade-in">
+              <strong>Error:</strong> {msg}
             </div>
-            <input className="mt-3 text-sm" type="file" accept="image/*" onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)} />
+          )}
+
+          <div className="flex gap-2 text-xs">
+            {[1, 2, 3].map((s) => (
+              <div
+                key={s}
+                className={`flex-1 h-2 rounded-full transition ${
+                  s <= step ? "bg-black" : "bg-neutral-200"
+                }`}
+              />
+            ))}
           </div>
 
-          {/* Avatar + basics */}
-          <div className="rounded-2xl border bg-white p-4">
-            <div className="flex items-start gap-4">
-              <div className="shrink-0">
-                <div className="h-20 w-20 rounded-full overflow-hidden border bg-neutral-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
+          <div className="flex gap-2 text-sm font-medium">
+            <span className={step >= 1 ? "text-black" : "text-neutral-400"}>
+              1. Basic Info
+            </span>
+            <span className="text-neutral-300">•</span>
+            <span className={step >= 2 ? "text-black" : "text-neutral-400"}>
+              2. Services & Portfolio
+            </span>
+            <span className="text-neutral-300">•</span>
+            <span className={step >= 3 ? "text-black" : "text-neutral-400"}>
+              3. Certifications
+            </span>
+          </div>
+
+          {step === 1 && (
+            <div className="space-y-4 animate-slide-up">
+              <div className="rounded-2xl border bg-white p-4 md:p-6">
+                <h3 className="text-lg font-semibold mb-4">Cover Photo</h3>
+                <div className="rounded-2xl overflow-hidden border bg-neutral-100">
                   <img
-                    src={avatarPreview || existingAvatar || "/placeholder-avatar.png"}
-                    alt="avatar"
-                    className="h-full w-full object-cover"
+                    src={
+                      coverPreview ||
+                      existingCover ||
+                      "https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&w=800"
+                    }
+                    alt="cover"
+                    className="h-48 w-full object-cover"
                   />
                 </div>
-                <input className="mt-2 text-sm" type="file" accept="image/*" onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)} />
+                <input
+                  className="mt-3 text-sm w-full"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setCoverFile(e.target.files?.[0] ?? null)}
+                />
+                <p className="mt-2 text-xs text-neutral-500">
+                  Recommended: 1200x300px. Showcase your best work!
+                </p>
               </div>
 
-              <div className="flex-1 grid gap-3">
-                <div>
-                  <div className="text-sm font-medium">Full Name</div>
-                  <Input className="mt-2" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your name" />
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div>
-                    <div className="text-sm font-medium">NIC No</div>
-                    <Input className="mt-2" value={nicNo} onChange={(e) => setNicNo(e.target.value)} placeholder="NIC number" />
+              <div className="rounded-2xl border bg-white p-4 md:p-6">
+                <h3 className="text-lg font-semibold mb-4">Profile Photo & Details</h3>
+                <div className="flex flex-col sm:flex-row items-start gap-6">
+                  <div className="shrink-0">
+                    <div className="h-24 w-24 rounded-full overflow-hidden border-2 bg-neutral-100">
+                      <img
+                        src={
+                          avatarPreview ||
+                          existingAvatar ||
+                          "https://images.pexels.com/photos/1300402/pexels-photo-1300402.jpeg?auto=compress&w=200"
+                        }
+                        alt="avatar"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <input
+                      className="mt-2 text-sm"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
+                    />
                   </div>
-                  <div>
-                    <div className="text-sm font-medium">WhatsApp Number</div>
-                    <Input className="mt-2" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="07XXXXXXXX" inputMode="tel" />
-                  </div>
-                </div>
 
-                <div>
-                  <div className="text-sm font-medium">Address</div>
-                  <Textarea className="mt-2" rows={3} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Village / City / District" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Service cards */}
-          <div className="rounded-2xl border bg-white p-4">
-            <div className="text-sm font-semibold">Services (Rate + Photo)</div>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {SERVICES.map((svc) => {
-                const item = serviceRates?.[svc.key];
-                const photoUrl = item?.photo_path
-                  ? publicUrl("profile-portfolio", item.photo_path)
-                  : null;
-
-                return (
-                  <div key={svc.key} className="rounded-2xl border p-3">
-                    <div className="font-semibold">{svc.label}</div>
-                    <div className="mt-1 text-xs text-neutral-500">Unit: {svc.unit}</div>
-
-                    <div className="mt-3">
-                      <div className="text-sm font-medium">Rate</div>
+                  <div className="flex-1 w-full grid gap-4">
+                    <div>
+                      <label className="text-sm font-medium">
+                        Full Name <span className="text-red-600">*</span>
+                      </label>
                       <Input
                         className="mt-2"
-                        value={item?.rate ?? ""}
-                        onChange={(e) => updateRate(svc.key, e.target.value)}
-                        placeholder={`e.g. 350 (${svc.unit})`}
-                        inputMode="numeric"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Your full name as per NIC"
                       />
                     </div>
 
-                    <div className="mt-3">
-                      <div className="text-sm font-medium">Photo</div>
-                      <div className="mt-2 h-24 rounded-xl overflow-hidden border bg-neutral-100">
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={photoUrl || "/placeholder-work.png"}
-                          alt={svc.label}
-                          className="h-full w-full object-cover"
-                        />
-                      </div>
-                      <input
-                        className="mt-2 text-sm"
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                          setServiceFiles((p) => ({ ...p, [svc.key]: e.target.files?.[0] ?? null }))
-                        }
+                    <div>
+                      <label className="text-sm font-medium">Bio / About You</label>
+                      <Textarea
+                        className="mt-2"
+                        rows={3}
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Tell homeowners about your experience, specialties, and why they should hire you..."
                       />
-                      {serviceFiles[svc.key] && (
-                        <div className="mt-1 text-xs text-neutral-600">
-                          Selected: {serviceFiles[svc.key]!.name}
-                        </div>
-                      )}
+                      <p className="mt-1 text-xs text-neutral-500">
+                        {bio.length}/500 characters
+                      </p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+              </div>
 
-            <div className="mt-4 flex justify-end">
-              <Button onClick={save} disabled={saving}>
-                {saving ? "Saving…" : "Save Profile"}
-              </Button>
+              <div className="rounded-2xl border bg-white p-4 md:p-6">
+                <h3 className="text-lg font-semibold mb-4">Identification & Contact</h3>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="text-sm font-medium">
+                      NIC Number <span className="text-red-600">*</span>
+                    </label>
+                    <Input
+                      className="mt-2"
+                      value={nicNo}
+                      onChange={(e) => setNicNo(e.target.value)}
+                      placeholder="e.g., 971234567V"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">
+                      WhatsApp Number <span className="text-red-600">*</span>
+                    </label>
+                    <Input
+                      className="mt-2"
+                      value={whatsapp}
+                      onChange={(e) => setWhatsapp(e.target.value)}
+                      placeholder="e.g., 0771234567"
+                      inputMode="tel"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">
+                      District <span className="text-red-600">*</span>
+                    </label>
+                    <Input
+                      className="mt-2"
+                      value={district}
+                      onChange={(e) => setDistrict(e.target.value)}
+                      placeholder="e.g., Gampaha"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">
+                      City <span className="text-red-600">*</span>
+                    </label>
+                    <Input
+                      className="mt-2"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="e.g., Kadawatha"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="text-sm font-medium">
+                      Address <span className="text-red-600">*</span>
+                    </label>
+                    <Textarea
+                      className="mt-2"
+                      rows={2}
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder="Your complete address..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button onClick={() => setStep(2)} disabled={!canProceedStep1}>
+                  Next: Services & Portfolio →
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
+
+          {step === 2 && (
+            <div className="space-y-4 animate-slide-up">
+              <div className="rounded-2xl border bg-white p-4 md:p-6">
+                <h3 className="text-lg font-semibold mb-2">Your Services & Rates</h3>
+                <p className="text-sm text-neutral-600 mb-4">
+                  Set your rates and upload portfolio photos for each service you offer.
+                </p>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {SERVICES.map((svc) => {
+                    const item = serviceRates?.[svc.key];
+                    const photoUrl = item?.photo_path
+                      ? getPublicUrl("profile-portfolio", item.photo_path)
+                      : null;
+                    const fileSelected = serviceFiles[svc.key];
+
+                    return (
+                      <div
+                        key={svc.key}
+                        className="rounded-2xl border p-4 hover:border-neutral-300 transition"
+                      >
+                        <div className="font-semibold">{svc.label}</div>
+                        <div className="mt-1 text-xs text-neutral-500">
+                          Pricing unit: {svc.unit}
+                        </div>
+
+                        <div className="mt-3">
+                          <label className="text-sm font-medium">Your Rate</label>
+                          <Input
+                            className="mt-2"
+                            value={item?.rate ?? ""}
+                            onChange={(e) => updateRate(svc.key, e.target.value)}
+                            placeholder={`e.g., 350`}
+                            inputMode="numeric"
+                          />
+                        </div>
+
+                        <div className="mt-3">
+                          <label className="text-sm font-medium">Portfolio Photo</label>
+                          <div className="mt-2 h-32 rounded-xl overflow-hidden border bg-neutral-100">
+                            <img
+                              src={
+                                fileSelected
+                                  ? URL.createObjectURL(fileSelected)
+                                  : photoUrl ||
+                                    "https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&w=400"
+                              }
+                              alt={svc.label}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                          <input
+                            className="mt-2 text-sm w-full"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                              setServiceFiles((p) => ({
+                                ...p,
+                                [svc.key]: e.target.files?.[0] ?? null,
+                              }))
+                            }
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-between">
+                <Button variant="secondary" onClick={() => setStep(1)}>
+                  ← Back
+                </Button>
+                <Button onClick={() => setStep(3)}>
+                  Next: Certifications →
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="space-y-4 animate-slide-up">
+              <div className="rounded-2xl border bg-white p-4 md:p-6">
+                <CertificationManager
+                  certifications={certifications}
+                  onAdd={handleAddCertification}
+                  onRemove={handleRemoveCertification}
+                  disabled={saving}
+                />
+              </div>
+
+              <div className="rounded-2xl border bg-white p-4 md:p-6">
+                <h3 className="text-lg font-semibold mb-2">Ready to Complete?</h3>
+                <p className="text-sm text-neutral-600 mb-4">
+                  Your profile will be visible to homeowners looking for professional
+                  tilers. Make sure all information is accurate.
+                </p>
+
+                <div className="flex gap-2 justify-between">
+                  <Button variant="secondary" onClick={() => setStep(2)}>
+                    ← Back
+                  </Button>
+                  <Button onClick={save} disabled={saving}>
+                    {saving ? "Saving Profile..." : "Complete Profile"}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </Page>
     </RequireAuth>

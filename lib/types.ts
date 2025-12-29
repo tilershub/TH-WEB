@@ -41,6 +41,7 @@ export type Profile = {
   nic_no?: string | null;
   address?: string | null;
   whatsapp?: string | null;
+  bio?: string | null;
 
   /* Images */
   avatar_path?: string | null;
@@ -144,5 +145,22 @@ export type BidChangeRequest = {
   tiler_id: string;
   message: string | null;
   status: BidChangeRequestStatus;
+  created_at: string;
+};
+
+/* =========================
+   CERTIFICATIONS
+========================= */
+
+export type Certification = {
+  id: string;
+  tiler_id: string;
+  title: string;
+  issuer: string;
+  issue_date: string;
+  expiry_date: string | null;
+  certificate_number: string | null;
+  image_path: string | null;
+  description: string | null;
   created_at: string;
 };
