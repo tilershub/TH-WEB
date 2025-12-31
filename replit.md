@@ -46,14 +46,14 @@ The tiler profile system includes a 5-step setup wizard:
 4. **Portfolio**: Gallery of completed work samples with before/after photos
 5. **Certifications**: Professional qualifications and certificates
 
-Public tiler profile features:
-- **Tabbed interface**: Services & Pricing, Portfolio, About & Credentials
-- **Verification badges**: Verified status for trusted tilers
-- **Availability indicators**: Real-time availability status
-- **Experience stats**: Years of experience, completed jobs count
-- **Working areas**: List of districts where tiler offers services
-- **Portfolio gallery**: Filterable gallery with featured items and lightbox view
-- **Service filtering**: Filter services by type on profile page
+Public tiler profile page (`/tilers/[id]`) - mobile-first design:
+- **Profile header**: Circular avatar, name, location with pin icon, star rating
+- **Request Quote button**: Prominent CTA button linking to WhatsApp
+- **About Me section**: Bio text with phone and email contact info
+- **My Skills section**: 2-column grid with green checkmark badges showing services offered
+- **Portfolio section**: Horizontal scrolling gallery with lightbox view
+- **Reviews section**: Reviewer cards with avatar, name, service type, date, and comment
+- **Experience footer**: Years of experience and completed jobs count
 
 ### Database Tables
 - `profiles` - User profiles with role, contact info, availability settings
@@ -80,6 +80,7 @@ npm run dev
 - Start command: `npm start`
 
 ## Recent Changes
+- **Dec 31, 2025**: Redesigned public tiler profile page with mobile-first layout matching the design reference - profile header with avatar/name/location/rating, Request Quote button, About Me section, My Skills grid with checkmarks, horizontal Portfolio gallery, and Reviews section.
 - **Dec 31, 2025**: Enhanced tiler profile customization with 5-step setup wizard, portfolio gallery, availability settings, verification badges, and improved public profile display with tabbed interface.
 - **Dec 31, 2025**: Updated services to align with post task flow (9 service types: floor_tiling, wall_tiling, staircase_tiling, bathroom_tiling, pantry_backsplash, waterproofing, screed, demolition, nosing).
 - **Dec 31, 2025**: Updated post-task flow with comprehensive tiling service options including floor, wall, staircase, bathroom, and pantry tiling with detailed specifications, image upload, and additional notes.
