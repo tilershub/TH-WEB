@@ -80,6 +80,8 @@ npm run dev
 - Start command: `npm start`
 
 ## Recent Changes
+- **Dec 31, 2025**: Created role-based home pages - homeowners see search bar, services grid, top tilers, blog posts, and how-to guides; tilers see available tasks and tiler-focused blog posts.
+- **Dec 31, 2025**: Added TILERS HUB branding header on all mobile pages, root URL (/) now redirects to /home.
 - **Dec 31, 2025**: Redesigned public tiler profile page with mobile-first layout matching the design reference - profile header with avatar/name/location/rating, Request Quote button, About Me section, My Skills grid with checkmarks, horizontal Portfolio gallery, and Reviews section.
 - **Dec 31, 2025**: Enhanced tiler profile customization with 5-step setup wizard, portfolio gallery, availability settings, verification badges, and improved public profile display with tabbed interface.
 - **Dec 31, 2025**: Updated services to align with post task flow (9 service types: floor_tiling, wall_tiling, staircase_tiling, bathroom_tiling, pantry_backsplash, waterproofing, screed, demolition, nosing).
