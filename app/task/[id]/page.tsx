@@ -61,21 +61,38 @@ export default function TaskDetailsPage() {
     if (me.profile?.role !== "tiler") { setMsg("Only Tilers can place bids. Change role in Profile."); return; }
     if (!bidAmount) { setMsg("Enter amount."); return; }
 
-    const { error } = await supabase.from("bids").insert({
-      task_id: id,
-      tiler_id: me.userId,
-      amount: Number(bidAmount),
-      message: bidMessage || null,
-      status: "active",
-    });
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setMsg("Please login again."); return; }
 
-    if (error) { setMsg(error.message); return; }
+      const response = await supabase.functions.invoke("place-bid", {
+        body: {
+          task_id: id,
+          amount: Number(bidAmount),
+          message: bidMessage || null,
+        },
+      });
 
-    setBidAmount("");
-    setBidMessage("");
+      if (response.error) {
+        setMsg(response.error.message || "Failed to place bid");
+        return;
+      }
 
-    const b = await supabase.from("bids").select("*").eq("task_id", id).order("created_at", { ascending: false });
-    if (!b.error) setBids((b.data ?? []) as Bid[]);
+      const result = response.data;
+      if (result.error) {
+        setMsg(result.error);
+        return;
+      }
+
+      setBidAmount("");
+      setBidMessage("");
+
+      const b = await supabase.from("bids").select("*").eq("task_id", id).order("created_at", { ascending: false });
+      if (!b.error) setBids((b.data ?? []) as Bid[]);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to place bid";
+      setMsg(errorMessage);
+    }
   };
 
   const acceptBid = async (bid: Bid) => {
