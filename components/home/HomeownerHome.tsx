@@ -19,15 +19,15 @@ const SERVICES = [
 ];
 
 const BLOG_POSTS = [
-  { title: "How to Choose the Right Tiles for Your Home", excerpt: "A complete guide to selecting tiles based on material, size, and room type.", category: "Tips", href: "/blog/choosing-tiles" },
+  { title: "How to Choose the Right Tiles for Your Home", excerpt: "A complete guide to selecting tiles based on material, size, and room type.", category: "Tips", href: "/blog/how-to-choose-tiles" },
   { title: "Top 5 Tile Trends for 2025", excerpt: "Discover the latest trends in home tiling and transform your space.", category: "Trends", href: "/blog/tile-trends-2025" },
-  { title: "Cost of Tiling in Sri Lanka", excerpt: "A breakdown of tiling costs per square foot across different services.", category: "Pricing", href: "/blog/tiling-costs" },
+  { title: "Cost of Tiling in Sri Lanka", excerpt: "A breakdown of tiling costs per square foot across different services.", category: "Pricing", href: "/blog/tiling-cost-guide" },
 ];
 
 const GUIDES = [
-  { title: "How to Post Your First Task", steps: 3, duration: "2 min", href: "/guides/post-task" },
-  { title: "Choosing the Right Tiler", steps: 5, duration: "4 min", href: "/guides/choose-tiler" },
-  { title: "Understanding Tile Quotes", steps: 4, duration: "3 min", href: "/guides/tile-quotes" },
+  { title: "How to Post a Task on Tilers Hub", steps: 4, duration: "2 min", href: "/guides/post-task-guide" },
+  { title: "How to Choose the Right Tiler", steps: 6, duration: "4 min", href: "/guides/choose-right-tiler" },
+  { title: "How to Compare Tiler Quotes", steps: 5, duration: "3 min", href: "/guides/compare-quotes" },
 ];
 
 function FloorIcon() {
@@ -154,7 +154,10 @@ export default function HomeownerHome() {
       </section>
 
       <section className="mt-6 px-4">
-        <h2 className="text-lg font-bold text-navy mb-3">How-To Guides</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold text-navy">How-To Guides</h2>
+          <a href="/guides" className="text-sm text-primary font-medium">See All</a>
+        </div>
         <div className="space-y-2">
           {GUIDES.map((guide) => (
             <GuideCard
