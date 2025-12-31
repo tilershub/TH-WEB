@@ -46,6 +46,7 @@ export type Profile = {
   nic_no?: string | null;
   address?: string | null;
   whatsapp?: string | null;
+  email?: string | null;
   bio?: string | null;
 
   /* Images */
