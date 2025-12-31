@@ -29,6 +29,8 @@ export type ServiceRateItem = {
 
 export type ServiceRates = Partial<Record<ServiceKey, ServiceRateItem>>;
 
+export type AvailabilityStatus = "available" | "busy" | "unavailable";
+
 export type Profile = {
   id: string;
   role: Role;
@@ -53,8 +55,35 @@ export type Profile = {
   /* Services */
   service_rates?: ServiceRates;
 
+  /* Availability & Working Areas */
+  working_districts?: string[];
+  availability_status?: AvailabilityStatus;
+
+  /* Verification & Experience */
+  is_verified?: boolean;
+  years_experience?: number | null;
+  completed_jobs?: number;
+
   /* Flow control */
   profile_completed?: boolean;
+};
+
+/* =========================
+   PORTFOLIO
+========================= */
+
+export type PortfolioItem = {
+  id: string;
+  tiler_id: string;
+  title: string;
+  description: string | null;
+  service_type: string | null;
+  image_path: string;
+  before_image_path: string | null;
+  location: string | null;
+  completed_date: string | null;
+  created_at: string;
+  is_featured: boolean;
 };
 
 /* =========================

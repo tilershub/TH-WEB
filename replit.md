@@ -35,6 +35,36 @@ Each service section supports:
 - Image upload (stored in Supabase Storage)
 - Additional notes field
 
+### Tiler Profile Customization
+The tiler profile system includes a 5-step setup wizard:
+
+1. **Basic Info**: Full name, NIC, WhatsApp, location, bio, profile/cover photos
+2. **Services & Rates**: Set rates for 9 service types aligned with post task flow:
+   - Floor Tiling, Wall Tiling, Staircase Tiling, Bathroom Tiling
+   - Pantry/Backsplash, Waterproofing, Screed, Demolition, Nosing
+3. **Availability**: Availability status (available/busy/unavailable), working districts, years of experience
+4. **Portfolio**: Gallery of completed work samples with before/after photos
+5. **Certifications**: Professional qualifications and certificates
+
+Public tiler profile features:
+- **Tabbed interface**: Services & Pricing, Portfolio, About & Credentials
+- **Verification badges**: Verified status for trusted tilers
+- **Availability indicators**: Real-time availability status
+- **Experience stats**: Years of experience, completed jobs count
+- **Working areas**: List of districts where tiler offers services
+- **Portfolio gallery**: Filterable gallery with featured items and lightbox view
+- **Service filtering**: Filter services by type on profile page
+
+### Database Tables
+- `profiles` - User profiles with role, contact info, availability settings
+- `tiler_services` - Individual service offerings with pricing
+- `tiler_portfolio` - Work samples gallery
+- `certifications` - Professional certifications
+- `tasks` - Posted tiling jobs
+- `task_sections` - Individual service requirements within tasks
+- `bids` - Tiler bids on tasks
+- `conversations` / `messages` - In-app messaging
+
 ## Environment Variables Required
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anonymous key
@@ -50,4 +80,6 @@ npm run dev
 - Start command: `npm start`
 
 ## Recent Changes
+- **Dec 31, 2025**: Enhanced tiler profile customization with 5-step setup wizard, portfolio gallery, availability settings, verification badges, and improved public profile display with tabbed interface.
+- **Dec 31, 2025**: Updated services to align with post task flow (9 service types: floor_tiling, wall_tiling, staircase_tiling, bathroom_tiling, pantry_backsplash, waterproofing, screed, demolition, nosing).
 - **Dec 31, 2025**: Updated post-task flow with comprehensive tiling service options including floor, wall, staircase, bathroom, and pantry tiling with detailed specifications, image upload, and additional notes.

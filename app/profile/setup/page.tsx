@@ -7,18 +7,22 @@ import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { Textarea } from "@/components/Textarea";
 import { CertificationManager } from "@/components/CertificationManager";
+import { AvailabilitySettings } from "@/components/AvailabilitySettings";
+import { PortfolioManager } from "@/components/PortfolioManager";
 import { supabase } from "@/lib/supabaseClient";
-import type { Profile, ServiceRates, Certification } from "@/lib/types";
+import type { Profile, ServiceRates, Certification, AvailabilityStatus } from "@/lib/types";
 import { SERVICES, type ServiceKey } from "@/lib/services";
 import { uploadFile, getPublicUrl, generateFilePath } from "@/lib/storage";
 import { LoadingPage } from "@/components/LoadingSpinner";
+
+type Step = 1 | 2 | 3 | 4 | 5;
 
 export default function ProfileSetupPage() {
   const [meId, setMeId] = useState<string | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<Step>(1);
 
   const [fullName, setFullName] = useState("");
   const [bio, setBio] = useState("");
@@ -33,6 +37,10 @@ export default function ProfileSetupPage() {
 
   const [serviceRates, setServiceRates] = useState<ServiceRates>({});
   const [serviceFiles, setServiceFiles] = useState<Record<string, File | null>>({});
+
+  const [availabilityStatus, setAvailabilityStatus] = useState<AvailabilityStatus>("available");
+  const [workingDistricts, setWorkingDistricts] = useState<string[]>([]);
+  const [yearsExperience, setYearsExperience] = useState<number | null>(null);
 
   const [certifications, setCertifications] = useState<Certification[]>([]);
 
@@ -81,6 +89,9 @@ export default function ProfileSetupPage() {
         setDistrict(prof?.district ?? "");
         setCity(prof?.city ?? "");
         setServiceRates((prof?.service_rates ?? {}) as ServiceRates);
+        setAvailabilityStatus(prof?.availability_status ?? "available");
+        setWorkingDistricts(prof?.working_districts ?? []);
+        setYearsExperience(prof?.years_experience ?? null);
 
         const { data: certs } = await supabase
           .from("certifications")
@@ -222,6 +233,7 @@ export default function ProfileSetupPage() {
         .from("profiles")
         .update({
           full_name: fullName.trim(),
+          display_name: fullName.trim(),
           bio: bio.trim() || null,
           nic_no: nicNo.trim(),
           address: address.trim(),
@@ -231,6 +243,9 @@ export default function ProfileSetupPage() {
           avatar_path,
           cover_path,
           service_rates: updatedRates,
+          availability_status: availabilityStatus,
+          working_districts: workingDistricts,
+          years_experience: yearsExperience,
           profile_completed: true,
         })
         .eq("id", user.id);
@@ -251,6 +266,14 @@ export default function ProfileSetupPage() {
   const canProceedStep1 =
     fullName.trim() && nicNo.trim() && whatsapp.trim() && address.trim() && district.trim() && city.trim();
 
+  const stepLabels = [
+    "Basic Info",
+    "Services & Rates",
+    "Availability",
+    "Portfolio",
+    "Certifications",
+  ];
+
   return (
     <RequireAuth>
       <Page title="Complete Your Tiler Profile">
@@ -261,8 +284,8 @@ export default function ProfileSetupPage() {
             </div>
           )}
 
-          <div className="flex gap-2 text-xs">
-            {[1, 2, 3].map((s) => (
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((s) => (
               <div
                 key={s}
                 className={`flex-1 h-2 rounded-full transition ${
@@ -272,18 +295,24 @@ export default function ProfileSetupPage() {
             ))}
           </div>
 
-          <div className="flex gap-2 text-sm font-medium">
-            <span className={step >= 1 ? "text-black" : "text-neutral-400"}>
-              1. Basic Info
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className={step >= 2 ? "text-black" : "text-neutral-400"}>
-              2. Services & Portfolio
-            </span>
-            <span className="text-neutral-300">•</span>
-            <span className={step >= 3 ? "text-black" : "text-neutral-400"}>
-              3. Certifications
-            </span>
+          <div className="flex flex-wrap gap-x-2 gap-y-1 text-sm">
+            {stepLabels.map((label, idx) => (
+              <span
+                key={idx}
+                className={`flex items-center gap-1 ${
+                  idx + 1 <= step ? "text-black font-medium" : "text-neutral-400"
+                }`}
+              >
+                <span className={`w-5 h-5 rounded-full text-xs flex items-center justify-center ${
+                  idx + 1 < step ? "bg-green-500 text-white" : 
+                  idx + 1 === step ? "bg-black text-white" : "bg-neutral-200"
+                }`}>
+                  {idx + 1 < step ? "✓" : idx + 1}
+                </span>
+                {label}
+                {idx < stepLabels.length - 1 && <span className="text-neutral-300 ml-1">→</span>}
+              </span>
+            ))}
           </div>
 
           {step === 1 && (
@@ -434,7 +463,7 @@ export default function ProfileSetupPage() {
 
               <div className="flex justify-end">
                 <Button onClick={() => setStep(2)} disabled={!canProceedStep1}>
-                  Next: Services & Portfolio →
+                  Next: Services & Rates →
                 </Button>
               </div>
             </div>
@@ -445,10 +474,10 @@ export default function ProfileSetupPage() {
               <div className="rounded-2xl border bg-white p-4 md:p-6">
                 <h3 className="text-lg font-semibold mb-2">Your Services & Rates</h3>
                 <p className="text-sm text-neutral-600 mb-4">
-                  Set your rates and upload portfolio photos for each service you offer.
+                  Set your rates for each service you offer. Leave blank for services you don't provide.
                 </p>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {SERVICES.map((svc) => {
                     const item = serviceRates?.[svc.key];
                     const photoUrl = item?.photo_path
@@ -463,11 +492,11 @@ export default function ProfileSetupPage() {
                       >
                         <div className="font-semibold">{svc.label}</div>
                         <div className="mt-1 text-xs text-neutral-500">
-                          Pricing unit: {svc.unit}
+                          {svc.description}
                         </div>
 
                         <div className="mt-3">
-                          <label className="text-sm font-medium">Your Rate</label>
+                          <label className="text-sm font-medium">Your Rate ({svc.unit})</label>
                           <Input
                             className="mt-2"
                             value={item?.rate ?? ""}
@@ -478,21 +507,30 @@ export default function ProfileSetupPage() {
                         </div>
 
                         <div className="mt-3">
-                          <label className="text-sm font-medium">Portfolio Photo</label>
-                          <div className="mt-2 h-32 rounded-xl overflow-hidden border bg-neutral-100">
-                            <img
-                              src={
-                                fileSelected
-                                  ? URL.createObjectURL(fileSelected)
-                                  : photoUrl ||
-                                    "https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&w=400"
-                              }
-                              alt={svc.label}
-                              className="h-full w-full object-cover"
-                            />
+                          <label className="text-sm font-medium">Sample Photo</label>
+                          <div className="mt-2 h-24 rounded-xl overflow-hidden border bg-neutral-100">
+                            {fileSelected ? (
+                              <img
+                                src={URL.createObjectURL(fileSelected)}
+                                alt={svc.label}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : photoUrl ? (
+                              <img
+                                src={photoUrl}
+                                alt={svc.label}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center text-neutral-400">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                            )}
                           </div>
                           <input
-                            className="mt-2 text-sm w-full"
+                            className="mt-2 text-xs w-full"
                             type="file"
                             accept="image/*"
                             onChange={(e) =>
@@ -514,13 +552,62 @@ export default function ProfileSetupPage() {
                   ← Back
                 </Button>
                 <Button onClick={() => setStep(3)}>
-                  Next: Certifications →
+                  Next: Availability →
                 </Button>
               </div>
             </div>
           )}
 
           {step === 3 && (
+            <div className="space-y-4 animate-slide-up">
+              <div className="rounded-2xl border bg-white p-4 md:p-6">
+                <h3 className="text-lg font-semibold mb-2">Availability & Working Areas</h3>
+                <p className="text-sm text-neutral-600 mb-6">
+                  Let homeowners know when you're available and where you work.
+                </p>
+
+                <AvailabilitySettings
+                  availabilityStatus={availabilityStatus}
+                  workingDistricts={workingDistricts}
+                  yearsExperience={yearsExperience}
+                  onStatusChange={setAvailabilityStatus}
+                  onDistrictsChange={setWorkingDistricts}
+                  onExperienceChange={setYearsExperience}
+                  disabled={saving}
+                />
+              </div>
+
+              <div className="flex gap-2 justify-between">
+                <Button variant="secondary" onClick={() => setStep(2)}>
+                  ← Back
+                </Button>
+                <Button onClick={() => setStep(4)}>
+                  Next: Portfolio →
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-4 animate-slide-up">
+              <div className="rounded-2xl border bg-white p-4 md:p-6">
+                {meId && (
+                  <PortfolioManager tilerId={meId} disabled={saving} />
+                )}
+              </div>
+
+              <div className="flex gap-2 justify-between">
+                <Button variant="secondary" onClick={() => setStep(3)}>
+                  ← Back
+                </Button>
+                <Button onClick={() => setStep(5)}>
+                  Next: Certifications →
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 5 && (
             <div className="space-y-4 animate-slide-up">
               <div className="rounded-2xl border bg-white p-4 md:p-6">
                 <CertificationManager
@@ -539,7 +626,7 @@ export default function ProfileSetupPage() {
                 </p>
 
                 <div className="flex gap-2 justify-between">
-                  <Button variant="secondary" onClick={() => setStep(2)}>
+                  <Button variant="secondary" onClick={() => setStep(4)}>
                     ← Back
                   </Button>
                   <Button onClick={save} disabled={saving}>
