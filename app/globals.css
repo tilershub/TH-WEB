@@ -3,10 +3,41 @@
 @tailwind utilities;
 
 :root {
-  --bg: 255 255 255;
-  --fg: 17 24 39;
+  --bg: 248 249 250;
+  --fg: 33 37 41;
+  --primary: 74 155 111;
+  --navy: 44 62 80;
+  --secondary: 44 95 111;
 }
 
-html, body { height: 100%; }
-body { color: rgb(var(--fg)); background: rgb(var(--bg)); }
+html, body {
+  height: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  color: rgb(var(--fg));
+  background: rgb(var(--bg));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 a { text-decoration: none; }
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white rounded-xl px-6 py-3 font-medium hover:bg-primary-dark transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-white border border-gray-300 text-gray-700 rounded-xl px-6 py-3 font-medium hover:bg-gray-50 transition-colors;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-card overflow-hidden;
+  }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+  }
+}

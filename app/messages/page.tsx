@@ -107,53 +107,63 @@ export default function MessagesInboxPage() {
   }, []);
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold">Inbox</h1>
+    <div className="min-h-screen bg-gray-50 pb-28">
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <div className="flex items-center gap-3">
+          <Link href="/tasks" className="p-2 hover:bg-gray-100 rounded-full">
+            <svg className="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </Link>
+          <h1 className="text-2xl font-bold text-navy">Messages</h1>
+        </div>
 
-      {msg && <div className="mt-3 text-sm text-red-600">{msg}</div>}
-      {loading && <div className="mt-3 text-sm text-neutral-600">Loading…</div>}
+        {msg && <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-800">{msg}</div>}
+        {loading && <div className="text-sm text-gray-600">Loading...</div>}
 
-      <div className="mt-4 grid gap-2">
-        {convs.map((c) => {
-          const last = lastByConv[c.id];
-          const other =
-            meId === c.homeowner_id ? "Tiler" : "Homeowner";
+        <div className="space-y-3">
+          {convs.map((c) => {
+            const last = lastByConv[c.id];
+            const other = meId === c.homeowner_id ? "Tiler" : "Homeowner";
+            const title = c.tasks?.[0]?.title ?? "Task";
+            const preview = last?.text ?? (last?.attachment_path ? "Attachment" : "No messages yet");
 
-          const title = c.tasks?.[0]?.title ?? "Task"; // ✅ FIXED
-          const preview =
-            last?.text ??
-            (last?.attachment_path ? "📎 Attachment" : "No messages yet");
-
-          return (
-            <Link
-              key={c.id}
-              href={`/messages/${c.id}`}
-              className="block rounded-2xl border bg-white p-4 hover:bg-neutral-50"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="font-semibold truncate">{title}</div>
-                  <div className="text-xs text-neutral-500 mt-0.5">{other}</div>
-                  <div className="text-sm text-neutral-700 mt-2 truncate">
-                    {preview}
+            return (
+              <Link
+                key={c.id}
+                href={`/messages/${c.id}`}
+                className="card hover:shadow-card-hover transition-shadow"
+              >
+                <div className="flex items-center gap-4 p-4">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-dark text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
+                    {other[0]}
                   </div>
-                </div>
 
-                <div className="text-xs text-neutral-500 whitespace-nowrap">
-                  {last?.created_at
-                    ? timeAgo(last.created_at)
-                    : timeAgo(c.created_at)}
-                </div>
-              </div>
-            </Link>
-          );
-        })}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <h3 className="font-semibold text-navy truncate">{title}</h3>
+                      <span className="text-xs text-gray-500 whitespace-nowrap">
+                        {last?.created_at ? timeAgo(last.created_at) : timeAgo(c.created_at)}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-1">{other}</p>
+                    <p className="text-sm text-gray-700 truncate">{preview}</p>
+                  </div>
 
-        {!loading && convs.length === 0 && (
-          <div className="text-sm text-neutral-600">
-            No conversations yet.
-          </div>
-        )}
+                  <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </Link>
+            );
+          })}
+
+          {!loading && convs.length === 0 && (
+            <div className="card p-8 text-center">
+              <p className="text-gray-600">No conversations yet.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

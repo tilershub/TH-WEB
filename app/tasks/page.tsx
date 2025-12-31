@@ -117,17 +117,8 @@ export default function TasksHomePage() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<string | null>(null);
-
+  const [activeTab, setActiveTab] = useState<"all" | "myarea">("all");
   const [q, setQ] = useState("");
-
-  const heroAds: Ad[] = useMemo(
-    () => [
-      { id: "ad1", title: "Tile Leveling Clips • Best Price", subtitle: "Islandwide delivery • COD available", cta: "Shop Now", href: "/shop" },
-      { id: "ad2", title: "Premium Bathroom Packages", subtitle: "Rocell • Swiss • Luxury finish", cta: "View Packages", href: "/packages" },
-      { id: "ad3", title: "Promote Your Tile Shop Here", subtitle: "Get calls from homeowners daily", cta: "Advertise", href: "/advertise" },
-    ],
-    []
-  );
 
   const load = async () => {
     setLoading(true);
@@ -173,60 +164,83 @@ export default function TasksHomePage() {
     });
   }, [tasks, q]);
 
-  const blocks = useMemo(() => chunk(filteredTasks, 5), [filteredTasks]);
-
   return (
-    <div className="max-w-5xl mx-auto px-4 py-6 space-y-5">
-      {/* ✅ Search Bar (replaces title + post button) */}
-      <div className="sticky top-0 z-40 bg-white pt-2 pb-3">
-        <div className="flex items-center gap-2 rounded-2xl border bg-white px-3 py-2">
-          <span className="text-neutral-500">🔎</span>
+    <div className="min-h-screen bg-gray-50 pb-28">
+      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-navy">Welcome, John</h1>
+          <button className="p-2 hover:bg-gray-100 rounded-full">
+            <svg className="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="relative">
+          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search tasks (Gampaha, bathroom, floor, 600×600...)"
-            className="w-full bg-transparent outline-none text-sm"
+            placeholder="Search tiling jobs..."
+            className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
-          {q && (
-            <button
-              onClick={() => setQ("")}
-              className="text-xs rounded-full border px-2 py-1 text-neutral-600"
-            >
-              Clear
-            </button>
+        </div>
+
+        <div className="flex gap-4 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`pb-3 px-1 text-sm font-medium transition-colors relative ${
+              activeTab === "all" ? "text-navy" : "text-gray-500"
+            }`}
+          >
+            All Tasks
+            {activeTab === "all" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab("myarea")}
+            className={`pb-3 px-1 text-sm font-medium transition-colors relative ${
+              activeTab === "myarea" ? "text-navy" : "text-gray-500"
+            }`}
+          >
+            My Area
+            {activeTab === "myarea" && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
+            )}
+          </button>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-bold text-navy mb-4">Recent Tiling Jobs</h2>
+
+          {msg && <div className="text-sm text-red-600 mb-4">{msg}</div>}
+          {loading && <div className="text-sm text-gray-600">Loading tasks...</div>}
+
+          {!loading && filteredTasks.length === 0 && (
+            <div className="card p-6 text-center text-gray-600">
+              No tasks found.
+            </div>
+          )}
+
+          {!loading && filteredTasks.length > 0 && (
+            <div className="space-y-4">
+              {filteredTasks.map((t) => (
+                <TaskCard key={t.id} task={t} />
+              ))}
+            </div>
           )}
         </div>
+
+        <Link href="/post-task" className="block">
+          <div className="bg-primary hover:bg-primary-dark transition-colors rounded-2xl p-6 text-white shadow-lg">
+            <h3 className="text-lg font-bold mb-2">Start Your Project: Post a Task</h3>
+            <p className="text-sm text-white/90">to Get Quotes to Professional Tilers</p>
+          </div>
+        </Link>
       </div>
-
-      {/* Hero ads */}
-      <HeroAdCarousel ads={heroAds} />
-
-      {msg && <div className="text-sm text-red-600">{msg}</div>}
-      {loading && <div className="text-sm text-neutral-600">Loading tasks…</div>}
-
-      {!loading && filteredTasks.length === 0 && (
-        <div className="rounded-2xl border bg-white p-4 text-sm text-neutral-600">
-          No tasks found.
-        </div>
-      )}
-
-      {/* Repeating pattern */}
-      {!loading && filteredTasks.length > 0 && (
-        <div className="space-y-5">
-          {blocks.map((group, i) => (
-            <div key={i} className="space-y-5">
-              <div className="grid gap-3">
-                {group.map((t) => (
-                  <TaskCard key={t.id} task={t} />
-                ))}
-              </div>
-
-              {/* ad after every 10 tasks (5+5) */}
-              {i % 2 === 1 && <InlineAdSpace />}
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

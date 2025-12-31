@@ -23,12 +23,20 @@ export default function Header() {
   useEffect(() => setOpen(false), [pathname]);
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b">
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
       <div className="mx-auto max-w-5xl px-4">
-        <div className="h-14 flex items-center justify-between gap-3">
-          <Link href="/tasks" className="font-extrabold leading-none">
-            <div className="text-sm tracking-tight">TILERS</div>
-            <div className="text-sm tracking-tight -mt-1">HUB</div>
+        <div className="h-16 flex items-center justify-between gap-3">
+          <Link href="/tasks" className="flex items-center gap-2">
+            <div className="relative w-10 h-10">
+              <div className="absolute inset-0 rounded-full border-2 border-navy overflow-hidden">
+                <div className="h-1/2 bg-secondary"></div>
+                <div className="h-1/2 bg-primary"></div>
+              </div>
+            </div>
+            <div className="font-bold leading-tight">
+              <span className="text-navy">TILERS </span>
+              <span className="text-primary">HUB</span>
+            </div>
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-sm">
@@ -37,8 +45,8 @@ export default function Header() {
                 key={l.href}
                 href={l.href}
                 className={cx(
-                  "text-neutral-600 hover:text-black",
-                  pathname === l.href && "text-black font-semibold"
+                  "text-gray-600 hover:text-navy transition-colors",
+                  pathname === l.href && "text-navy font-semibold"
                 )}
               >
                 {l.label}
