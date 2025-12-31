@@ -1,43 +1,48 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Page } from "@/components/Page";
 import { supabase } from "@/lib/supabaseClient";
-import type { Task } from "@/lib/types";
-import TaskCard from "@/components/TaskCard";
+import type { Role } from "@/lib/types";
+import HomeownerHome from "@/components/home/HomeownerHome";
+import TilerHome from "@/components/home/TilerHome";
 
 export default function HomePage() {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [role, setRole] = useState<Role | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const load = async () => {
-      const { data, error } = await supabase
-        .from("tasks")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(30);
-
-      if (!error && data) setTasks(data as Task[]);
+    const loadUserRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+        
+        if (profile) {
+          setRole(profile.role as Role);
+        }
+      }
+      
       setLoading(false);
     };
-    load();
+    
+    loadUserRole();
   }, []);
 
-  return (
-    <Page title="Latest Tasks">
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-sm text-neutral-600">Browse posted tasks and submit a bid.</p>
-        <a className="rounded-md bg-black px-3 py-2 text-sm text-white hover:bg-neutral-800" href="/post-task">
-          Post a Task
-        </a>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="text-gray-500">Loading...</div>
       </div>
+    );
+  }
 
-      <div className="mt-5 grid gap-3">
-        {loading && <div className="text-sm text-neutral-600">Loading…</div>}
-        {!loading && tasks.length === 0 && <div className="text-sm text-neutral-600">No tasks yet.</div>}
-        {tasks.map((t) => <TaskCard key={t.id} task={t} />)}
-      </div>
-    </Page>
-  );
+  if (role === "tiler") {
+    return <TilerHome />;
+  }
+
+  return <HomeownerHome />;
 }
