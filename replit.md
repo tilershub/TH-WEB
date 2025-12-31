@@ -79,7 +79,12 @@ npm run dev
 - Build command: `npm run build`
 - Start command: `npm start`
 
+## Supabase Edge Functions
+Located in `/supabase/functions/`:
+- `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
+
 ## Recent Changes
+- **Dec 31, 2025**: Added Supabase Edge Function for secure bid placement - only tilers can bid, with RLS policies for defense in depth.
 - **Dec 31, 2025**: Created role-based home pages - homeowners see search bar, services grid, top tilers, blog posts, and how-to guides; tilers see available tasks and tiler-focused blog posts.
 - **Dec 31, 2025**: Added TILERS HUB branding header on all mobile pages, root URL (/) now redirects to /home.
 - **Dec 31, 2025**: Redesigned public tiler profile page with mobile-first layout matching the design reference - profile header with avatar/name/location/rating, Request Quote button, About Me section, My Skills grid with checkmarks, horizontal Portfolio gallery, and Reviews section.
