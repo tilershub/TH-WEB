@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 const links = [
+  { href: "/home", label: "Home" },
   { href: "/tasks", label: "Tasks" },
   { href: "/post-task", label: "Post Task" },
   { href: "/messages", label: "Messages" },

@@ -16,9 +16,9 @@ export default function BottomNav() {
         <div className="mx-auto max-w-5xl">
           <div className="relative h-20 flex items-center justify-around px-6">
             <Link
-              href="/tasks"
+              href="/home"
               className={`flex flex-col items-center justify-center gap-1 ${
-                isActive(pathname, "/tasks")
+                isActive(pathname, "/home")
                   ? "text-navy"
                   : "text-gray-500"
               }`}
