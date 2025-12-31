@@ -1,5 +1,6 @@
 import "./globals.css";
 import Header from "@/components/Header";
+import MobileHeader from "@/components/MobileHeader";
 import Footer from "@/components/Footer";
 import BottomNav from "@/components/BottomNav";
 
@@ -11,6 +12,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-white text-black">
+        {/* Mobile Header */}
+        <MobileHeader />
+
         {/* Desktop Header */}
         <div className="hidden md:block">
           <Header />
