@@ -84,6 +84,7 @@ Located in `/supabase/functions/`:
 - `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
 
 ## Recent Changes
+- **Dec 31, 2025**: Created missing pages - `/tilers` (browse all tilers with search) and `/blog` (articles with category filters).
 - **Dec 31, 2025**: Improved bottom navigation bar to industry standards - filled/outlined icon states, smooth transitions, scale animations, glassmorphism effect, and proper label alignment.
 - **Dec 31, 2025**: Added Supabase Edge Function for secure bid placement - only tilers can bid, with RLS policies for defense in depth.
 - **Dec 31, 2025**: Created role-based home pages - homeowners see search bar, services grid, top tilers, blog posts, and how-to guides; tilers see available tasks and tiler-focused blog posts.
