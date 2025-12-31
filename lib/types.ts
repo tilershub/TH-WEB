@@ -9,14 +9,17 @@ export type Role = "homeowner" | "tiler";
 ========================= */
 
 export type ServiceKey =
-  | "staircase"
-  | "bathroom"
-  | "floor"
-  | "pantry_top"
+  | "floor_tiling"
+  | "wall_tiling"
+  | "staircase_tiling"
+  | "bathroom_tiling"
+  | "pantry_backsplash"
   | "waterproofing"
-  | "double_nosing";
+  | "screed"
+  | "demolition"
+  | "nosing";
 
-export type RateUnit = "LKR/sqft" | "LKR/ft" | "LKR/job";
+export type RateUnit = "LKR/sqft" | "LKR/ft" | "LKR/job" | "LKR/step";
 
 export type ServiceRateItem = {
   rate: number | null;
