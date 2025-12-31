@@ -84,14 +84,17 @@ export default function HomeownerHome() {
 
   useEffect(() => {
     const loadTilers = async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("role", "tiler")
-        .eq("availability_status", "available")
-        .limit(10);
+      try {
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("role", "tiler")
+          .limit(10);
 
-      if (data) setTilers(data as Profile[]);
+        if (!error && data) setTilers(data as Profile[]);
+      } catch (e) {
+        console.error("Failed to load tilers:", e);
+      }
       setLoading(false);
     };
     loadTilers();
