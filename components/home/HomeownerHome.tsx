@@ -11,12 +11,12 @@ import GuideCard from "./GuideCard";
 import { SkeletonTilerCard } from "@/components/Skeleton";
 
 const SERVICES = [
-  { title: "Floor Tiling", href: "/post-task?service=floor_tiling", icon: <FloorIcon /> },
-  { title: "Wall Tiling", href: "/post-task?service=wall_tiling", icon: <WallIcon /> },
-  { title: "Bathroom", href: "/post-task?service=bathroom_tiling", icon: <BathroomIcon /> },
-  { title: "Staircase", href: "/post-task?service=staircase_tiling", icon: <StaircaseIcon /> },
-  { title: "Pantry", href: "/post-task?service=pantry_backsplash", icon: <PantryIcon /> },
-  { title: "Waterproofing", href: "/post-task?service=waterproofing", icon: <WaterIcon /> },
+  { title: "Floor Tiling", href: "/services/floor_tiling", icon: <FloorIcon /> },
+  { title: "Wall Tiling", href: "/services/wall_tiling", icon: <WallIcon /> },
+  { title: "Bathroom", href: "/services/bathroom_tiling", icon: <BathroomIcon /> },
+  { title: "Staircase", href: "/services/staircase_tiling", icon: <StaircaseIcon /> },
+  { title: "Pantry", href: "/services/pantry_backsplash", icon: <PantryIcon /> },
+  { title: "Waterproofing", href: "/services/waterproofing", icon: <WaterIcon /> },
 ];
 
 const BLOG_POSTS = [
