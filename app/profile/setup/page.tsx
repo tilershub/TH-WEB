@@ -118,42 +118,74 @@ export default function ProfileSetupPage() {
 
         setMeId(user.id);
 
+        // Fetch profile
         const p = await supabase
           .from("profiles")
           .select("*")
           .eq("id", user.id)
           .maybeSingle();
 
-        if (p.error) throw p.error;
+        if (p.error) {
+          console.error("Profile fetch error:", p.error);
+          throw new Error(`Profile error: ${p.error.message}`);
+        }
 
         const prof = (p.data ?? null) as Profile | null;
+        
+        // If no profile exists, create one
+        if (!prof) {
+          const { error: insertError } = await supabase
+            .from("profiles")
+            .insert({
+              id: user.id,
+              role: "tiler",
+              display_name: user.email?.split("@")[0] || "User",
+            });
+          
+          if (insertError) {
+            console.error("Profile insert error:", insertError);
+            throw new Error(`Could not create profile: ${insertError.message}`);
+          }
+          
+          // Reload to get the new profile
+          window.location.reload();
+          return;
+        }
+        
         setProfile(prof);
 
-        if (prof?.role && prof.role !== "tiler") {
+        // If user is homeowner, redirect to regular profile page
+        if (prof.role === "homeowner") {
           window.location.href = "/profile";
           return;
         }
 
-        setFullName(prof?.full_name ?? "");
-        setBio(prof?.bio ?? "");
-        setNicNo(prof?.nic_no ?? "");
-        setAddress(prof?.address ?? "");
-        setWhatsapp(prof?.whatsapp ?? "");
-        setDistrict(prof?.district ?? "");
-        setCity(prof?.city ?? "");
-        setServiceRates((prof?.service_rates ?? {}) as ServiceRates);
-        setAvailabilityStatus(prof?.availability_status ?? "available");
-        setWorkingDistricts(prof?.working_districts ?? []);
-        setYearsExperience(prof?.years_experience ?? null);
+        setFullName(prof.full_name ?? "");
+        setBio(prof.bio ?? "");
+        setNicNo(prof.nic_no ?? "");
+        setAddress(prof.address ?? "");
+        setWhatsapp(prof.whatsapp ?? "");
+        setDistrict(prof.district ?? "");
+        setCity(prof.city ?? "");
+        setServiceRates((prof.service_rates ?? {}) as ServiceRates);
+        setAvailabilityStatus(prof.availability_status ?? "available");
+        setWorkingDistricts(prof.working_districts ?? []);
+        setYearsExperience(prof.years_experience ?? null);
 
-        const { data: certs } = await supabase
-          .from("certifications")
-          .select("*")
-          .eq("tiler_id", user.id)
-          .order("created_at", { ascending: false });
+        // Fetch certifications (ignore errors if table doesn't exist yet)
+        try {
+          const { data: certs } = await supabase
+            .from("certifications")
+            .select("*")
+            .eq("tiler_id", user.id)
+            .order("created_at", { ascending: false });
 
-        setCertifications((certs as Certification[]) ?? []);
+          setCertifications((certs as Certification[]) ?? []);
+        } catch (certErr) {
+          console.warn("Could not load certifications:", certErr);
+        }
       } catch (err: any) {
+        console.error("Load error:", err);
         setMsg({ type: "error", text: err?.message || "Failed to load profile" });
       } finally {
         setLoading(false);
