@@ -59,8 +59,9 @@ export default function AuthPage() {
           .from("profiles")
           .upsert({
             id: data.user.id,
+            email: data.user.email,
             role,
-            display_name: email.split("@")[0],
+            full_name: email.split("@")[0],
           }, { onConflict: "id" });
 
         if (profileError) {
