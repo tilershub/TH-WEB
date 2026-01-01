@@ -146,7 +146,7 @@ WITH CHECK (
 );
 
 -- SECURITY: Trigger to prevent privilege escalation
--- Only existing admins can modify the is_admin field
+-- Only existing admins or service-role (for bootstrapping) can modify the is_admin field
 CREATE OR REPLACE FUNCTION protect_is_admin()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -154,6 +154,12 @@ DECLARE
 BEGIN
   -- Check if the is_admin field is being changed
   IF OLD.is_admin IS DISTINCT FROM NEW.is_admin THEN
+    -- Allow service-role operations (auth.uid() is NULL)
+    -- This enables bootstrapping the first admin via SQL editor
+    IF auth.uid() IS NULL THEN
+      RETURN NEW;
+    END IF;
+    
     -- Get current user's admin status
     SELECT is_admin INTO current_user_is_admin
     FROM public.profiles
