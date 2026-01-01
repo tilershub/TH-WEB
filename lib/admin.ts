@@ -33,15 +33,30 @@ export type Guide = {
   updated_at: string;
 };
 
-export async function checkIsAdmin(userId: string): Promise<boolean> {
+export async function checkIsAdmin(userId: string): Promise<{ isAdmin: boolean; error?: string }> {
   const { data, error } = await supabase
     .from("profiles")
     .select("is_admin")
     .eq("id", userId)
     .single();
 
-  if (error || !data) return false;
-  return data.is_admin === true;
+  if (error) {
+    console.error("Admin check error:", error);
+    if (error.message.includes("is_admin")) {
+      return { isAdmin: false, error: "migration_needed" };
+    }
+    return { isAdmin: false, error: error.message };
+  }
+  
+  if (!data) {
+    return { isAdmin: false, error: "profile_not_found" };
+  }
+  
+  if (data.is_admin !== true) {
+    return { isAdmin: false, error: "not_admin" };
+  }
+  
+  return { isAdmin: true };
 }
 
 export async function getAdminStats() {
