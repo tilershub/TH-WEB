@@ -29,18 +29,22 @@ CREATE INDEX IF NOT EXISTS idx_portfolio_featured ON tiler_portfolio(tiler_id, i
 ALTER TABLE tiler_portfolio ENABLE ROW LEVEL SECURITY;
 
 -- Portfolio policies
+DROP POLICY IF EXISTS "Portfolio items are viewable by everyone" ON tiler_portfolio;
 CREATE POLICY "Portfolio items are viewable by everyone"
   ON tiler_portfolio FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Tilers can insert their own portfolio items" ON tiler_portfolio;
 CREATE POLICY "Tilers can insert their own portfolio items"
   ON tiler_portfolio FOR INSERT
   WITH CHECK (auth.uid() = tiler_id);
 
+DROP POLICY IF EXISTS "Tilers can update their own portfolio items" ON tiler_portfolio;
 CREATE POLICY "Tilers can update their own portfolio items"
   ON tiler_portfolio FOR UPDATE
   USING (auth.uid() = tiler_id);
 
+DROP POLICY IF EXISTS "Tilers can delete their own portfolio items" ON tiler_portfolio;
 CREATE POLICY "Tilers can delete their own portfolio items"
   ON tiler_portfolio FOR DELETE
   USING (auth.uid() = tiler_id);

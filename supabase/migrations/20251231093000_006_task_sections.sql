@@ -17,11 +17,13 @@ create index if not exists idx_task_sections_task_id on public.task_sections(tas
 alter table public.task_sections enable row level security;
 
 -- Anyone can read task sections (for viewing task details)
+DROP POLICY IF EXISTS "Anyone can view task sections" ON public.task_sections;
 create policy "Anyone can view task sections"
   on public.task_sections for select
   using (true);
 
 -- Only the task owner can insert sections
+DROP POLICY IF EXISTS "Task owners can insert sections" ON public.task_sections;
 create policy "Task owners can insert sections"
   on public.task_sections for insert
   with check (
@@ -33,6 +35,7 @@ create policy "Task owners can insert sections"
   );
 
 -- Only the task owner can update sections
+DROP POLICY IF EXISTS "Task owners can update sections" ON public.task_sections;
 create policy "Task owners can update sections"
   on public.task_sections for update
   using (
@@ -44,6 +47,7 @@ create policy "Task owners can update sections"
   );
 
 -- Only the task owner can delete sections
+DROP POLICY IF EXISTS "Task owners can delete sections" ON public.task_sections;
 create policy "Task owners can delete sections"
   on public.task_sections for delete
   using (
