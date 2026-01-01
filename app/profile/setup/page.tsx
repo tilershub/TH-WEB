@@ -382,12 +382,12 @@ export default function TilerProfileSetup() {
           <section className="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div className="relative h-32 bg-gradient-to-r from-primary to-primary-dark">
               {coverUrl && (
-                <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+                <img src={coverUrl} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
               )}
               <button
                 onClick={() => coverInputRef.current?.click()}
                 disabled={uploadingCover}
-                className="absolute bottom-2 right-2 bg-white/90 text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-white transition-colors flex items-center gap-1"
+                className="absolute bottom-2 right-2 z-10 bg-white text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors flex items-center gap-1 shadow-md"
               >
                 {uploadingCover ? (
                   "Uploading..."
