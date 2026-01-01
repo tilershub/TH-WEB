@@ -245,6 +245,36 @@ export default function HomeownerEditPage() {
             </div>
           </div>
 
+          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
+                <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-navy">Are you a professional tiler?</h3>
+                <p className="text-sm text-gray-600 mt-1">Switch to a tiler account to find jobs, showcase your work, and grow your business.</p>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const confirmed = window.confirm("Switch to a Tiler account? You'll be able to set up your services and portfolio.");
+                    if (confirmed) {
+                      const { data: { user } } = await supabase.auth.getUser();
+                      if (user) {
+                        await supabase.from("profiles").update({ role: "tiler" }).eq("id", user.id);
+                        router.push("/profile/setup");
+                      }
+                    }
+                  }}
+                  className="mt-3 text-sm font-medium text-primary hover:underline"
+                >
+                  Become a Tiler →
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="flex gap-3">
             <Button
               variant="secondary"
