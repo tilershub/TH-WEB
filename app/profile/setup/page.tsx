@@ -127,37 +127,25 @@ export default function ProfileSetupPage() {
 
         if (p.error) {
           console.error("Profile fetch error:", p.error);
+          // Check if it's an RLS error which means tables might not exist
+          if (p.error.message.includes("row-level security") || p.error.message.includes("does not exist")) {
+            throw new Error("Database not set up. Please run the migrations in Supabase SQL Editor.");
+          }
           throw new Error(`Profile error: ${p.error.message}`);
         }
 
         const prof = (p.data ?? null) as Profile | null;
         
-        // If no profile exists, create one
+        // If no profile exists, show error - profile should be auto-created on signup
         if (!prof) {
-          const { error: insertError } = await supabase
-            .from("profiles")
-            .insert({
-              id: user.id,
-              role: "tiler",
-              display_name: user.email?.split("@")[0] || "User",
-            });
-          
-          if (insertError) {
-            console.error("Profile insert error:", insertError);
-            throw new Error(`Could not create profile: ${insertError.message}`);
-          }
-          
-          // Reload to get the new profile
-          window.location.reload();
-          return;
+          throw new Error("Profile not found. Please sign out and sign in again, or run the database migrations.");
         }
         
         setProfile(prof);
 
-        // If user is homeowner, redirect to regular profile page
+        // If user is homeowner, ask them to become a tiler first
         if (prof.role === "homeowner") {
-          window.location.href = "/profile";
-          return;
+          throw new Error("Please switch to a tiler account first. Go to Profile > Edit Profile and click 'Become a Tiler'.");
         }
 
         setFullName(prof.full_name ?? "");
