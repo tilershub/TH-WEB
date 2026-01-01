@@ -1,0 +1,289 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import Link from "next/link";
+import { getGuide, updateGuide, type Guide, type GuideStep } from "@/lib/admin";
+
+const ICONS = ["home", "user", "edit", "scale", "droplet", "kitchen", "sun", "sparkle", "book", "tool"];
+
+export default function EditGuidePage() {
+  const router = useRouter();
+  const params = useParams();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    title: "",
+    slug: "",
+    description: "",
+    icon: "book",
+    is_published: false,
+  });
+  const [steps, setSteps] = useState<GuideStep[]>([]);
+
+  useEffect(() => {
+    async function loadGuide() {
+      const { data, error } = await getGuide(params.id as string);
+      if (error || !data) {
+        router.push("/admin/guides");
+        return;
+      }
+      setForm({
+        title: data.title,
+        slug: data.slug,
+        description: data.description || "",
+        icon: data.icon,
+        is_published: data.is_published,
+      });
+      setSteps(data.steps || [{ title: "", content: [""] }]);
+      setLoading(false);
+    }
+    loadGuide();
+  }, [params.id, router]);
+
+  const addStep = () => {
+    setSteps([...steps, { title: "", content: [""] }]);
+  };
+
+  const removeStep = (index: number) => {
+    setSteps(steps.filter((_, i) => i !== index));
+  };
+
+  const updateStepTitle = (index: number, title: string) => {
+    const newSteps = [...steps];
+    newSteps[index].title = title;
+    setSteps(newSteps);
+  };
+
+  const updateStepContent = (stepIndex: number, contentIndex: number, value: string) => {
+    const newSteps = [...steps];
+    newSteps[stepIndex].content[contentIndex] = value;
+    setSteps(newSteps);
+  };
+
+  const addContentItem = (stepIndex: number) => {
+    const newSteps = [...steps];
+    newSteps[stepIndex].content.push("");
+    setSteps(newSteps);
+  };
+
+  const removeContentItem = (stepIndex: number, contentIndex: number) => {
+    const newSteps = [...steps];
+    newSteps[stepIndex].content = newSteps[stepIndex].content.filter((_, i) => i !== contentIndex);
+    setSteps(newSteps);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    setError("");
+
+    const validSteps = steps.filter(s => s.title.trim() && s.content.some(c => c.trim()));
+
+    const { error } = await updateGuide(params.id as string, {
+      ...form,
+      steps: validSteps,
+    });
+
+    if (error) {
+      setError(error.message);
+      setSaving(false);
+    } else {
+      router.push("/admin/guides");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl space-y-6">
+      <div className="flex items-center gap-4">
+        <Link href="/admin/guides" className="p-2 hover:bg-gray-100 rounded-lg">
+          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-navy">Edit Guide</h1>
+          <p className="text-gray-600">Update guide content</p>
+        </div>
+      </div>
+
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
+          <h2 className="font-semibold text-navy">Guide Details</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Title *</label>
+              <input
+                type="text"
+                required
+                value={form.title}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">URL Slug</label>
+              <div className="flex items-center">
+                <span className="text-gray-500 text-sm mr-2">/guides/</span>
+                <input
+                  type="text"
+                  value={form.slug}
+                  onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
+                  className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Icon</label>
+              <select
+                value={form.icon}
+                onChange={(e) => setForm((f) => ({ ...f, icon: e.target.value }))}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              >
+                {ICONS.map((icon) => (
+                  <option key={icon} value={icon}>{icon}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <textarea
+                value={form.description}
+                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                rows={2}
+                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-navy">Steps</h2>
+            <button
+              type="button"
+              onClick={addStep}
+              className="text-sm text-primary hover:text-primary-dark font-medium"
+            >
+              + Add Step
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            {steps.map((step, stepIndex) => (
+              <div key={stepIndex} className="border rounded-lg p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-gray-500">Step {stepIndex + 1}</span>
+                  {steps.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeStep(stepIndex)}
+                      className="text-red-500 hover:text-red-600 text-sm"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Step Title *</label>
+                  <input
+                    type="text"
+                    value={step.title}
+                    onChange={(e) => updateStepTitle(stepIndex, e.target.value)}
+                    className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+                  />
+                </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-gray-700">Content Points</label>
+                    <button
+                      type="button"
+                      onClick={() => addContentItem(stepIndex)}
+                      className="text-xs text-primary hover:text-primary-dark"
+                    >
+                      + Add Point
+                    </button>
+                  </div>
+                  <div className="space-y-2">
+                    {step.content.map((content, contentIndex) => (
+                      <div key={contentIndex} className="flex gap-2">
+                        <input
+                          type="text"
+                          value={content}
+                          onChange={(e) => updateStepContent(stepIndex, contentIndex, e.target.value)}
+                          className="flex-1 px-4 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none text-sm"
+                        />
+                        {step.content.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeContentItem(stepIndex, contentIndex)}
+                            className="p-2 text-gray-400 hover:text-red-500"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex items-center justify-between">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.is_published}
+                onChange={(e) => setForm((f) => ({ ...f, is_published: e.target.checked }))}
+                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <span className="text-sm text-gray-700">Published</span>
+            </label>
+
+            <div className="flex gap-3">
+              <Link
+                href="/admin/guides"
+                className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Cancel
+              </Link>
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-6 py-2 bg-primary hover:bg-primary-dark text-white font-medium rounded-lg transition-colors disabled:opacity-50"
+              >
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+}
