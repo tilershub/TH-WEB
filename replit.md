@@ -36,15 +36,23 @@ Each service section supports:
 - Additional notes field
 
 ### Tiler Profile Customization
-The tiler profile system includes a 5-step setup wizard:
+The tiler profile system uses **progressive editing with expandable sections** (like Facebook profile):
 
-1. **Basic Info**: Full name, NIC, WhatsApp, location, bio, profile/cover photos
-2. **Services & Rates**: Set rates for 9 service types aligned with post task flow:
+Tilers can update their profile progressively by expanding individual sections:
+1. **Profile Photos**: Cover photo and profile photo uploads
+2. **Basic Information**: Full name, bio, NIC, WhatsApp, district, city, address
+3. **Services & Rates**: Toggle services on/off and set rates for each enabled service
    - Floor Tiling, Wall Tiling, Staircase Tiling, Bathroom Tiling
    - Pantry/Backsplash, Waterproofing, Screed, Demolition, Nosing
-3. **Availability**: Availability status (available/busy/unavailable), working districts, years of experience
-4. **Portfolio**: Gallery of completed work samples with before/after photos
-5. **Certifications**: Professional qualifications and certificates
+4. **Availability**: Status (available/busy/unavailable), working districts, years of experience
+5. **Portfolio**: Gallery of completed work samples with before/after photos
+6. **Certifications**: Professional qualifications and certificates
+
+Each section:
+- Has its own "Save Changes" button for independent updates
+- Shows completion status (checkmark when complete)
+- Can be expanded/collapsed independently
+- Progress bar shows overall profile completion (X/5 complete)
 
 Public tiler profile page (`/tilers/[id]`) - mobile-first design:
 - **Profile header**: Circular avatar, name, location with pin icon, star rating
@@ -98,8 +106,9 @@ Located in `/supabase/functions/`:
 - `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
 
 ## Recent Changes
+- **Jan 1, 2026**: Redesigned tiler profile setup (`/profile/setup`) with progressive editing using expandable sections like Facebook - each section saves independently, shows completion status, and has a progress bar. Added "Become a Tiler" option to homeowner profile edit page.
 - **Jan 1, 2026**: Added comprehensive admin dashboard (`/admin`) with Supabase auth protection. Includes users management, blog posts CRUD, guides CRUD with step builder, and tasks moderation. Added RLS policies for admin access to profiles/tasks/blog_posts/guides.
-- **Jan 1, 2026**: Fixed profile edit confusion - homeowners now have a simple edit page (`/profile/edit`) while tilers use the 5-step wizard (`/profile/setup`).
+- **Jan 1, 2026**: Fixed profile edit confusion - homeowners now have a simple edit page (`/profile/edit`) while tilers use progressive profile setup (`/profile/setup`).
 - **Jan 1, 2026**: Added service-specific pages (`/services/[service]`) showing available tilers, related blog articles, and how-to guides for each service type.
 - **Jan 1, 2026**: Performance optimizations - Next.js Image config for Supabase, skeleton loading components, memoized components, pagination on tilers page, optimized Supabase queries.
 - **Dec 31, 2025**: Added full blog articles (8 posts with complete content) and how-to guides section (8 step-by-step guides) with individual pages.
