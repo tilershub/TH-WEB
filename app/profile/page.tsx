@@ -96,12 +96,25 @@ export default function ProfilePage() {
     }).map(svc => {
       const rateData = profile.service_rates?.[svc.key];
       return {
+        key: svc.key,
         label: svc.label,
         rate: rateData?.rate,
-        unit: rateData?.unit || svc.unit
+        unit: rateData?.unit || svc.unit,
+        photo_path: rateData?.photo_path || null
       };
     });
   }, [profile?.service_rates]);
+
+  const servicePortfolioImages = useMemo(() => {
+    return skillsWithRates
+      .filter(skill => skill.photo_path)
+      .map(skill => ({
+        key: skill.key,
+        label: skill.label,
+        url: getPublicUrl("portfolio", skill.photo_path)
+      }))
+      .filter(img => img.url);
+  }, [skillsWithRates]);
 
   const isTiler = profile?.role === "tiler";
   const hasCompletedTilerProfile = profile?.profile_completed === true;
@@ -372,11 +385,31 @@ export default function ProfilePage() {
             </>
           )}
 
-          {portfolio.length > 0 ? (
+          {(portfolio.length > 0 || servicePortfolioImages.length > 0) ? (
             <>
               <div className="px-5 py-5">
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Portfolio</h2>
                 <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
+                  {servicePortfolioImages.map((img) => (
+                    <div
+                      key={img.key}
+                      className="flex-shrink-0 relative"
+                    >
+                      <div
+                        className="w-32 h-24 rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => setSelectedImage(img.url)}
+                      >
+                        <img
+                          src={img.url || ""}
+                          alt={img.label}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">
+                        {img.label}
+                      </span>
+                    </div>
+                  ))}
                   {portfolio.map((item) => {
                     const imgUrl = getPublicUrl("tiler-portfolio", item.image_path);
                     return (
@@ -401,7 +434,7 @@ export default function ProfilePage() {
             <>
               <div className="px-5 py-5">
                 <h2 className="text-lg font-bold text-gray-900 mb-3">Portfolio</h2>
-                <p className="text-gray-500 text-sm">No work samples added yet. Add portfolio items to showcase your work.</p>
+                <p className="text-gray-500 text-sm">No work samples added yet. Upload images for your services to showcase your work.</p>
               </div>
               <div className="border-t border-gray-100" />
             </>

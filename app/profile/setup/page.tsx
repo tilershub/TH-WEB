@@ -42,6 +42,7 @@ type Profile = {
 type ServiceRate = {
   rate: number | null;
   unit: string;
+  photo_path?: string | null;
 };
 
 export default function TilerProfileSetup() {
@@ -77,6 +78,8 @@ export default function TilerProfileSetup() {
   const [newCertTitle, setNewCertTitle] = useState("");
   const [newCertIssuer, setNewCertIssuer] = useState("");
   const [newCertFile, setNewCertFile] = useState<File | null>(null);
+  const [uploadingServiceImage, setUploadingServiceImage] = useState<string | null>(null);
+  const serviceImageRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     loadProfile();
@@ -269,6 +272,34 @@ export default function TilerProfileSetup() {
     }
   };
 
+  const handleServiceImageUpload = async (serviceKey: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    setUploadingServiceImage(serviceKey);
+    setError(null);
+
+    try {
+      const path = generateFilePath(profile.id, `services/${serviceKey}`, file);
+      await uploadFile("portfolio", path, file);
+
+      setServiceRates(prev => ({
+        ...prev,
+        [serviceKey]: {
+          ...prev[serviceKey],
+          photo_path: path,
+        }
+      }));
+
+      setSuccess("Service image uploaded!");
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err?.message || "Failed to upload service image");
+    } finally {
+      setUploadingServiceImage(null);
+    }
+  };
+
   const handleSave = async () => {
     if (!profile) return;
 
@@ -284,7 +315,8 @@ export default function TilerProfileSetup() {
           const existing = serviceRates[key];
           finalServiceRates[key] = { 
             rate: existing?.rate ?? null, 
-            unit: svc.unit 
+            unit: svc.unit,
+            photo_path: existing?.photo_path ?? null,
           };
         }
       });
@@ -342,7 +374,11 @@ export default function TilerProfileSetup() {
     const svc = SERVICES.find(s => s.key === key);
     setServiceRates(prev => ({
       ...prev,
-      [key]: { rate: numRate, unit: svc?.unit || "LKR/sqft" }
+      [key]: { 
+        ...prev[key],
+        rate: numRate, 
+        unit: svc?.unit || "LKR/sqft" 
+      }
     }));
   };
 
@@ -579,7 +615,7 @@ export default function TilerProfileSetup() {
                     </button>
                     
                     {isSelected && (
-                      <div className="px-3 pb-3 pt-0">
+                      <div className="px-3 pb-3 pt-0 space-y-3">
                         <div className="flex items-center gap-2 ml-8">
                           <span className="text-xs text-gray-500">Rate:</span>
                           <input
@@ -590,6 +626,52 @@ export default function TilerProfileSetup() {
                             className="w-24 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-primary focus:border-primary"
                           />
                           <span className="text-xs text-gray-500">{service.unit}</span>
+                        </div>
+                        
+                        <div className="ml-8">
+                          <p className="text-xs text-gray-500 mb-2">Add a sample work photo for this service (shows in portfolio)</p>
+                          <div className="flex items-center gap-3">
+                            {serviceRates[service.key]?.photo_path ? (
+                              <img 
+                                src={getPublicUrl("portfolio", serviceRates[service.key].photo_path!) || ""}
+                                alt={`${service.label} sample`}
+                                className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                              />
+                            ) : (
+                              <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => serviceImageRefs.current[service.key]?.click()}
+                              disabled={uploadingServiceImage === service.key}
+                              className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-1"
+                            >
+                              {uploadingServiceImage === service.key ? (
+                                <>
+                                  <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
+                                  Uploading...
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                  </svg>
+                                  {serviceRates[service.key]?.photo_path ? "Change" : "Upload"}
+                                </>
+                              )}
+                            </button>
+                            <input
+                              ref={(el) => { serviceImageRefs.current[service.key] = el; }}
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleServiceImageUpload(service.key, e)}
+                              className="hidden"
+                            />
+                          </div>
                         </div>
                       </div>
                     )}
