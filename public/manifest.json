@@ -1,0 +1,9 @@
+{
+  "name": "Tilers Hub",
+  "short_name": "TilersHub",
+  "description": "Connect with professional tilers in Sri Lanka",
+  "start_url": "/home",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#16a34a"
+}

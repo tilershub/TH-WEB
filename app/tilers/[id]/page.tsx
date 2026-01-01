@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import { SERVICES } from "@/lib/services";
 import type { Profile, PortfolioItem } from "@/lib/types";
@@ -38,13 +39,14 @@ function waLink(phone?: string | null, text?: string) {
 
 function StarRating({ rating, reviewCount }: { rating: number; reviewCount: number }) {
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-1" role="img" aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars, ${reviewCount} reviews`}>
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
           key={star}
           className={`w-5 h-5 ${star <= rating ? "text-yellow-400" : "text-gray-300"}`}
           fill="currentColor"
           viewBox="0 0 20 20"
+          aria-hidden="true"
         >
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
         </svg>
@@ -179,20 +181,33 @@ export default function PublicTilerProfilePage() {
       <div className="max-w-lg mx-auto bg-white min-h-screen shadow-lg">
         {coverUrl ? (
           <div className="relative h-40 bg-gradient-to-br from-primary to-primary-dark">
-            <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+            <Image 
+              src={coverUrl} 
+              alt={`${tiler.display_name || "Tiler"}'s cover photo`}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 512px"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" aria-hidden="true" />
           </div>
         ) : (
-          <div className="h-40 bg-gradient-to-br from-primary to-primary-dark" />
+          <div className="h-40 bg-gradient-to-br from-primary to-primary-dark" role="img" aria-label="Default cover background" />
         )}
 
         <div className="px-5 -mt-12 relative z-10">
           <div className="flex items-end gap-4">
-            <div className="w-24 h-24 rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0 shadow-lg">
+            <div className="w-24 h-24 rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0 shadow-lg relative">
               {avatarUrl ? (
-                <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                <Image 
+                  src={avatarUrl} 
+                  alt={`${tiler.display_name || "Tiler"}'s profile photo`}
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-white text-3xl font-bold">
+                <div className="w-full h-full flex items-center justify-center text-white text-3xl font-bold" role="img" aria-label={`${tiler.display_name || "Tiler"}'s initials`}>
                   {tiler.display_name?.[0]?.toUpperCase() || "T"}
                 </div>
               )}
@@ -291,22 +306,26 @@ export default function PublicTilerProfilePage() {
           <>
             <div className="px-5 py-5">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Portfolio</h2>
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide" role="list" aria-label="Portfolio gallery">
                 {allPortfolioImages.map((item, idx) => (
-                  <div
+                  <button
                     key={idx}
-                    className="flex-shrink-0 w-36 cursor-pointer hover:opacity-90 transition-opacity"
+                    type="button"
+                    className="flex-shrink-0 w-36 cursor-pointer hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xl"
                     onClick={() => setSelectedImage(item.url)}
+                    aria-label={`View ${item.label} portfolio image`}
                   >
-                    <div className="w-36 h-28 rounded-xl overflow-hidden">
-                      <img
+                    <div className="w-36 h-28 rounded-xl overflow-hidden relative">
+                      <Image
                         src={item.url || ""}
-                        alt={item.label}
-                        className="w-full h-full object-cover"
+                        alt={`${item.label} - tiling work sample`}
+                        fill
+                        className="object-cover"
+                        sizes="144px"
                       />
                     </div>
                     <p className="text-xs text-gray-500 mt-1 text-center truncate">{item.label}</p>
-                  </div>
+                  </button>
                 ))}
               </div>
             </div>
@@ -318,24 +337,26 @@ export default function PublicTilerProfilePage() {
           <>
             <div className="px-5 py-5">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Certifications</h2>
-              <div className="space-y-3">
+              <div className="space-y-3" role="list" aria-label="Professional certifications">
                 {certifications.map((cert) => {
                   const certImgUrl = pub("certifications", cert.image_path);
                   return (
-                    <div key={cert.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div key={cert.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl" role="listitem">
                       {certImgUrl && (
-                        <div 
-                          className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer"
+                        <button 
+                          type="button"
+                          className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative"
                           onClick={() => setSelectedImage(certImgUrl)}
+                          aria-label={`View ${cert.title} certificate`}
                         >
-                          <img src={certImgUrl} alt={cert.title} className="w-full h-full object-cover" />
-                        </div>
+                          <Image src={certImgUrl} alt={`${cert.title} certificate from ${cert.issuer}`} fill className="object-cover" sizes="48px" />
+                        </button>
                       )}
                       <div className="flex-1 min-w-0">
                         <h3 className="font-medium text-gray-800 truncate">{cert.title}</h3>
                         <p className="text-sm text-gray-500 truncate">{cert.issuer}</p>
                       </div>
-                      <svg className="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <svg className="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                         <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
                     </div>
@@ -428,18 +449,23 @@ export default function PublicTilerProfilePage() {
         <div
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Image lightbox"
         >
           <button
-            className="absolute top-4 right-4 text-white p-2 hover:bg-white/10 rounded-full"
+            type="button"
+            className="absolute top-4 right-4 text-white p-2 hover:bg-white/10 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             onClick={() => setSelectedImage(null)}
+            aria-label="Close image viewer"
           >
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
           <img
             src={selectedImage}
-            alt="Portfolio"
+            alt="Enlarged portfolio image"
             className="max-w-full max-h-[90vh] object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />
