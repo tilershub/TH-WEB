@@ -2,6 +2,13 @@
 const nextConfig = {
   output: 'standalone',
   reactStrictMode: true,
+  webpack: (config, { isServer }) => {
+    config.watchOptions = {
+      ...config.watchOptions,
+      ignored: ['**/supabase/functions/**'],
+    };
+    return config;
+  },
   images: {
     remotePatterns: [
       {

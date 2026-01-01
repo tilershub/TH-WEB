@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,7 +12,7 @@ function pub(bucket: string, path?: string | null) {
   return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 }
 
-export default function NewConversationPage() {
+function NewConversationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tilerId = searchParams.get("tiler");
@@ -240,5 +240,17 @@ export default function NewConversationPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function NewConversationPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-600">Loading...</div>
+      </div>
+    }>
+      <NewConversationContent />
+    </Suspense>
   );
 }
