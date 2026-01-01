@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/lib/supabaseClient";
 import type { Profile } from "@/lib/types";
+import { SkeletonCard } from "@/components/Skeleton";
+
+const TILERS_PER_PAGE = 10;
 
 function pub(bucket: string, path?: string | null) {
   if (!path) return null;
@@ -17,9 +21,15 @@ function TilerCard({ tiler }: { tiler: Profile }) {
   return (
     <Link href={`/tilers/${tiler.id}`} className="card hover:shadow-card-hover transition-shadow">
       <div className="flex gap-4 p-4">
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0 relative">
           {avatarUrl ? (
-            <img src={avatarUrl} alt={tiler.display_name || "Tiler"} className="w-full h-full object-cover" />
+            <Image 
+              src={avatarUrl} 
+              alt={tiler.display_name || "Tiler"} 
+              fill
+              sizes="64px"
+              className="object-cover"
+            />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white text-xl font-bold">
               {tiler.display_name?.[0]?.toUpperCase() || "T"}
@@ -70,34 +80,60 @@ function TilerCard({ tiler }: { tiler: Profile }) {
 export default function TilersPage() {
   const [tilers, setTilers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState("");
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(0);
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const { data } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("role", "tiler")
-          .order("created_at", { ascending: false });
+  const loadTilers = useCallback(async (pageNum: number, append = false) => {
+    if (pageNum === 0) setLoading(true);
+    else setLoadingMore(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_path, city, district, years_experience, role")
+        .eq("role", "tiler")
+        .order("created_at", { ascending: false })
+        .range(pageNum * TILERS_PER_PAGE, (pageNum + 1) * TILERS_PER_PAGE - 1);
 
-        if (data) setTilers(data as Profile[]);
-      } catch (e) {
-        console.error("Failed to load tilers:", e);
+      if (!error && data) {
+        if (append) {
+          setTilers(prev => [...prev, ...(data as Profile[])]);
+        } else {
+          setTilers(data as Profile[]);
+        }
+        setHasMore(data.length === TILERS_PER_PAGE);
       }
-      setLoading(false);
-    };
-    load();
+    } catch (e) {
+      console.error("Failed to load tilers:", e);
+    }
+    setLoading(false);
+    setLoadingMore(false);
   }, []);
 
-  const filteredTilers = tilers.filter((t) => {
-    if (!search.trim()) return true;
+  useEffect(() => {
+    loadTilers(0);
+  }, [loadTilers]);
+
+  const loadMore = () => {
+    if (!loadingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      loadTilers(nextPage, true);
+    }
+  };
+
+  const filteredTilers = useMemo(() => {
+    if (!search.trim()) return tilers;
     const q = search.toLowerCase();
-    const name = (t.display_name || "").toLowerCase();
-    const city = (t.city || "").toLowerCase();
-    const district = (t.district || "").toLowerCase();
-    return name.includes(q) || city.includes(q) || district.includes(q);
-  });
+    return tilers.filter((t) => {
+      const name = (t.display_name || "").toLowerCase();
+      const city = (t.city || "").toLowerCase();
+      const district = (t.district || "").toLowerCase();
+      return name.includes(q) || city.includes(q) || district.includes(q);
+    });
+  }, [tilers, search]);
 
   return (
     <div className="min-h-screen bg-gray-50 pb-28">
@@ -124,7 +160,11 @@ export default function TilersPage() {
         </div>
 
         {loading ? (
-          <div className="text-center py-8 text-gray-600">Loading tilers...</div>
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
         ) : filteredTilers.length === 0 ? (
           <div className="card p-8 text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
@@ -138,11 +178,25 @@ export default function TilersPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredTilers.map((tiler) => (
-              <TilerCard key={tiler.id} tiler={tiler} />
-            ))}
-          </div>
+          <>
+            <div className="space-y-3">
+              {filteredTilers.map((tiler) => (
+                <TilerCard key={tiler.id} tiler={tiler} />
+              ))}
+            </div>
+            
+            {hasMore && !search && (
+              <div className="text-center pt-4">
+                <button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-medium transition-colors disabled:opacity-50"
+                >
+                  {loadingMore ? "Loading..." : "Load More"}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

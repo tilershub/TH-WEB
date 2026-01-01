@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Profile } from "@/lib/types";
 
 type TilerCardProps = {
@@ -18,8 +19,6 @@ export default function TilerCard({ tiler }: TilerCardProps) {
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profile-avatars/${tiler.avatar_path}`
     : null;
 
-  const services = tiler.service_rates ? Object.keys(tiler.service_rates).slice(0, 2) : [];
-
   return (
     <Link
       href={`/tilers/${tiler.id}`}
@@ -27,7 +26,13 @@ export default function TilerCard({ tiler }: TilerCardProps) {
     >
       <div className="h-24 bg-gradient-to-br from-gray-100 to-gray-200 relative">
         {avatarUrl ? (
-          <img src={avatarUrl} alt={tiler.display_name || "Tiler"} className="w-full h-full object-cover" />
+          <Image 
+            src={avatarUrl} 
+            alt={tiler.display_name || "Tiler"} 
+            fill
+            sizes="160px"
+            className="object-cover"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,16 +65,6 @@ export default function TilerCard({ tiler }: TilerCardProps) {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             </svg>
             <span className="truncate">{tiler.district}</span>
-          </div>
-        )}
-
-        {services.length > 0 && (
-          <div className="mt-2 flex flex-wrap gap-1">
-            {services.map((s) => (
-              <span key={s} className="text-[10px] bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded">
-                {s.replace(/_/g, " ")}
-              </span>
-            ))}
           </div>
         )}
       </div>

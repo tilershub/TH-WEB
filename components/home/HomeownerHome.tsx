@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import type { Profile } from "@/lib/types";
 import SearchBar from "./SearchBar";
@@ -8,6 +8,7 @@ import ServiceCard from "./ServiceCard";
 import TilerCard from "./TilerCard";
 import BlogCard from "./BlogCard";
 import GuideCard from "./GuideCard";
+import { SkeletonTilerCard } from "@/components/Skeleton";
 
 const SERVICES = [
   { title: "Floor Tiling", href: "/post-task?service=floor_tiling", icon: <FloorIcon /> },
@@ -78,26 +79,36 @@ function WaterIcon() {
   );
 }
 
+const MemoizedTilerCard = memo(TilerCard);
+const MemoizedBlogCard = memo(BlogCard);
+const MemoizedGuideCard = memo(GuideCard);
+
 export default function HomeownerHome() {
   const [tilers, setTilers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+    
     const loadTilers = async () => {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select("*")
+          .select("id, display_name, avatar_path, city, district, years_experience")
           .eq("role", "tiler")
-          .limit(10);
+          .limit(6);
 
-        if (!error && data) setTilers(data as Profile[]);
+        if (!cancelled && !error && data) {
+          setTilers(data as Profile[]);
+        }
       } catch (e) {
         console.error("Failed to load tilers:", e);
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     };
+    
     loadTilers();
+    return () => { cancelled = true; };
   }, []);
 
   return (
@@ -123,11 +134,15 @@ export default function HomeownerHome() {
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex gap-3 px-4 pb-2">
             {loading ? (
-              <div className="text-sm text-gray-500">Loading...</div>
+              <>
+                <SkeletonTilerCard />
+                <SkeletonTilerCard />
+                <SkeletonTilerCard />
+              </>
             ) : tilers.length === 0 ? (
               <div className="text-sm text-gray-500">No tilers available</div>
             ) : (
-              tilers.map((t) => <TilerCard key={t.id} tiler={t} />)
+              tilers.map((t) => <MemoizedTilerCard key={t.id} tiler={t} />)
             )}
           </div>
         </div>
@@ -141,7 +156,7 @@ export default function HomeownerHome() {
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex gap-3 px-4 pb-2">
             {BLOG_POSTS.map((post) => (
-              <BlogCard
+              <MemoizedBlogCard
                 key={post.title}
                 title={post.title}
                 excerpt={post.excerpt}
@@ -160,7 +175,7 @@ export default function HomeownerHome() {
         </div>
         <div className="space-y-2">
           {GUIDES.map((guide) => (
-            <GuideCard
+            <MemoizedGuideCard
               key={guide.title}
               title={guide.title}
               steps={guide.steps}

@@ -84,6 +84,7 @@ Located in `/supabase/functions/`:
 - `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
 
 ## Recent Changes
+- **Jan 1, 2026**: Performance optimizations - Next.js Image config for Supabase, skeleton loading components, memoized components, pagination on tilers page, optimized Supabase queries.
 - **Dec 31, 2025**: Added full blog articles (8 posts with complete content) and how-to guides section (8 step-by-step guides) with individual pages.
 - **Dec 31, 2025**: Created missing pages - `/tilers` (browse all tilers with search) and `/blog` (articles with category filters).
 - **Dec 31, 2025**: Improved bottom navigation bar to industry standards - filled/outlined icon states, smooth transitions, scale animations, glassmorphism effect, and proper label alignment.
