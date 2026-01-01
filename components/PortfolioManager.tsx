@@ -38,14 +38,23 @@ export function PortfolioManager({ tilerId, disabled }: Props) {
 
   const loadPortfolio = async () => {
     setLoading(true);
-    const { data } = await supabase
-      .from("tiler_portfolio")
-      .select("*")
-      .eq("tiler_id", tilerId)
-      .order("is_featured", { ascending: false })
-      .order("created_at", { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from("tiler_portfolio")
+        .select("*")
+        .eq("tiler_id", tilerId)
+        .order("is_featured", { ascending: false })
+        .order("created_at", { ascending: false });
 
-    setItems((data ?? []) as PortfolioItem[]);
+      if (error) {
+        console.error("Portfolio load error:", error);
+        // Don't throw - just show empty portfolio
+      } else {
+        setItems((data ?? []) as PortfolioItem[]);
+      }
+    } catch (err) {
+      console.error("Portfolio load exception:", err);
+    }
     setLoading(false);
   };
 

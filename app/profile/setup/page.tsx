@@ -177,7 +177,8 @@ export default function ProfileSetupPage() {
           setCertifications((certs as Certification[]) ?? []);
         }
       } catch (err: any) {
-        console.error("Load error:", err);
+        console.error("PROFILE SETUP LOAD ERROR:", err);
+        console.error("Error stack:", err?.stack);
         setMsg({ type: "error", text: err?.message || "Failed to load profile" });
       } finally {
         setLoading(false);
@@ -186,6 +187,13 @@ export default function ProfileSetupPage() {
 
     load();
   }, []);
+
+  // Log any msg changes
+  useEffect(() => {
+    if (msg) {
+      console.log("MSG STATE CHANGED:", msg);
+    }
+  }, [msg]);
 
   const existingAvatar = useMemo(
     () => getPublicUrl("profile-avatars", profile?.avatar_path),
