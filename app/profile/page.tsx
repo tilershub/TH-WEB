@@ -83,8 +83,7 @@ export default function ProfilePage() {
   const skills = useMemo(() => {
     if (!profile?.service_rates) return [];
     return SERVICES.filter(svc => {
-      const rate = profile.service_rates?.[svc.key];
-      return rate && rate.rate !== null && rate.rate > 0;
+      return profile.service_rates?.[svc.key] !== undefined;
     }).map(svc => svc.label);
   }, [profile?.service_rates]);
 
@@ -113,12 +112,12 @@ export default function ProfilePage() {
                     <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
-                      {profile?.display_name?.[0]?.toUpperCase() || "U"}
+                      {profile?.full_name?.[0]?.toUpperCase() || "U"}
                     </div>
                   )}
                 </div>
                 <div className="flex-1 min-w-0 pt-1">
-                  <h1 className="text-2xl font-bold text-gray-900">{profile?.display_name || "User"}</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">{profile?.full_name || "User"}</h1>
                   <div className="flex items-center gap-1 mt-1 text-gray-600">
                     <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
@@ -201,13 +200,13 @@ export default function ProfilePage() {
                   <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
-                    {profile?.display_name?.[0]?.toUpperCase() || "T"}
+                    {profile?.full_name?.[0]?.toUpperCase() || "T"}
                   </div>
                 )}
               </div>
 
               <div className="flex-1 min-w-0 pt-1">
-                <h1 className="text-2xl font-bold text-gray-900">{profile?.display_name || "Tiler"}</h1>
+                <h1 className="text-2xl font-bold text-gray-900">{profile?.full_name || "Tiler"}</h1>
                 <div className="flex items-center gap-1 mt-1 text-gray-600">
                   <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
