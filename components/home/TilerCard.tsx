@@ -18,6 +18,7 @@ export default function TilerCard({ tiler }: TilerCardProps) {
   const avatarUrl = tiler.avatar_path
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profile-avatars/${tiler.avatar_path}`
     : null;
+  const displayName = tiler.full_name || tiler.display_name || "Professional Tiler";
 
   return (
     <Link
@@ -28,7 +29,7 @@ export default function TilerCard({ tiler }: TilerCardProps) {
         {avatarUrl ? (
           <Image 
             src={avatarUrl} 
-            alt={tiler.display_name || "Tiler"} 
+            alt={displayName} 
             fill
             sizes="160px"
             className="object-cover"
@@ -51,7 +52,7 @@ export default function TilerCard({ tiler }: TilerCardProps) {
 
       <div className="p-3">
         <h3 className="font-semibold text-sm text-navy truncate">
-          {tiler.display_name || tiler.full_name || "Tiler"}
+          {displayName}
         </h3>
 
         <div className="flex items-center gap-1 mt-1">

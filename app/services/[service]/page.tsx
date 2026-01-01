@@ -100,21 +100,22 @@ function TilerCard({ tiler }: { tiler: Profile }) {
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profile-avatars/${tiler.avatar_path}`
     : null;
   const location = [tiler.city, tiler.district].filter(Boolean).join(", ") || "Sri Lanka";
+  const displayName = tiler.full_name || tiler.display_name || "Professional Tiler";
 
   return (
     <Link href={`/tilers/${tiler.id}`} className="card hover:shadow-card-hover transition-shadow">
       <div className="flex gap-4 p-4">
         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0 relative">
           {avatarUrl ? (
-            <Image src={avatarUrl} alt={tiler.display_name || "Tiler"} fill sizes="56px" className="object-cover" />
+            <Image src={avatarUrl} alt={displayName} fill sizes="56px" className="object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white text-lg font-bold">
-              {tiler.display_name?.[0]?.toUpperCase() || "T"}
+              {displayName[0]?.toUpperCase() || "T"}
             </div>
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-navy truncate">{tiler.display_name || "Tiler"}</h3>
+          <h3 className="font-semibold text-navy truncate">{displayName}</h3>
           <div className="flex items-center gap-1 mt-1 text-gray-600 text-sm">
             <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
@@ -195,7 +196,7 @@ export default function ServicePage() {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, display_name, avatar_path, city, district, years_experience, service_rates")
+          .select("id, display_name, full_name, avatar_path, city, district, years_experience, service_rates")
           .eq("role", "tiler")
           .limit(20);
 

@@ -94,7 +94,7 @@ export default function HomeownerHome() {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, display_name, avatar_path, city, district, years_experience")
+          .select("id, display_name, full_name, avatar_path, city, district, years_experience")
           .eq("role", "tiler")
           .limit(6);
 
