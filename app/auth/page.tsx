@@ -45,29 +45,14 @@ export default function AuthPage() {
     setMsg(null);
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          data: { role }
+          data: { role, full_name: email.split("@")[0] }
         }
       });
       if (error) throw error;
-
-      if (data.user) {
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .upsert({
-            id: data.user.id,
-            email: data.user.email,
-            role,
-            full_name: email.split("@")[0],
-          }, { onConflict: "id" });
-
-        if (profileError) {
-          console.error("Profile creation error:", profileError);
-        }
-      }
 
       setMsg("Signup successful! You can now login.");
       setMode("login");

@@ -13,6 +13,10 @@ export async function uploadFile(bucket: string, path: string, file: File): Prom
 
 export function getPublicUrl(bucket: string, path: string | null | undefined): string | null {
   if (!path) return null;
+  // Filter out external URLs or invalid paths (legacy data cleanup)
+  if (path.startsWith('http') || !path.includes('/') || path.length < 10) {
+    return null;
+  }
   try {
     return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
   } catch {
