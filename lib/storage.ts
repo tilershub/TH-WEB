@@ -2,13 +2,22 @@ import { supabase } from "./supabaseClient";
 
 export async function uploadFile(bucket: string, path: string, file: File): Promise<string> {
   const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true });
-  if (error) throw new Error(error.message);
+  if (error) {
+    if (error.message.includes("Bucket not found") || error.message.includes("bucket")) {
+      throw new Error(`Storage bucket "${bucket}" not found. Please create it in your Supabase dashboard under Storage.`);
+    }
+    throw new Error(error.message);
+  }
   return path;
 }
 
 export function getPublicUrl(bucket: string, path: string | null | undefined): string | null {
   if (!path) return null;
-  return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  try {
+    return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  } catch {
+    return null;
+  }
 }
 
 export async function deleteFile(bucket: string, path: string): Promise<void> {

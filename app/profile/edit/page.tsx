@@ -60,7 +60,12 @@ export default function HomeownerEditPage() {
         setDistrict(prof?.district ?? "");
         setCity(prof?.city ?? "");
       } catch (err: any) {
-        setMsg(err?.message || "Failed to load profile");
+        const errMsg = err?.message || "Failed to load profile";
+        if (errMsg.toLowerCase().includes("bucket")) {
+          setMsg("Photo storage is not set up yet. You can still edit your profile - photos will work once storage is configured.");
+        } else {
+          setMsg(errMsg);
+        }
       } finally {
         setLoading(false);
       }
@@ -86,10 +91,19 @@ export default function HomeownerEditPage() {
       if (!displayName.trim()) throw new Error("Please enter your name.");
 
       let avatar_path = profile?.avatar_path ?? null;
+      let photoWarning = "";
 
       if (avatarFile) {
-        const path = generateFilePath(user.id, "avatar", avatarFile);
-        avatar_path = await uploadFile("profile-avatars", path, avatarFile);
+        try {
+          const path = generateFilePath(user.id, "avatar", avatarFile);
+          avatar_path = await uploadFile("profile-avatars", path, avatarFile);
+        } catch (uploadErr: any) {
+          if (uploadErr?.message?.toLowerCase().includes("bucket")) {
+            photoWarning = " (Photo upload skipped - storage not configured)";
+          } else {
+            throw uploadErr;
+          }
+        }
       }
 
       const { error } = await supabase
@@ -107,7 +121,12 @@ export default function HomeownerEditPage() {
 
       if (error) throw error;
 
-      router.push("/profile");
+      if (photoWarning) {
+        setMsg("Profile saved!" + photoWarning);
+        setTimeout(() => router.push("/profile"), 2000);
+      } else {
+        router.push("/profile");
+      }
     } catch (e: any) {
       setMsg(e?.message || "Failed to save profile.");
     } finally {
@@ -122,7 +141,13 @@ export default function HomeownerEditPage() {
       <Page title="Edit Profile">
         <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
           {msg && (
-            <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            <div className={`rounded-2xl border p-4 text-sm ${
+              msg.includes("saved") 
+                ? "border-green-200 bg-green-50 text-green-700" 
+                : msg.includes("not set up") || msg.includes("not configured")
+                ? "border-amber-200 bg-amber-50 text-amber-700"
+                : "border-red-200 bg-red-50 text-red-700"
+            }`}>
               {msg}
             </div>
           )}
