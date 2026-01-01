@@ -2,7 +2,21 @@
 -- This script fixes the signup → profile flow completely
 
 -- ============================================
--- STEP 1: Drop and recreate the trigger function
+-- STEP 1: Add missing columns if they don't exist
+-- ============================================
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'created_at') THEN
+        ALTER TABLE profiles ADD COLUMN created_at TIMESTAMPTZ DEFAULT NOW();
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'profiles' AND column_name = 'updated_at') THEN
+        ALTER TABLE profiles ADD COLUMN updated_at TIMESTAMPTZ DEFAULT NOW();
+    END IF;
+END $$;
+
+-- ============================================
+-- STEP 2: Drop and recreate the trigger function
 -- ============================================
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER
@@ -15,23 +29,18 @@ BEGIN
     id, 
     email, 
     full_name, 
-    role,
-    created_at,
-    updated_at
+    role
   )
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(NEW.raw_user_meta_data ->> 'full_name', split_part(NEW.email, '@', 1)),
-    COALESCE(NEW.raw_user_meta_data ->> 'role', 'homeowner'),
-    NOW(),
-    NOW()
+    COALESCE(NEW.raw_user_meta_data ->> 'role', 'homeowner')
   )
   ON CONFLICT (id) DO UPDATE SET
     email = EXCLUDED.email,
     role = COALESCE(EXCLUDED.role, profiles.role),
-    full_name = COALESCE(NULLIF(EXCLUDED.full_name, ''), profiles.full_name),
-    updated_at = NOW();
+    full_name = COALESCE(NULLIF(EXCLUDED.full_name, ''), profiles.full_name);
   
   RETURN NEW;
 END;
@@ -44,7 +53,7 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- ============================================
--- STEP 2: Clean up legacy/invalid cover_path data
+-- STEP 3: Clean up legacy/invalid cover_path data
 -- External URLs or invalid paths should be cleared
 -- ============================================
 UPDATE profiles 
@@ -66,23 +75,21 @@ AND (
 );
 
 -- ============================================
--- STEP 3: Create profiles for any existing auth users without profiles
+-- STEP 4: Create profiles for any existing auth users without profiles
 -- ============================================
-INSERT INTO profiles (id, email, full_name, role, created_at, updated_at)
+INSERT INTO profiles (id, email, full_name, role)
 SELECT 
   au.id,
   au.email,
   COALESCE(au.raw_user_meta_data ->> 'full_name', split_part(au.email, '@', 1)),
-  COALESCE(au.raw_user_meta_data ->> 'role', 'homeowner'),
-  NOW(),
-  NOW()
+  COALESCE(au.raw_user_meta_data ->> 'role', 'homeowner')
 FROM auth.users au
 LEFT JOIN profiles p ON p.id = au.id
 WHERE p.id IS NULL
 ON CONFLICT (id) DO NOTHING;
 
 -- ============================================
--- STEP 4: Verify RLS policies exist
+-- STEP 5: Verify RLS policies exist
 -- ============================================
 DO $$
 DECLARE
@@ -94,7 +101,6 @@ BEGIN
     AND tablename = 'profiles';
     
     IF policy_count = 0 THEN
-        -- Create basic policies if none exist
         EXECUTE 'CREATE POLICY "profiles_select_all" ON profiles FOR SELECT USING (true)';
         EXECUTE 'CREATE POLICY "profiles_insert_own" ON profiles FOR INSERT WITH CHECK (auth.uid() = id)';
         EXECUTE 'CREATE POLICY "profiles_update_own" ON profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id)';
@@ -103,7 +109,7 @@ BEGIN
 END $$;
 
 -- ============================================
--- STEP 5: Ensure RLS is enabled
+-- STEP 6: Ensure RLS is enabled
 -- ============================================
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tiler_portfolio ENABLE ROW LEVEL SECURITY;
@@ -112,9 +118,5 @@ ALTER TABLE certifications ENABLE ROW LEVEL SECURITY;
 -- ============================================
 -- Output results
 -- ============================================
-SELECT 'Profiles cleaned' as action, 
-       (SELECT COUNT(*) FROM profiles WHERE cover_path IS NULL) as profiles_with_null_cover;
-
-SELECT 'Total profiles' as action, COUNT(*) as count FROM profiles;
-
-SELECT 'Trigger recreated' as status, 'handle_new_user' as trigger_name;
+SELECT 'SUCCESS! Flow rebuilt.' as status;
+SELECT 'Total profiles' as info, COUNT(*) as count FROM profiles;
