@@ -127,11 +127,14 @@ export default function ProfileSetupPage() {
 
         if (p.error) {
           console.error("Profile fetch error:", p.error);
+          console.error("Error code:", p.error.code);
+          console.error("Error details:", p.error.details);
+          console.error("Error hint:", p.error.hint);
           // Check if it's an RLS error which means tables might not exist
           if (p.error.message.includes("row-level security") || p.error.message.includes("does not exist")) {
-            throw new Error("Database not set up. Please run the migrations in Supabase SQL Editor.");
+            throw new Error("Database security policies need to be set up. Please run 'fix_rls_complete.sql' in Supabase SQL Editor.");
           }
-          throw new Error(`Profile error: ${p.error.message}`);
+          throw new Error(`Profile error: ${p.error.code} - ${p.error.message}`);
         }
 
         const prof = (p.data ?? null) as Profile | null;
