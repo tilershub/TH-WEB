@@ -106,6 +106,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 UPDATE profiles SET is_admin = true WHERE id = &apos;YOUR_USER_ID&apos;;
               </div>
             </div>
+          ) : errorState === "profile_not_found" ? (
+            <div className="text-left">
+              <p className="text-gray-600 mb-4">Your profile was not found. Please complete your profile setup first by visiting the Profile page, then try again.</p>
+            </div>
           ) : (
             <p className="text-gray-600 mb-4">Error: {errorState}</p>
           )}

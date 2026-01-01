@@ -38,11 +38,11 @@ export async function checkIsAdmin(userId: string): Promise<{ isAdmin: boolean; 
     .from("profiles")
     .select("is_admin")
     .eq("id", userId)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("Admin check error:", error);
-    if (error.message.includes("is_admin")) {
+    if (error.message.includes("is_admin") || error.code === "42703") {
       return { isAdmin: false, error: "migration_needed" };
     }
     return { isAdmin: false, error: error.message };
