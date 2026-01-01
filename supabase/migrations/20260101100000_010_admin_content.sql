@@ -113,6 +113,20 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_category ON public.blog_posts(category
 CREATE INDEX IF NOT EXISTS idx_guides_slug ON public.guides(slug);
 CREATE INDEX IF NOT EXISTS idx_guides_published ON public.guides(is_published);
 
+-- Function to check if current user is admin (SECURITY DEFINER bypasses RLS to avoid recursion)
+CREATE OR REPLACE FUNCTION public.is_current_user_admin()
+RETURNS BOOLEAN AS $$
+DECLARE
+  admin_status BOOLEAN;
+BEGIN
+  SELECT is_admin INTO admin_status
+  FROM public.profiles
+  WHERE id = auth.uid();
+  
+  RETURN COALESCE(admin_status, false);
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
 -- Admin profile policies (allow admins to read and update any profile)
 DROP POLICY IF EXISTS "profiles_admin_select" ON public.profiles;
 CREATE POLICY "profiles_admin_select"
@@ -120,10 +134,7 @@ ON public.profiles FOR SELECT
 TO authenticated
 USING (
   id = auth.uid() OR
-  EXISTS (
-    SELECT 1 FROM public.profiles p
-    WHERE p.id = auth.uid() AND p.is_admin = true
-  )
+  public.is_current_user_admin()
 );
 
 DROP POLICY IF EXISTS "profiles_admin_update" ON public.profiles;
@@ -132,17 +143,11 @@ ON public.profiles FOR UPDATE
 TO authenticated
 USING (
   id = auth.uid() OR
-  EXISTS (
-    SELECT 1 FROM public.profiles p
-    WHERE p.id = auth.uid() AND p.is_admin = true
-  )
+  public.is_current_user_admin()
 )
 WITH CHECK (
   id = auth.uid() OR
-  EXISTS (
-    SELECT 1 FROM public.profiles p
-    WHERE p.id = auth.uid() AND p.is_admin = true
-  )
+  public.is_current_user_admin()
 );
 
 -- SECURITY: Trigger to prevent privilege escalation
@@ -188,10 +193,7 @@ ON public.tasks FOR SELECT
 TO authenticated
 USING (
   owner_id = auth.uid() OR
-  EXISTS (
-    SELECT 1 FROM public.profiles p
-    WHERE p.id = auth.uid() AND p.is_admin = true
-  )
+  public.is_current_user_admin()
 );
 
 DROP POLICY IF EXISTS "tasks_admin_update" ON public.tasks;
@@ -200,17 +202,11 @@ ON public.tasks FOR UPDATE
 TO authenticated
 USING (
   owner_id = auth.uid() OR
-  EXISTS (
-    SELECT 1 FROM public.profiles p
-    WHERE p.id = auth.uid() AND p.is_admin = true
-  )
+  public.is_current_user_admin()
 )
 WITH CHECK (
   owner_id = auth.uid() OR
-  EXISTS (
-    SELECT 1 FROM public.profiles p
-    WHERE p.id = auth.uid() AND p.is_admin = true
-  )
+  public.is_current_user_admin()
 );
 
 DROP POLICY IF EXISTS "tasks_admin_delete" ON public.tasks;
@@ -219,8 +215,5 @@ ON public.tasks FOR DELETE
 TO authenticated
 USING (
   owner_id = auth.uid() OR
-  EXISTS (
-    SELECT 1 FROM public.profiles p
-    WHERE p.id = auth.uid() AND p.is_admin = true
-  )
+  public.is_current_user_admin()
 );
