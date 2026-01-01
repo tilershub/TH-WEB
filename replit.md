@@ -125,6 +125,7 @@ Located in `/supabase/functions/`:
 - `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
 
 ## Recent Changes
+- **Jan 1, 2026**: Fixed tiler profile name display - now shows full_name first, then display_name, with proper fallback. Request Quote now starts in-app conversations instead of WhatsApp redirect. Created `/messages/new` page for direct messaging. Performance improvements: modern image formats (avif/webp), caching headers, compression, preconnect hints.
 - **Jan 1, 2026**: Production readiness for AdSense - Added privacy policy with advertising disclosure, terms of service with metadata, ads.txt placeholder, AdSense script placeholder in layout, added legal pages to sitemap, configured autoscale deployment with standalone server.
 - **Jan 1, 2026**: Performance optimizations - Next.js Image config for Supabase, skeleton loading components, memoized components, pagination on tilers page, optimized Supabase queries.
 - **Jan 1, 2026**: Optimized public tiler profile (`/tilers/[id]`) with cover photo header, services with rates display, service images in portfolio, and certificates section with images.
