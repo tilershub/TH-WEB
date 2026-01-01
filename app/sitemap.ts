@@ -12,6 +12,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/post-task",
     "/login",
     "/signup",
+    "/privacy",
+    "/terms",
   ];
 
   const services = [

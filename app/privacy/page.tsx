@@ -1,11 +1,17 @@
+import type { Metadata } from "next";
 import { Page } from "@/components/Page";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Privacy Policy for Tilers Hub - Learn how we collect, use, and protect your personal information.",
+};
 
 export default function PrivacyPage() {
   return (
     <Page title="Privacy Policy">
       <div className="max-w-3xl mx-auto space-y-6">
         <section className="rounded-2xl border bg-white p-6">
-          <p className="text-sm text-neutral-600 mb-4">Last updated: December 2024</p>
+          <p className="text-sm text-neutral-600 mb-4">Last updated: January 2026</p>
 
           <div className="space-y-6">
             <div>
@@ -59,11 +65,30 @@ export default function PrivacyPage() {
             </div>
 
             <div>
-              <h2 className="text-lg font-bold mb-2">6. Cookies and Tracking</h2>
-              <p className="text-neutral-700 text-sm leading-relaxed">
+              <h2 className="text-lg font-bold mb-2">6. Cookies and Advertising</h2>
+              <p className="text-neutral-700 text-sm leading-relaxed mb-2">
                 We use cookies and similar tracking technologies to track activity on our platform
-                and store certain information. You can instruct your browser to refuse all cookies
-                or to indicate when a cookie is being sent.
+                and store certain information. This includes:
+              </p>
+              <ul className="list-disc list-inside space-y-1 text-neutral-700 text-sm mb-2">
+                <li><strong>Essential Cookies:</strong> Required for the platform to function properly.</li>
+                <li><strong>Analytics Cookies:</strong> Help us understand how users interact with our platform.</li>
+                <li><strong>Advertising Cookies:</strong> Used by our advertising partners to show relevant ads.</li>
+              </ul>
+              <p className="text-neutral-700 text-sm leading-relaxed mb-2">
+                <strong>Third-Party Advertising:</strong> We use Google AdSense to display advertisements on our platform. 
+                Google and other third-party vendors use cookies to serve ads based on your prior visits to our website 
+                and other websites on the Internet.
+              </p>
+              <p className="text-neutral-700 text-sm leading-relaxed">
+                You can opt out of personalized advertising by visiting{" "}
+                <a href="https://www.google.com/settings/ads" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                  Google Ad Settings
+                </a>. You may also visit{" "}
+                <a href="https://www.aboutads.info/choices/" className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                  aboutads.info
+                </a>{" "}
+                to opt out of third-party vendor cookies.
               </p>
             </div>
 

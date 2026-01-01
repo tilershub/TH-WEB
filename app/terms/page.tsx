@@ -1,11 +1,17 @@
+import type { Metadata } from "next";
 import { Page } from "@/components/Page";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "Terms of Service for Tilers Hub - Read the terms and conditions for using our platform.",
+};
 
 export default function TermsPage() {
   return (
     <Page title="Terms of Service">
       <div className="max-w-3xl mx-auto space-y-6">
         <section className="rounded-2xl border bg-white p-6">
-          <p className="text-sm text-neutral-600 mb-4">Last updated: December 2024</p>
+          <p className="text-sm text-neutral-600 mb-4">Last updated: January 2026</p>
 
           <div className="space-y-6">
             <div>

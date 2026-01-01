@@ -1,0 +1,4 @@
+# Replace YOUR_PUBLISHER_ID with your actual Google AdSense Publisher ID
+# You can find your Publisher ID in your AdSense account (format: pub-XXXXXXXXXXXXXXXX)
+# Uncomment and update the line below after getting approved for AdSense:
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
