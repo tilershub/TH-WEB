@@ -30,12 +30,6 @@ function pub(bucket: string, path?: string | null) {
   return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 }
 
-function waLink(phone?: string | null, text?: string) {
-  if (!phone) return null;
-  const p = phone.replace(/[^\d]/g, "");
-  const msg = encodeURIComponent(text || "Hi, I found your profile on TILERS HUB. I'd like to request a quote for my tiling project.");
-  return `https://wa.me/${p}?text=${msg}`;
-}
 
 function StarRating({ rating, reviewCount }: { rating: number; reviewCount: number }) {
   return (
@@ -116,7 +110,13 @@ export default function PublicTilerProfilePage() {
     return parts.length ? parts.join(", ") : "Sri Lanka";
   }, [tiler?.city, tiler?.district]);
 
-  const whatsappHref = useMemo(() => waLink(tiler?.whatsapp), [tiler?.whatsapp]);
+  const displayName = useMemo(() => {
+    return tiler?.full_name || tiler?.display_name || "Professional Tiler";
+  }, [tiler?.full_name, tiler?.display_name]);
+
+  const initials = useMemo(() => {
+    return displayName[0]?.toUpperCase() || "T";
+  }, [displayName]);
 
   const servicesWithRates = useMemo(() => {
     if (!tiler?.service_rates) return [];
@@ -183,7 +183,7 @@ export default function PublicTilerProfilePage() {
           <div className="relative h-40 bg-gradient-to-br from-primary to-primary-dark">
             <Image 
               src={coverUrl} 
-              alt={`${tiler.display_name || "Tiler"}'s cover photo`}
+              alt={`${displayName}'s cover photo`}
               fill
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 512px"
@@ -201,20 +201,20 @@ export default function PublicTilerProfilePage() {
               {avatarUrl ? (
                 <Image 
                   src={avatarUrl} 
-                  alt={`${tiler.display_name || "Tiler"}'s profile photo`}
+                  alt={`${displayName}'s profile photo`}
                   fill
                   className="object-cover"
                   sizes="96px"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-white text-3xl font-bold" role="img" aria-label={`${tiler.display_name || "Tiler"}'s initials`}>
-                  {tiler.display_name?.[0]?.toUpperCase() || "T"}
+                <div className="w-full h-full flex items-center justify-center text-white text-3xl font-bold" role="img" aria-label={`${displayName}'s initials`}>
+                  {initials}
                 </div>
               )}
             </div>
 
             <div className="flex-1 min-w-0 pb-2">
-              <h1 className="text-2xl font-bold text-gray-900">{tiler.display_name || "Tiler"}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
               <div className="flex items-center gap-1 mt-1 text-gray-600">
                 <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
@@ -228,19 +228,15 @@ export default function PublicTilerProfilePage() {
             <StarRating rating={avgRating} reviewCount={reviewCount} />
           </div>
 
-          {whatsappHref && (
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-3.5 px-6 rounded-xl transition-colors"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
-              </svg>
-              Request Quote
-            </a>
-          )}
+          <Link
+            href={`/messages/new?tiler=${id}`}
+            className="mt-4 w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-3.5 px-6 rounded-xl transition-colors"
+          >
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
+            </svg>
+            Request Quote
+          </Link>
 
           <p className="text-center text-gray-500 text-sm mt-3">Professional Tiler</p>
         </div>

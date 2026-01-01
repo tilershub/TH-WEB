@@ -1,16 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
+type ProfileInfo = {
+  id: string;
+  display_name: string | null;
+  full_name: string | null;
+  avatar_path: string | null;
+};
+
 type ConversationRow = {
   id: string;
-  task_id: string;
+  task_id: string | null;
   homeowner_id: string;
   tiler_id: string;
   created_at: string;
-  tasks?: { title: string | null }[]; // ✅ Supabase returns arrays
+  tasks?: { title: string | null }[];
 };
 
 type MessageRow = {
@@ -21,6 +29,11 @@ type MessageRow = {
   created_at: string;
   sender_id: string;
 };
+
+function pub(path?: string | null) {
+  if (!path) return null;
+  return supabase.storage.from("profile-avatars").getPublicUrl(path).data.publicUrl;
+}
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -36,6 +49,7 @@ export default function MessagesInboxPage() {
   const [loading, setLoading] = useState(true);
   const [convs, setConvs] = useState<ConversationRow[]>([]);
   const [lastByConv, setLastByConv] = useState<Record<string, MessageRow | null>>({});
+  const [profiles, setProfiles] = useState<Record<string, ProfileInfo>>({});
   const [meId, setMeId] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -54,7 +68,6 @@ export default function MessagesInboxPage() {
 
     setMeId(user.id);
 
-    // Load conversations + related task title
     const c = await supabase
       .from("conversations")
       .select("id, task_id, homeowner_id, tiler_id, created_at, tasks(title)")
@@ -69,7 +82,25 @@ export default function MessagesInboxPage() {
     const convRows = (c.data ?? []) as ConversationRow[];
     setConvs(convRows);
 
-    // Load last message per conversation
+    const userIds = new Set<string>();
+    convRows.forEach((conv) => {
+      userIds.add(conv.homeowner_id);
+      userIds.add(conv.tiler_id);
+    });
+
+    if (userIds.size > 0) {
+      const { data: profilesData } = await supabase
+        .from("profiles")
+        .select("id, display_name, full_name, avatar_path")
+        .in("id", Array.from(userIds));
+
+      const profileMap: Record<string, ProfileInfo> = {};
+      (profilesData ?? []).forEach((p: ProfileInfo) => {
+        profileMap[p.id] = p;
+      });
+      setProfiles(profileMap);
+    }
+
     const lastMap: Record<string, MessageRow | null> = {};
 
     for (const conv of convRows) {
@@ -124,8 +155,11 @@ export default function MessagesInboxPage() {
         <div className="space-y-3">
           {convs.map((c) => {
             const last = lastByConv[c.id];
-            const other = meId === c.homeowner_id ? "Tiler" : "Homeowner";
-            const title = c.tasks?.[0]?.title ?? "Task";
+            const otherId = meId === c.homeowner_id ? c.tiler_id : c.homeowner_id;
+            const otherProfile = profiles[otherId];
+            const otherName = otherProfile?.full_name || otherProfile?.display_name || (meId === c.homeowner_id ? "Tiler" : "Homeowner");
+            const avatarUrl = pub(otherProfile?.avatar_path);
+            const title = c.task_id ? (c.tasks?.[0]?.title ?? "Task") : "Direct Message";
             const preview = last?.text ?? (last?.attachment_path ? "Attachment" : "No messages yet");
 
             return (
@@ -135,18 +169,22 @@ export default function MessagesInboxPage() {
                 className="card hover:shadow-card-hover transition-shadow"
               >
                 <div className="flex items-center gap-4 p-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-dark text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
-                    {other[0]}
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-primary-dark text-white flex items-center justify-center font-bold text-lg flex-shrink-0 overflow-hidden relative">
+                    {avatarUrl ? (
+                      <Image src={avatarUrl} alt={otherName} fill className="object-cover" sizes="48px" />
+                    ) : (
+                      otherName[0]?.toUpperCase() || "?"
+                    )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2 mb-1">
-                      <h3 className="font-semibold text-navy truncate">{title}</h3>
+                      <h3 className="font-semibold text-navy truncate">{otherName}</h3>
                       <span className="text-xs text-gray-500 whitespace-nowrap">
                         {last?.created_at ? timeAgo(last.created_at) : timeAgo(c.created_at)}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-600 mb-1">{other}</p>
+                    <p className="text-xs text-gray-600 mb-1">{title}</p>
                     <p className="text-sm text-gray-700 truncate">{preview}</p>
                   </div>
 
