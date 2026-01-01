@@ -17,6 +17,7 @@ function pub(bucket: string, path?: string | null) {
 function TilerCard({ tiler }: { tiler: Profile }) {
   const avatarUrl = pub("profile-avatars", tiler.avatar_path);
   const location = [tiler.city, tiler.district].filter(Boolean).join(", ") || "Sri Lanka";
+  const displayName = tiler.full_name || tiler.display_name || "Professional Tiler";
 
   return (
     <Link href={`/tilers/${tiler.id}`} className="card hover:shadow-card-hover transition-shadow">
@@ -25,20 +26,20 @@ function TilerCard({ tiler }: { tiler: Profile }) {
           {avatarUrl ? (
             <Image 
               src={avatarUrl} 
-              alt={tiler.display_name || "Tiler"} 
+              alt={displayName} 
               fill
               sizes="64px"
               className="object-cover"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white text-xl font-bold">
-              {tiler.display_name?.[0]?.toUpperCase() || "T"}
+              {displayName[0]?.toUpperCase() || "T"}
             </div>
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-navy truncate">{tiler.display_name || "Tiler"}</h3>
+          <h3 className="font-semibold text-navy truncate">{displayName}</h3>
           <div className="flex items-center gap-1 mt-1 text-gray-600 text-sm">
             <svg className="w-4 h-4 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
@@ -91,7 +92,7 @@ export default function TilersPage() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, display_name, avatar_path, city, district, years_experience, role")
+        .select("id, display_name, full_name, avatar_path, city, district, years_experience, role")
         .eq("role", "tiler")
         .order("created_at", { ascending: false })
         .range(pageNum * TILERS_PER_PAGE, (pageNum + 1) * TILERS_PER_PAGE - 1);
@@ -129,7 +130,7 @@ export default function TilersPage() {
     if (!search.trim()) return tilers;
     const q = search.toLowerCase();
     return tilers.filter((t) => {
-      const name = (t.display_name || "").toLowerCase();
+      const name = (t.full_name || t.display_name || "").toLowerCase();
       const city = (t.city || "").toLowerCase();
       const district = (t.district || "").toLowerCase();
       return name.includes(q) || city.includes(q) || district.includes(q);
