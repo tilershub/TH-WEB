@@ -163,17 +163,18 @@ export default function ProfileSetupPage() {
         setWorkingDistricts(prof.working_districts ?? []);
         setYearsExperience(prof.years_experience ?? null);
 
-        // Fetch certifications (ignore errors if table doesn't exist yet)
-        try {
-          const { data: certs } = await supabase
-            .from("certifications")
-            .select("*")
-            .eq("tiler_id", user.id)
-            .order("created_at", { ascending: false });
-
+        // Fetch certifications (ignore errors if table doesn't have proper policies)
+        const { data: certs, error: certError } = await supabase
+          .from("certifications")
+          .select("*")
+          .eq("tiler_id", user.id)
+          .order("created_at", { ascending: false });
+        
+        if (certError) {
+          console.warn("Could not load certifications:", certError.message);
+          // Don't throw - just skip certifications if there's an RLS issue
+        } else {
           setCertifications((certs as Certification[]) ?? []);
-        } catch (certErr) {
-          console.warn("Could not load certifications:", certErr);
         }
       } catch (err: any) {
         console.error("Load error:", err);
