@@ -17,6 +17,13 @@ type Review = {
   comment: string;
 };
 
+type Certification = {
+  id: string;
+  title: string;
+  issuer: string;
+  image_path: string | null;
+};
+
 function pub(bucket: string, path?: string | null) {
   if (!path) return null;
   return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
@@ -55,6 +62,7 @@ export default function PublicTilerProfilePage() {
   const [loading, setLoading] = useState(true);
   const [tiler, setTiler] = useState<Profile | null>(null);
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
+  const [certifications, setCertifications] = useState<Certification[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -72,16 +80,23 @@ export default function PublicTilerProfilePage() {
       setTiler(prof);
 
       if (prof) {
-        const portfolioRes = await supabase
-          .from("tiler_portfolio")
-          .select("*")
-          .eq("tiler_id", id)
-          .order("is_featured", { ascending: false })
-          .order("created_at", { ascending: false })
-          .limit(6);
+        const [portfolioRes, certsRes] = await Promise.all([
+          supabase
+            .from("tiler_portfolio")
+            .select("*")
+            .eq("tiler_id", id)
+            .order("is_featured", { ascending: false })
+            .order("created_at", { ascending: false })
+            .limit(10),
+          supabase
+            .from("certifications")
+            .select("id, title, issuer, image_path")
+            .eq("tiler_id", id)
+            .order("created_at", { ascending: false })
+        ]);
 
         setPortfolio((portfolioRes.data ?? []) as PortfolioItem[]);
-
+        setCertifications((certsRes.data ?? []) as Certification[]);
         setReviews([]);
       }
 
@@ -91,6 +106,7 @@ export default function PublicTilerProfilePage() {
     load();
   }, [id]);
 
+  const coverUrl = useMemo(() => pub("profile-covers", tiler?.cover_path), [tiler?.cover_path]);
   const avatarUrl = useMemo(() => pub("profile-avatars", tiler?.avatar_path), [tiler?.avatar_path]);
 
   const locationLine = useMemo(() => {
@@ -100,13 +116,39 @@ export default function PublicTilerProfilePage() {
 
   const whatsappHref = useMemo(() => waLink(tiler?.whatsapp), [tiler?.whatsapp]);
 
-  const skills = useMemo(() => {
+  const servicesWithRates = useMemo(() => {
     if (!tiler?.service_rates) return [];
     return SERVICES.filter(svc => {
       const rate = tiler.service_rates?.[svc.key];
       return rate && rate.rate !== null && rate.rate > 0;
-    }).map(svc => svc.label);
+    }).map(svc => ({
+      key: svc.key,
+      label: svc.label,
+      rate: tiler.service_rates?.[svc.key]?.rate,
+      unit: tiler.service_rates?.[svc.key]?.unit || svc.unit,
+      photo_path: tiler.service_rates?.[svc.key]?.photo_path
+    }));
   }, [tiler?.service_rates]);
+
+  const serviceImages = useMemo(() => {
+    return servicesWithRates
+      .filter(s => s.photo_path)
+      .map(s => ({
+        url: pub("portfolio", s.photo_path),
+        label: s.label
+      }));
+  }, [servicesWithRates]);
+
+  const legacyPortfolioImages = useMemo(() => {
+    return portfolio.map(item => ({
+      url: pub("tiler-portfolio", item.image_path),
+      label: item.title || "Portfolio"
+    }));
+  }, [portfolio]);
+
+  const allPortfolioImages = useMemo(() => {
+    return [...serviceImages, ...legacyPortfolioImages].filter(img => img.url);
+  }, [serviceImages, legacyPortfolioImages]);
 
   const avgRating = 4.9;
   const reviewCount = reviews.length || 0;
@@ -135,19 +177,28 @@ export default function PublicTilerProfilePage() {
   return (
     <div className="min-h-screen bg-gray-100 pb-28">
       <div className="max-w-lg mx-auto bg-white min-h-screen shadow-lg">
-        <div className="px-5 pt-6 pb-4">
-          <div className="flex items-start gap-4">
-            <div className="w-20 h-20 rounded-full border-2 border-gray-200 bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0">
+        {coverUrl ? (
+          <div className="relative h-40 bg-gradient-to-br from-primary to-primary-dark">
+            <img src={coverUrl} alt="Cover" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+          </div>
+        ) : (
+          <div className="h-40 bg-gradient-to-br from-primary to-primary-dark" />
+        )}
+
+        <div className="px-5 -mt-12 relative z-10">
+          <div className="flex items-end gap-4">
+            <div className="w-24 h-24 rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0 shadow-lg">
               {avatarUrl ? (
                 <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
+                <div className="w-full h-full flex items-center justify-center text-white text-3xl font-bold">
                   {tiler.display_name?.[0]?.toUpperCase() || "T"}
                 </div>
               )}
             </div>
 
-            <div className="flex-1 min-w-0 pt-1">
+            <div className="flex-1 min-w-0 pb-2">
               <h1 className="text-2xl font-bold text-gray-900">{tiler.display_name || "Tiler"}</h1>
               <div className="flex items-center gap-1 mt-1 text-gray-600">
                 <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
@@ -155,10 +206,11 @@ export default function PublicTilerProfilePage() {
                 </svg>
                 <span className="text-sm">{locationLine}</span>
               </div>
-              <div className="mt-2">
-                <StarRating rating={avgRating} reviewCount={reviewCount} />
-              </div>
             </div>
+          </div>
+
+          <div className="mt-3">
+            <StarRating rating={avgRating} reviewCount={reviewCount} />
           </div>
 
           {whatsappHref && (
@@ -166,7 +218,7 @@ export default function PublicTilerProfilePage() {
               href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-5 w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-3.5 px-6 rounded-xl transition-colors"
+              className="mt-4 w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-3.5 px-6 rounded-xl transition-colors"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
@@ -178,7 +230,7 @@ export default function PublicTilerProfilePage() {
           <p className="text-center text-gray-500 text-sm mt-3">Professional Tiler</p>
         </div>
 
-        <div className="border-t border-gray-100" />
+        <div className="border-t border-gray-100 mt-5" />
 
         <div className="px-5 py-5">
           <h2 className="text-lg font-bold text-gray-900 mb-3">About Me</h2>
@@ -208,19 +260,25 @@ export default function PublicTilerProfilePage() {
 
         <div className="border-t border-gray-100" />
 
-        {skills.length > 0 && (
+        {servicesWithRates.length > 0 && (
           <>
             <div className="px-5 py-5">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">My Skills</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {skills.map((skill) => (
-                  <div key={skill} className="flex items-center gap-2">
-                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
-                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Services & Rates</h2>
+              <div className="space-y-3">
+                {servicesWithRates.map((service) => (
+                  <div key={service.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-gray-800 font-medium">{service.label}</span>
                     </div>
-                    <span className="text-gray-700">{skill}</span>
+                    <div className="text-right">
+                      <span className="text-primary font-semibold">LKR {service.rate?.toLocaleString()}</span>
+                      <span className="text-gray-500 text-sm ml-1">/{service.unit?.replace("LKR/", "")}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -229,24 +287,57 @@ export default function PublicTilerProfilePage() {
           </>
         )}
 
-        {portfolio.length > 0 && (
+        {allPortfolioImages.length > 0 && (
           <>
             <div className="px-5 py-5">
               <h2 className="text-lg font-bold text-gray-900 mb-4">Portfolio</h2>
               <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide">
-                {portfolio.map((item) => {
-                  const imgUrl = pub("tiler-portfolio", item.image_path);
-                  return (
-                    <div
-                      key={item.id}
-                      className="flex-shrink-0 w-32 h-24 rounded-xl overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                      onClick={() => setSelectedImage(imgUrl)}
-                    >
+                {allPortfolioImages.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex-shrink-0 w-36 cursor-pointer hover:opacity-90 transition-opacity"
+                    onClick={() => setSelectedImage(item.url)}
+                  >
+                    <div className="w-36 h-28 rounded-xl overflow-hidden">
                       <img
-                        src={imgUrl || ""}
-                        alt={item.title}
+                        src={item.url || ""}
+                        alt={item.label}
                         className="w-full h-full object-cover"
                       />
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1 text-center truncate">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="border-t border-gray-100" />
+          </>
+        )}
+
+        {certifications.length > 0 && (
+          <>
+            <div className="px-5 py-5">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">Certifications</h2>
+              <div className="space-y-3">
+                {certifications.map((cert) => {
+                  const certImgUrl = pub("certifications", cert.image_path);
+                  return (
+                    <div key={cert.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                      {certImgUrl && (
+                        <div 
+                          className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer"
+                          onClick={() => setSelectedImage(certImgUrl)}
+                        >
+                          <img src={certImgUrl} alt={cert.title} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-gray-800 truncate">{cert.title}</h3>
+                        <p className="text-sm text-gray-500 truncate">{cert.issuer}</p>
+                      </div>
+                      <svg className="w-5 h-5 text-primary flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
                     </div>
                   );
                 })}
