@@ -125,6 +125,7 @@ Located in `/supabase/functions/`:
 - `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
 
 ## Recent Changes
+- **Jan 1, 2026**: Performance optimizations - Next.js Image config for Supabase, skeleton loading components, memoized components, pagination on tilers page, optimized Supabase queries.
 - **Jan 1, 2026**: Optimized public tiler profile (`/tilers/[id]`) with cover photo header, services with rates display, service images in portfolio, and certificates section with images.
 - **Jan 1, 2026**: Added service image uploads for each selected service - images are stored in `service_rates` JSON and displayed in portfolio gallery with service labels. Fixed rate update to preserve photo_path.
 - **Jan 1, 2026**: Enhanced tiler profile setup with profile photo upload, cover photo upload, NIC field, service rates per service, and certificates upload section. Profile display page now shows cover photo, services with rates, and certificates.
