@@ -36,23 +36,42 @@ Each service section supports:
 - Additional notes field
 
 ### Tiler Profile Customization
-The tiler profile system uses **progressive editing with expandable sections** (like Facebook profile):
+The tiler profile system (`/profile/setup`) provides a comprehensive setup form:
 
-Tilers can update their profile progressively by expanding individual sections:
-1. **Profile Photos**: Cover photo and profile photo uploads
-2. **Basic Information**: Full name, bio, NIC, WhatsApp, district, city, address
-3. **Services & Rates**: Toggle services on/off and set rates for each enabled service
-   - Floor Tiling, Wall Tiling, Staircase Tiling, Bathroom Tiling
-   - Pantry/Backsplash, Waterproofing, Screed, Demolition, Nosing
-4. **Availability**: Status (available/busy/unavailable), working districts, years of experience
-5. **Portfolio**: Gallery of completed work samples with before/after photos
-6. **Certifications**: Professional qualifications and certificates
+**Photo Uploads:**
+- Cover photo at the top of profile (stored in `profile-covers` bucket)
+- Circular profile photo with overlay upload button (stored in `profile-avatars` bucket)
+- Instant upload feedback and preview
 
-Each section:
-- Has its own "Save Changes" button for independent updates
-- Shows completion status (checkmark when complete)
-- Can be expanded/collapsed independently
-- Progress bar shows overall profile completion (X/5 complete)
+**Basic Information:**
+- Full name, WhatsApp number (required)
+- NIC number for verification (not shown publicly)
+- Bio/About section
+- District and city location
+- Business address
+- Years of experience
+
+**Services & Rates:**
+- Toggle services on/off with checkboxes
+- Set custom rates for each enabled service (LKR per unit)
+- 9 service types: Floor Tiling, Wall Tiling, Staircase Tiling, Bathroom Tiling, Pantry/Backsplash, Waterproofing, Screed, Demolition, Nosing
+
+**Working Areas:**
+- Select multiple districts where tiler can work
+- Visual tag-style selection UI
+
+**Certificates & Qualifications:**
+- Add certificates with title, issuer, and image upload
+- Stored in `certifications` table and `certifications` storage bucket
+- Delete certificates with confirmation
+- Displayed on profile page
+
+**Profile Display (`/profile`):**
+- Cover photo header with avatar overlay
+- Services with rates in card format
+- Certificates section with image lightbox
+- Portfolio gallery (horizontal scroll)
+- Years of experience and completed jobs count
 
 Public tiler profile page (`/tilers/[id]`) - mobile-first design:
 - **Profile header**: Circular avatar, name, location with pin icon, star rating
@@ -106,6 +125,7 @@ Located in `/supabase/functions/`:
 - `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
 
 ## Recent Changes
+- **Jan 1, 2026**: Enhanced tiler profile setup with profile photo upload, cover photo upload, NIC field, service rates per service, and certificates upload section. Profile display page now shows cover photo, services with rates, and certificates.
 - **Jan 1, 2026**: Redesigned tiler profile setup (`/profile/setup`) with progressive editing using expandable sections like Facebook - each section saves independently, shows completion status, and has a progress bar. Added "Become a Tiler" option to homeowner profile edit page.
 - **Jan 1, 2026**: Added comprehensive admin dashboard (`/admin`) with Supabase auth protection. Includes users management, blog posts CRUD, guides CRUD with step builder, and tasks moderation. Added RLS policies for admin access to profiles/tasks/blog_posts/guides.
 - **Jan 1, 2026**: Fixed profile edit confusion - homeowners now have a simple edit page (`/profile/edit`) while tilers use progressive profile setup (`/profile/setup`).
