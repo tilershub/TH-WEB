@@ -113,7 +113,19 @@ CREATE INDEX IF NOT EXISTS idx_blog_posts_category ON public.blog_posts(category
 CREATE INDEX IF NOT EXISTS idx_guides_slug ON public.guides(slug);
 CREATE INDEX IF NOT EXISTS idx_guides_published ON public.guides(is_published);
 
--- Admin profile policy update (allow admins to update any profile for verification)
+-- Admin profile policies (allow admins to read and update any profile)
+DROP POLICY IF EXISTS "profiles_admin_select" ON public.profiles;
+CREATE POLICY "profiles_admin_select"
+ON public.profiles FOR SELECT
+TO authenticated
+USING (
+  id = auth.uid() OR
+  EXISTS (
+    SELECT 1 FROM public.profiles p
+    WHERE p.id = auth.uid() AND p.is_admin = true
+  )
+);
+
 DROP POLICY IF EXISTS "profiles_admin_update" ON public.profiles;
 CREATE POLICY "profiles_admin_update"
 ON public.profiles FOR UPDATE
@@ -121,14 +133,88 @@ TO authenticated
 USING (
   id = auth.uid() OR
   EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND is_admin = true
+    SELECT 1 FROM public.profiles p
+    WHERE p.id = auth.uid() AND p.is_admin = true
   )
 )
 WITH CHECK (
   id = auth.uid() OR
   EXISTS (
-    SELECT 1 FROM public.profiles
-    WHERE id = auth.uid() AND is_admin = true
+    SELECT 1 FROM public.profiles p
+    WHERE p.id = auth.uid() AND p.is_admin = true
+  )
+);
+
+-- SECURITY: Trigger to prevent privilege escalation
+-- Only existing admins can modify the is_admin field
+CREATE OR REPLACE FUNCTION protect_is_admin()
+RETURNS TRIGGER AS $$
+DECLARE
+  current_user_is_admin BOOLEAN;
+BEGIN
+  -- Check if the is_admin field is being changed
+  IF OLD.is_admin IS DISTINCT FROM NEW.is_admin THEN
+    -- Get current user's admin status
+    SELECT is_admin INTO current_user_is_admin
+    FROM public.profiles
+    WHERE id = auth.uid();
+    
+    -- Only admins can change is_admin field
+    IF current_user_is_admin IS NOT TRUE THEN
+      RAISE EXCEPTION 'Only admins can modify admin status';
+    END IF;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS protect_is_admin_trigger ON public.profiles;
+CREATE TRIGGER protect_is_admin_trigger
+  BEFORE UPDATE ON public.profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION protect_is_admin();
+
+-- Admin task policies (allow admins to manage all tasks)
+DROP POLICY IF EXISTS "tasks_admin_select" ON public.tasks;
+CREATE POLICY "tasks_admin_select"
+ON public.tasks FOR SELECT
+TO authenticated
+USING (
+  owner_id = auth.uid() OR
+  EXISTS (
+    SELECT 1 FROM public.profiles p
+    WHERE p.id = auth.uid() AND p.is_admin = true
+  )
+);
+
+DROP POLICY IF EXISTS "tasks_admin_update" ON public.tasks;
+CREATE POLICY "tasks_admin_update"
+ON public.tasks FOR UPDATE
+TO authenticated
+USING (
+  owner_id = auth.uid() OR
+  EXISTS (
+    SELECT 1 FROM public.profiles p
+    WHERE p.id = auth.uid() AND p.is_admin = true
+  )
+)
+WITH CHECK (
+  owner_id = auth.uid() OR
+  EXISTS (
+    SELECT 1 FROM public.profiles p
+    WHERE p.id = auth.uid() AND p.is_admin = true
+  )
+);
+
+DROP POLICY IF EXISTS "tasks_admin_delete" ON public.tasks;
+CREATE POLICY "tasks_admin_delete"
+ON public.tasks FOR DELETE
+TO authenticated
+USING (
+  owner_id = auth.uid() OR
+  EXISTS (
+    SELECT 1 FROM public.profiles p
+    WHERE p.id = auth.uid() AND p.is_admin = true
   )
 );

@@ -55,8 +55,20 @@ Public tiler profile page (`/tilers/[id]`) - mobile-first design:
 - **Reviews section**: Reviewer cards with avatar, name, service type, date, and comment
 - **Experience footer**: Years of experience and completed jobs count
 
+### Admin Dashboard
+Secure admin panel at `/admin` for managing website content. Only users with `is_admin=true` can access.
+
+Features:
+- **Dashboard Overview**: Stats cards showing total users, tilers, tasks, blog posts, and guides
+- **Users Management** (`/admin/users`): View all profiles, search, filter by role, verify/unverify tilers
+- **Blog Posts** (`/admin/blog`): Create, edit, publish/unpublish, and delete blog articles
+- **Guides** (`/admin/guides`): Create step-by-step how-to guides with dynamic step builder
+- **Tasks** (`/admin/tasks`): View all tasks, change status, delete inappropriate tasks
+
+To grant admin access, set `is_admin = true` in the profiles table for the user.
+
 ### Database Tables
-- `profiles` - User profiles with role, contact info, availability settings
+- `profiles` - User profiles with role, contact info, availability settings, is_admin flag
 - `tiler_services` - Individual service offerings with pricing
 - `tiler_portfolio` - Work samples gallery
 - `certifications` - Professional certifications
@@ -64,6 +76,8 @@ Public tiler profile page (`/tilers/[id]`) - mobile-first design:
 - `task_sections` - Individual service requirements within tasks
 - `bids` - Tiler bids on tasks
 - `conversations` / `messages` - In-app messaging
+- `blog_posts` - Admin-managed blog articles
+- `guides` - Admin-managed how-to guides with JSON steps
 
 ## Environment Variables Required
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
@@ -84,6 +98,7 @@ Located in `/supabase/functions/`:
 - `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
 
 ## Recent Changes
+- **Jan 1, 2026**: Added comprehensive admin dashboard (`/admin`) with Supabase auth protection. Includes users management, blog posts CRUD, guides CRUD with step builder, and tasks moderation. Added RLS policies for admin access to profiles/tasks/blog_posts/guides.
 - **Jan 1, 2026**: Fixed profile edit confusion - homeowners now have a simple edit page (`/profile/edit`) while tilers use the 5-step wizard (`/profile/setup`).
 - **Jan 1, 2026**: Added service-specific pages (`/services/[service]`) showing available tilers, related blog articles, and how-to guides for each service type.
 - **Jan 1, 2026**: Performance optimizations - Next.js Image config for Supabase, skeleton loading components, memoized components, pagination on tilers page, optimized Supabase queries.
