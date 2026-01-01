@@ -84,6 +84,7 @@ Located in `/supabase/functions/`:
 - `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
 
 ## Recent Changes
+- **Jan 1, 2026**: Fixed profile edit confusion - homeowners now have a simple edit page (`/profile/edit`) while tilers use the 5-step wizard (`/profile/setup`).
 - **Jan 1, 2026**: Added service-specific pages (`/services/[service]`) showing available tilers, related blog articles, and how-to guides for each service type.
 - **Jan 1, 2026**: Performance optimizations - Next.js Image config for Supabase, skeleton loading components, memoized components, pagination on tilers page, optimized Supabase queries.
 - **Dec 31, 2025**: Added full blog articles (8 posts with complete content) and how-to guides section (8 step-by-step guides) with individual pages.

@@ -130,7 +130,7 @@ export default function ProfilePage() {
               </div>
 
               <Link
-                href="/profile/setup"
+                href="/profile/edit"
                 className="mt-5 w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-3.5 px-6 rounded-xl transition-colors"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
