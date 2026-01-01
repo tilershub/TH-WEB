@@ -87,7 +87,6 @@ export default function TilersPage() {
 
   const loadTilers = useCallback(async (pageNum: number, append = false) => {
     if (pageNum === 0) setLoading(true);
-    else setLoadingMore(true);
     
     try {
       const { data, error } = await supabase
@@ -117,11 +116,13 @@ export default function TilersPage() {
   }, [loadTilers]);
 
   const loadMore = () => {
-    if (!loadingMore && hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    setPage(prev => {
+      const nextPage = prev + 1;
       loadTilers(nextPage, true);
-    }
+      return nextPage;
+    });
   };
 
   const filteredTilers = useMemo(() => {
