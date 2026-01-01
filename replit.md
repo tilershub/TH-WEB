@@ -125,6 +125,7 @@ Located in `/supabase/functions/`:
 - `place-bid` - Handles bid placement with tiler role validation, prevents duplicate bids, and validates amounts
 
 ## Recent Changes
+- **Jan 1, 2026**: Optimized public tiler profile (`/tilers/[id]`) with cover photo header, services with rates display, service images in portfolio, and certificates section with images.
 - **Jan 1, 2026**: Added service image uploads for each selected service - images are stored in `service_rates` JSON and displayed in portfolio gallery with service labels. Fixed rate update to preserve photo_path.
 - **Jan 1, 2026**: Enhanced tiler profile setup with profile photo upload, cover photo upload, NIC field, service rates per service, and certificates upload section. Profile display page now shows cover photo, services with rates, and certificates.
 - **Jan 1, 2026**: Redesigned tiler profile setup (`/profile/setup`) with progressive editing using expandable sections like Facebook - each section saves independently, shows completion status, and has a progress bar. Added "Become a Tiler" option to homeowner profile edit page.
