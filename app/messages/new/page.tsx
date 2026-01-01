@@ -117,7 +117,11 @@ export default function NewConversationPage() {
 
       router.push(`/messages/${conversationId}`);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to send message";
+      console.error("Message send error:", err);
+      let errorMessage = "Failed to send message";
+      if (err && typeof err === "object" && "message" in err) {
+        errorMessage = String((err as { message: unknown }).message);
+      }
       setError(errorMessage);
       setSending(false);
     }
