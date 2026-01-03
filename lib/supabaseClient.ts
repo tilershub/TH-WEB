@@ -1,13 +1,14 @@
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  // In Next.js, env vars must exist at build time on Netlify.
-  // If you see an error in Netlify builds, add these env vars in Netlify settings.
-  // eslint-disable-next-line no-console
-  console.warn("Missing Supabase env vars. Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+  console.error(
+    "Missing Supabase env vars: NEXT_PUBLIC_SUPABASE_URL and/or NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  );
 }
 
+// Create client with empty strings if missing (prevents hard crash)
+// Your UI can handle missing auth gracefully instead of server dying.
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
