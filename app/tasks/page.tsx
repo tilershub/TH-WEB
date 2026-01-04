@@ -124,9 +124,10 @@ export default function TasksHomePage() {
     setLoading(true);
     setMsg(null);
 
+    // ✅ IMPORTANT: include task_sections(data) so TaskCard can show image thumbnail
     const { data, error } = await supabase
       .from("tasks")
-      .select("*")
+      .select("id,title,description,location_text,status,created_at,budget_min,budget_max,task_sections(data)")
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -220,9 +221,7 @@ export default function TasksHomePage() {
           {loading && <div className="text-sm text-gray-600">Loading tasks...</div>}
 
           {!loading && filteredTasks.length === 0 && (
-            <div className="card p-6 text-center text-gray-600">
-              No tasks found.
-            </div>
+            <div className="card p-6 text-center text-gray-600">No tasks found.</div>
           )}
 
           {!loading && filteredTasks.length > 0 && (
