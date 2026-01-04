@@ -22,12 +22,9 @@ type TaskRow = {
   created_at: string;
   budget_min?: number | null;
   budget_max?: number | null;
-};
 
-type TaskPhotoRow = {
-  task_id: string;
-  storage_path: string;
-  created_at: string;
+  // ✅ thumbnail stored in tasks table
+  cover_image?: string | null;
 };
 
 function chunk<T>(arr: T[], size: number) {
@@ -110,7 +107,6 @@ function HeroAdCarousel({ ads }: { ads: Ad[] }) {
 
 export default function TasksHomePage() {
   const [tasks, setTasks] = useState<TaskRow[]>([]);
-  const [thumbs, setThumbs] = useState<Record<string, string | null>>({});
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"all" | "myarea">("all");
@@ -120,55 +116,20 @@ export default function TasksHomePage() {
     setLoading(true);
     setMsg(null);
 
-    // 1) load tasks
+    // ✅ Only load tasks (thumbnail is inside tasks.cover_image)
     const { data: taskData, error: taskError } = await supabase
       .from("tasks")
-      .select("*")
+      .select("id,title,description,location_text,status,created_at,budget_min,budget_max,cover_image")
       .order("created_at", { ascending: false });
 
     if (taskError) {
       setMsg(taskError.message);
       setTasks([]);
-      setThumbs({});
       setLoading(false);
       return;
     }
 
-    const rows = (taskData ?? []) as TaskRow[];
-    setTasks(rows);
-
-    // 2) load first photo per task (simple approach: fetch all photos for these tasks, then pick earliest)
-    const taskIds = rows.map((t) => t.id);
-    if (taskIds.length === 0) {
-      setThumbs({});
-      setLoading(false);
-      return;
-    }
-
-    const { data: photoData, error: photoError } = await supabase
-      .from("task_photos")
-      .select("task_id, storage_path, created_at")
-      .in("task_id", taskIds)
-      .order("created_at", { ascending: true });
-
-    if (photoError) {
-      // If RLS blocks task_photos, thumbnails will be empty but page still works
-      setThumbs({});
-      setLoading(false);
-      return;
-    }
-
-    const photos = (photoData ?? []) as TaskPhotoRow[];
-
-    // 3) build map: task_id -> publicUrl
-    const map: Record<string, string | null> = {};
-    for (const ph of photos) {
-      if (map[ph.task_id]) continue; // keep first only
-      const { data } = supabase.storage.from("task-photos").getPublicUrl(ph.storage_path);
-      map[ph.task_id] = data.publicUrl ?? null;
-    }
-
-    setThumbs(map);
+    setTasks((taskData ?? []) as TaskRow[]);
     setLoading(false);
   };
 
@@ -260,7 +221,7 @@ export default function TasksHomePage() {
           {!loading && filteredTasks.length > 0 && (
             <div className="space-y-4">
               {filteredTasks.map((t) => (
-                <TaskCard key={t.id} task={t} thumbUrl={thumbs[t.id] ?? null} />
+                <TaskCard key={t.id} task={t} />
               ))}
             </div>
           )}
