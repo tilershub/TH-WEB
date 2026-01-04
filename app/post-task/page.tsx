@@ -897,7 +897,7 @@ export default function PostTaskPage() {
     setSections((p) => p.filter((x) => x.id !== id));
   };
 
-  const publish = async () => {
+    const publish = async () => {
     setSaving(true);
     setMsg(null);
 
@@ -922,6 +922,12 @@ export default function PostTaskPage() {
       const title = clean(base.title) || suggestedTitle || "Tiling Task";
       const description = previewText;
 
+      // ✅ NEW: choose a thumbnail (first image found in sections)
+      const coverImage =
+        sections
+          .map((sec) => (sec.data as any)?.imagePath as string | null)
+          .find((u) => typeof u === "string" && u.length > 0) ?? null;
+
       const inserted = await supabase
         .from("tasks")
         .insert({
@@ -930,6 +936,7 @@ export default function PostTaskPage() {
           location_text: clean(base.projectAddress),
           status: "open",
           owner_id: user.id,
+          cover_image: coverImage, // ✅ NEW
         })
         .select("*")
         .single();
