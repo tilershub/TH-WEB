@@ -8,12 +8,12 @@ import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
 import { Button } from "@/components/Button";
 
-type ServiceType = 
-  | "floor_tiling" 
-  | "wall_tiling" 
-  | "staircase_tiling" 
-  | "bathroom_tiling" 
-  | "pantry_backsplash" 
+type ServiceType =
+  | "floor_tiling"
+  | "wall_tiling"
+  | "staircase_tiling"
+  | "bathroom_tiling"
+  | "pantry_backsplash"
   | "other";
 
 type BaseForm = {
@@ -118,7 +118,13 @@ type OtherServiceData = {
   imagePath: string | null;
 };
 
-type ServiceData = FloorTilingData | WallTilingData | StaircaseTilingData | BathroomTilingData | PantryBacksplashData | OtherServiceData;
+type ServiceData =
+  | FloorTilingData
+  | WallTilingData
+  | StaircaseTilingData
+  | BathroomTilingData
+  | PantryBacksplashData
+  | OtherServiceData;
 
 type TaskSection = {
   id: string;
@@ -133,6 +139,9 @@ const floors = ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor", "Basement
 const shapes = ["Straight", "L-Shape", "U-Shape", "Island", "Other"];
 const edgeFinishes = ["Double Nose (Curve)", "Single Nose", "Flat Edge", "Beveled Edge", "Other"];
 const staircaseEdgeFinishes = ["Double Nose", "Single Nose", "Flat Edge", "Other"];
+
+const STORAGE_BUCKET = "task-images";
+const MAX_IMAGE_MB = 8;
 
 function uid() {
   return Math.random().toString(16).slice(2) + Date.now().toString(16);
@@ -240,12 +249,18 @@ const defaultOtherService: OtherServiceData = {
 
 function getDefaultData(type: ServiceType): ServiceData {
   switch (type) {
-    case "floor_tiling": return { ...defaultFloorTiling };
-    case "wall_tiling": return { ...defaultWallTiling };
-    case "staircase_tiling": return { ...defaultStaircaseTiling };
-    case "bathroom_tiling": return { ...defaultBathroomTiling };
-    case "pantry_backsplash": return { ...defaultPantryBacksplash };
-    case "other": return { ...defaultOtherService };
+    case "floor_tiling":
+      return { ...defaultFloorTiling };
+    case "wall_tiling":
+      return { ...defaultWallTiling };
+    case "staircase_tiling":
+      return { ...defaultStaircaseTiling };
+    case "bathroom_tiling":
+      return { ...defaultBathroomTiling };
+    case "pantry_backsplash":
+      return { ...defaultPantryBacksplash };
+    case "other":
+      return { ...defaultOtherService };
   }
 }
 
@@ -266,7 +281,7 @@ function buildDescription(base: BaseForm, sections: TaskSection[]) {
     lines.push("");
 
     const d = section.data;
-    
+
     if (d.tilingType === "floor_tiling" || d.tilingType === "wall_tiling") {
       const fd = d as FloorTilingData | WallTilingData;
       lines.push(`Type: ${d.tilingType === "floor_tiling" ? "Floor Tiling" : "Wall Tiling"}`);
@@ -329,8 +344,8 @@ function buildDescription(base: BaseForm, sections: TaskSection[]) {
       lines.push(`Description: ${od.description}`);
     }
 
-    if (d.notes) {
-      lines.push(`Additional Notes: ${d.notes}`);
+    if ((d as any).notes) {
+      lines.push(`Additional Notes: ${(d as any).notes}`);
     }
 
     lines.push("");
@@ -340,11 +355,16 @@ function buildDescription(base: BaseForm, sections: TaskSection[]) {
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 
-function SelectField({ label, value, onChange, options }: { 
-  label: string; 
-  value: string; 
-  onChange: (val: string) => void; 
-  options: string[] 
+function SelectField({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  options: string[];
 }) {
   return (
     <div>
@@ -355,7 +375,9 @@ function SelectField({ label, value, onChange, options }: {
         onChange={(e) => onChange(e.target.value)}
       >
         {options.map((opt) => (
-          <option key={opt} value={opt}>{opt}</option>
+          <option key={opt} value={opt}>
+            {opt}
+          </option>
         ))}
       </select>
     </div>
@@ -429,10 +451,12 @@ function SimpleToggle({
 function ImageUpload({
   imagePath,
   onUpload,
+  onRemove,
   uploading,
 }: {
   imagePath: string | null;
   onUpload: (file: File) => void;
+  onRemove: () => void;
   uploading: boolean;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -448,21 +472,36 @@ function ImageUpload({
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) onUpload(file);
+          // allow selecting same file again
+          if (fileRef.current) fileRef.current.value = "";
         }}
       />
+
       {imagePath ? (
-        <div className="relative inline-block">
-          <img
-            src={imagePath}
-            alt="Uploaded"
-            className="w-24 h-24 object-cover rounded-xl border"
-          />
+        <div className="flex items-center gap-3">
+          <div className="relative inline-block">
+            <img
+              src={imagePath}
+              alt="Uploaded"
+              className="w-24 h-24 object-cover rounded-xl border"
+            />
+            <button
+              type="button"
+              onClick={onRemove}
+              className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-6 h-6 flex items-center justify-center"
+              title="Remove image"
+            >
+              ✕
+            </button>
+          </div>
+
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
-            className="absolute -top-2 -right-2 bg-black text-white text-xs rounded-full w-6 h-6 flex items-center justify-center"
+            disabled={uploading}
+            className="rounded-xl border px-3 py-2 text-sm hover:bg-neutral-50"
           >
-            ✕
+            Change
           </button>
         </div>
       ) : (
@@ -483,12 +522,14 @@ function FloorWallTilingForm({
   data,
   onChange,
   onImageUpload,
+  onImageRemove,
   uploading,
   isWall,
 }: {
   data: FloorTilingData | WallTilingData;
   onChange: (data: FloorTilingData | WallTilingData) => void;
   onImageUpload: (file: File) => void;
+  onImageRemove: () => void;
   uploading: boolean;
   isWall: boolean;
 }) {
@@ -500,70 +541,35 @@ function FloorWallTilingForm({
         <SelectField label="Tile Size" value={data.tileSize} onChange={(v) => onChange({ ...data, tileSize: v })} options={tileSizes} />
         <div>
           <div className="text-sm font-medium mb-1">Area (sq.ft)</div>
-          <Input
-            value={data.area}
-            onChange={(e) => onChange({ ...data, area: e.target.value })}
-            placeholder="700"
-            inputMode="numeric"
-          />
+          <Input value={data.area} onChange={(e) => onChange({ ...data, area: e.target.value })} placeholder="700" inputMode="numeric" />
         </div>
       </div>
 
       <div className="border-t pt-4 space-y-3">
         <div className="text-sm font-semibold text-neutral-700">Additional Work</div>
-        <ToggleWithInput
-          label="Skirting"
-          unit="Lin.ft"
-          enabled={data.skirtingEnabled}
-          value={data.skirtingLength}
-          onToggle={(v) => onChange({ ...data, skirtingEnabled: v })}
-          onChange={(v) => onChange({ ...data, skirtingLength: v })}
-        />
-        <ToggleWithInput
-          label="Screed"
-          unit="sq.ft"
-          enabled={data.screedEnabled}
-          value={data.screedArea}
-          onToggle={(v) => onChange({ ...data, screedEnabled: v })}
-          onChange={(v) => onChange({ ...data, screedArea: v })}
-        />
-        <ToggleWithInput
-          label="Double Nosing"
-          unit="Lin.ft"
-          enabled={data.doubleNosingEnabled}
-          value={data.doubleNosingLength}
-          onToggle={(v) => onChange({ ...data, doubleNosingEnabled: v })}
-          onChange={(v) => onChange({ ...data, doubleNosingLength: v })}
-        />
-        <ToggleWithInput
-          label="Single Nosing"
-          unit="Lin.ft"
-          enabled={data.singleNosingEnabled}
-          value={data.singleNosingLength}
-          onToggle={(v) => onChange({ ...data, singleNosingEnabled: v })}
-          onChange={(v) => onChange({ ...data, singleNosingLength: v })}
-        />
-        <ToggleWithInput
-          label="Demolition Work"
-          unit="sq.ft"
-          enabled={data.demolitionEnabled}
-          value={data.demolitionArea}
-          onToggle={(v) => onChange({ ...data, demolitionEnabled: v })}
-          onChange={(v) => onChange({ ...data, demolitionArea: v })}
-        />
+        <ToggleWithInput label="Skirting" unit="Lin.ft" enabled={data.skirtingEnabled} value={data.skirtingLength}
+          onToggle={(v) => onChange({ ...data, skirtingEnabled: v })} onChange={(v) => onChange({ ...data, skirtingLength: v })} />
+        <ToggleWithInput label="Screed" unit="sq.ft" enabled={data.screedEnabled} value={data.screedArea}
+          onToggle={(v) => onChange({ ...data, screedEnabled: v })} onChange={(v) => onChange({ ...data, screedArea: v })} />
+        <ToggleWithInput label="Double Nosing" unit="Lin.ft" enabled={data.doubleNosingEnabled} value={data.doubleNosingLength}
+          onToggle={(v) => onChange({ ...data, doubleNosingEnabled: v })} onChange={(v) => onChange({ ...data, doubleNosingLength: v })} />
+        <ToggleWithInput label="Single Nosing" unit="Lin.ft" enabled={data.singleNosingEnabled} value={data.singleNosingLength}
+          onToggle={(v) => onChange({ ...data, singleNosingEnabled: v })} onChange={(v) => onChange({ ...data, singleNosingLength: v })} />
+        <ToggleWithInput label="Demolition Work" unit="sq.ft" enabled={data.demolitionEnabled} value={data.demolitionArea}
+          onToggle={(v) => onChange({ ...data, demolitionEnabled: v })} onChange={(v) => onChange({ ...data, demolitionArea: v })} />
       </div>
 
       <div className="border-t pt-4">
         <div className="text-sm font-medium mb-1">Additional Notes</div>
-        <Textarea
-          rows={3}
-          value={data.notes}
-          onChange={(e) => onChange({ ...data, notes: e.target.value })}
-          placeholder="Any extra details about this section..."
-        />
+        <Textarea rows={3} value={data.notes} onChange={(e) => onChange({ ...data, notes: e.target.value })} placeholder="Any extra details about this section..." />
       </div>
 
-      <ImageUpload imagePath={data.imagePath} onUpload={onImageUpload} uploading={uploading} />
+      <ImageUpload
+        imagePath={data.imagePath}
+        uploading={uploading}
+        onUpload={onImageUpload}
+        onRemove={onImageRemove}
+      />
     </div>
   );
 }
@@ -572,11 +578,13 @@ function StaircaseTilingForm({
   data,
   onChange,
   onImageUpload,
+  onImageRemove,
   uploading,
 }: {
   data: StaircaseTilingData;
   onChange: (data: StaircaseTilingData) => void;
   onImageUpload: (file: File) => void;
+  onImageRemove: () => void;
   uploading: boolean;
 }) {
   return (
@@ -619,7 +627,12 @@ function StaircaseTilingForm({
         <Textarea rows={3} value={data.notes} onChange={(e) => onChange({ ...data, notes: e.target.value })} placeholder="Any extra details about this staircase..." />
       </div>
 
-      <ImageUpload imagePath={data.imagePath} onUpload={onImageUpload} uploading={uploading} />
+      <ImageUpload
+        imagePath={data.imagePath}
+        uploading={uploading}
+        onUpload={onImageUpload}
+        onRemove={onImageRemove}
+      />
     </div>
   );
 }
@@ -628,11 +641,13 @@ function BathroomTilingForm({
   data,
   onChange,
   onImageUpload,
+  onImageRemove,
   uploading,
 }: {
   data: BathroomTilingData;
   onChange: (data: BathroomTilingData) => void;
   onImageUpload: (file: File) => void;
+  onImageRemove: () => void;
   uploading: boolean;
 }) {
   return (
@@ -653,10 +668,14 @@ function BathroomTilingForm({
 
       <div className="border-t pt-4 space-y-3">
         <div className="text-sm font-semibold text-neutral-700">Additional Work</div>
-        <ToggleWithInput label="Screed" unit="sq.ft" enabled={data.screedEnabled} value={data.screedArea} onToggle={(v) => onChange({ ...data, screedEnabled: v })} onChange={(v) => onChange({ ...data, screedArea: v })} />
-        <ToggleWithInput label="Double Nosing" unit="Lin.ft" enabled={data.doubleNosingEnabled} value={data.doubleNosingLength} onToggle={(v) => onChange({ ...data, doubleNosingEnabled: v })} onChange={(v) => onChange({ ...data, doubleNosingLength: v })} />
-        <ToggleWithInput label="45°" unit="Lin.ft" enabled={data.fortyFiveDegreeEnabled} value={data.fortyFiveDegreeLength} onToggle={(v) => onChange({ ...data, fortyFiveDegreeEnabled: v })} onChange={(v) => onChange({ ...data, fortyFiveDegreeLength: v })} />
-        <ToggleWithInput label="Demolition Work" unit="sq.ft" enabled={data.demolitionEnabled} value={data.demolitionArea} onToggle={(v) => onChange({ ...data, demolitionEnabled: v })} onChange={(v) => onChange({ ...data, demolitionArea: v })} />
+        <ToggleWithInput label="Screed" unit="sq.ft" enabled={data.screedEnabled} value={data.screedArea}
+          onToggle={(v) => onChange({ ...data, screedEnabled: v })} onChange={(v) => onChange({ ...data, screedArea: v })} />
+        <ToggleWithInput label="Double Nosing" unit="Lin.ft" enabled={data.doubleNosingEnabled} value={data.doubleNosingLength}
+          onToggle={(v) => onChange({ ...data, doubleNosingEnabled: v })} onChange={(v) => onChange({ ...data, doubleNosingLength: v })} />
+        <ToggleWithInput label="45°" unit="Lin.ft" enabled={data.fortyFiveDegreeEnabled} value={data.fortyFiveDegreeLength}
+          onToggle={(v) => onChange({ ...data, fortyFiveDegreeEnabled: v })} onChange={(v) => onChange({ ...data, fortyFiveDegreeLength: v })} />
+        <ToggleWithInput label="Demolition Work" unit="sq.ft" enabled={data.demolitionEnabled} value={data.demolitionArea}
+          onToggle={(v) => onChange({ ...data, demolitionEnabled: v })} onChange={(v) => onChange({ ...data, demolitionArea: v })} />
       </div>
 
       <div className="border-t pt-4">
@@ -664,7 +683,12 @@ function BathroomTilingForm({
         <Textarea rows={3} value={data.notes} onChange={(e) => onChange({ ...data, notes: e.target.value })} placeholder="Any extra details about this bathroom..." />
       </div>
 
-      <ImageUpload imagePath={data.imagePath} onUpload={onImageUpload} uploading={uploading} />
+      <ImageUpload
+        imagePath={data.imagePath}
+        uploading={uploading}
+        onUpload={onImageUpload}
+        onRemove={onImageRemove}
+      />
     </div>
   );
 }
@@ -673,11 +697,13 @@ function PantryBacksplashForm({
   data,
   onChange,
   onImageUpload,
+  onImageRemove,
   uploading,
 }: {
   data: PantryBacksplashData;
   onChange: (data: PantryBacksplashData) => void;
   onImageUpload: (file: File) => void;
+  onImageRemove: () => void;
   uploading: boolean;
 }) {
   return (
@@ -706,7 +732,12 @@ function PantryBacksplashForm({
         <Textarea rows={3} value={data.notes} onChange={(e) => onChange({ ...data, notes: e.target.value })} placeholder="Any extra details about this pantry/backsplash..." />
       </div>
 
-      <ImageUpload imagePath={data.imagePath} onUpload={onImageUpload} uploading={uploading} />
+      <ImageUpload
+        imagePath={data.imagePath}
+        uploading={uploading}
+        onUpload={onImageUpload}
+        onRemove={onImageRemove}
+      />
     </div>
   );
 }
@@ -715,23 +746,20 @@ function OtherServiceForm({
   data,
   onChange,
   onImageUpload,
+  onImageRemove,
   uploading,
 }: {
   data: OtherServiceData;
   onChange: (data: OtherServiceData) => void;
   onImageUpload: (file: File) => void;
+  onImageRemove: () => void;
   uploading: boolean;
 }) {
   return (
     <div className="space-y-4">
       <div>
         <div className="text-sm font-medium mb-1">Description</div>
-        <Textarea
-          rows={4}
-          value={data.description}
-          onChange={(e) => onChange({ ...data, description: e.target.value })}
-          placeholder="Describe the service you need..."
-        />
+        <Textarea rows={4} value={data.description} onChange={(e) => onChange({ ...data, description: e.target.value })} placeholder="Describe the service you need..." />
       </div>
 
       <div className="border-t pt-4">
@@ -739,7 +767,12 @@ function OtherServiceForm({
         <Textarea rows={3} value={data.notes} onChange={(e) => onChange({ ...data, notes: e.target.value })} placeholder="Any extra details..." />
       </div>
 
-      <ImageUpload imagePath={data.imagePath} onUpload={onImageUpload} uploading={uploading} />
+      <ImageUpload
+        imagePath={data.imagePath}
+        uploading={uploading}
+        onUpload={onImageUpload}
+        onRemove={onImageRemove}
+      />
     </div>
   );
 }
@@ -772,6 +805,17 @@ export default function PostTaskPage() {
 
   const canNextBasics = clean(base.projectAddress).length > 1 && clean(base.startingDate).length > 1;
 
+  const getDefaultTitle = (type: ServiceType): string => {
+    switch (type) {
+      case "floor_tiling": return "Floor Tiling";
+      case "wall_tiling": return "Wall Tiling";
+      case "staircase_tiling": return "Staircase Tiling";
+      case "bathroom_tiling": return "Bathroom Tiling";
+      case "pantry_backsplash": return "Pantry Top / Backsplash";
+      case "other": return "Other Service";
+    }
+  };
+
   const handleTypeChange = (type: ServiceType) => {
     setActiveType(type);
     setDraftData(getDefaultData(type));
@@ -779,28 +823,53 @@ export default function PostTaskPage() {
   };
 
   const handleImageUpload = async (file: File) => {
+    setMsg(null);
     setUploading(true);
+
     try {
+      // basic validation
+      if (!file.type.startsWith("image/")) {
+        setMsg("Please select an image file.");
+        return;
+      }
+      const sizeMb = file.size / (1024 * 1024);
+      if (sizeMb > MAX_IMAGE_MB) {
+        setMsg(`Image is too large. Max ${MAX_IMAGE_MB}MB.`);
+        return;
+      }
+
       const { data: s } = await supabase.auth.getSession();
-      if (!s.session?.user) {
+      const user = s.session?.user;
+      if (!user) {
         setMsg("Please login to upload images.");
         return;
       }
 
-      const ext = file.name.split(".").pop() || "jpg";
-      const path = `task-images/${s.session.user.id}/${uid()}.${ext}`;
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const safeExt = ["jpg", "jpeg", "png", "webp", "gif", "heic"].includes(ext) ? ext : "jpg";
 
-      const { error } = await supabase.storage.from("uploads").upload(path, file);
+      // IMPORTANT:
+      // bucket is STORAGE_BUCKET; path should NOT include bucket name
+      const path = `${user.id}/${uid()}.${safeExt}`;
+
+      const { error } = await supabase.storage.from(STORAGE_BUCKET).upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type,
+      });
       if (error) throw error;
 
-      const { data: urlData } = supabase.storage.from("uploads").getPublicUrl(path);
-      
+      const { data: urlData } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
       setDraftData((prev) => ({ ...prev, imagePath: urlData.publicUrl }));
     } catch (err: any) {
       setMsg(err?.message || "Failed to upload image");
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleImageRemove = () => {
+    setDraftData((prev) => ({ ...prev, imagePath: null }));
   };
 
   const addSection = () => {
@@ -824,17 +893,6 @@ export default function PostTaskPage() {
     setDraftData(getDefaultData(activeType));
   };
 
-  const getDefaultTitle = (type: ServiceType): string => {
-    switch (type) {
-      case "floor_tiling": return "Floor Tiling";
-      case "wall_tiling": return "Wall Tiling";
-      case "staircase_tiling": return "Staircase Tiling";
-      case "bathroom_tiling": return "Bathroom Tiling";
-      case "pantry_backsplash": return "Pantry Top / Backsplash";
-      case "other": return "Other Service";
-    }
-  };
-
   const removeSection = (id: string) => {
     setSections((p) => p.filter((x) => x.id !== id));
   };
@@ -848,19 +906,16 @@ export default function PostTaskPage() {
       const user = s.session?.user;
       if (!user) {
         setMsg("Please login.");
-        setSaving(false);
         return;
       }
 
       if (!clean(base.projectAddress) || !clean(base.startingDate)) {
         setMsg("Project address and starting date are required.");
-        setSaving(false);
         return;
       }
 
       if (sections.length === 0) {
         setMsg("Please add at least one service section.");
-        setSaving(false);
         return;
       }
 
@@ -914,7 +969,11 @@ export default function PostTaskPage() {
     <RequireAuth>
       <Page title="Post Task">
         <div className="max-w-3xl mx-auto px-4 py-6">
-          {msg && <div className="mb-4 rounded-xl border bg-red-50 text-red-700 p-3 text-sm">{msg}</div>}
+          {msg && (
+            <div className="mb-4 rounded-xl border bg-red-50 text-red-700 p-3 text-sm">
+              {msg}
+            </div>
+          )}
 
           <div className="mb-4 flex gap-2 text-xs">
             <span className={`rounded-full border px-3 py-1 ${step === 1 ? "bg-black text-white" : ""}`}>1 Project Info</span>
@@ -1001,48 +1060,59 @@ export default function PostTaskPage() {
                       data={draftData as FloorTilingData}
                       onChange={(d) => setDraftData(d)}
                       onImageUpload={handleImageUpload}
+                      onImageRemove={handleImageRemove}
                       uploading={uploading}
                       isWall={false}
                     />
                   )}
+
                   {activeType === "wall_tiling" && (
                     <FloorWallTilingForm
                       data={draftData as WallTilingData}
                       onChange={(d) => setDraftData(d)}
                       onImageUpload={handleImageUpload}
+                      onImageRemove={handleImageRemove}
                       uploading={uploading}
                       isWall={true}
                     />
                   )}
+
                   {activeType === "staircase_tiling" && (
                     <StaircaseTilingForm
                       data={draftData as StaircaseTilingData}
                       onChange={(d) => setDraftData(d)}
                       onImageUpload={handleImageUpload}
+                      onImageRemove={handleImageRemove}
                       uploading={uploading}
                     />
                   )}
+
                   {activeType === "bathroom_tiling" && (
                     <BathroomTilingForm
                       data={draftData as BathroomTilingData}
                       onChange={(d) => setDraftData(d)}
                       onImageUpload={handleImageUpload}
+                      onImageRemove={handleImageRemove}
                       uploading={uploading}
                     />
                   )}
+
                   {activeType === "pantry_backsplash" && (
                     <PantryBacksplashForm
                       data={draftData as PantryBacksplashData}
                       onChange={(d) => setDraftData(d)}
                       onImageUpload={handleImageUpload}
+                      onImageRemove={handleImageRemove}
                       uploading={uploading}
                     />
                   )}
+
                   {activeType === "other" && (
                     <OtherServiceForm
                       data={draftData as OtherServiceData}
                       onChange={(d) => setDraftData(d)}
                       onImageUpload={handleImageUpload}
+                      onImageRemove={handleImageRemove}
                       uploading={uploading}
                     />
                   )}
@@ -1061,9 +1131,7 @@ export default function PostTaskPage() {
                       <div key={sec.id} className="flex items-center justify-between rounded-xl border bg-neutral-50 px-3 py-2">
                         <div>
                           <span className="text-sm font-medium">{idx + 1}. {sec.title}</span>
-                          <span className="ml-2 text-xs text-neutral-500">
-                            ({getDefaultTitle(sec.serviceType)})
-                          </span>
+                          <span className="ml-2 text-xs text-neutral-500">({getDefaultTitle(sec.serviceType)})</span>
                         </div>
                         <button
                           onClick={() => removeSection(sec.id)}
