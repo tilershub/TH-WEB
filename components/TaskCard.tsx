@@ -1,5 +1,11 @@
 import Link from "next/link";
 
+type TaskSection = {
+  data?: {
+    imagePath?: string | null;
+  } | null;
+} | null;
+
 type Task = {
   id: string;
   title: string;
@@ -9,6 +15,9 @@ type Task = {
   created_at: string;
   budget_min?: number | null;
   budget_max?: number | null;
+
+  // ✅ comes from query: task_sections(data)
+  task_sections?: TaskSection[] | null;
 };
 
 function timeAgo(date: string) {
@@ -26,6 +35,10 @@ function timeAgo(date: string) {
 }
 
 export default function TaskCard({ task }: { task: Task }) {
+  // ✅ pick first image in any section
+  const thumb =
+    task.task_sections?.find((s) => s?.data?.imagePath)?.data?.imagePath ?? null;
+
   return (
     <Link
       href={`/task/${task.id}`}
@@ -33,19 +46,34 @@ export default function TaskCard({ task }: { task: Task }) {
     >
       <div className="flex gap-4 p-4">
         <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
-          <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
+          {thumb ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={thumb}
+              alt={task.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <svg
+              className="w-12 h-12 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
+          )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-navy mb-1 truncate">
-            {task.title}
-          </h3>
+          <h3 className="font-semibold text-navy mb-1 truncate">{task.title}</h3>
 
-          <p className="text-xs text-gray-600 mb-2">
-            {timeAgo(task.created_at)}
-          </p>
+          <p className="text-xs text-gray-600 mb-2">{timeAgo(task.created_at)}</p>
 
           {task.location_text && (
             <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
