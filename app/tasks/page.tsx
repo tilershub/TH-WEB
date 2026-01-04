@@ -13,6 +13,23 @@ type Ad = {
   href?: string;
 };
 
+type TaskRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  location_text: string | null;
+  status: "open" | "awarded" | "closed";
+  created_at: string;
+  budget_min?: number | null;
+  budget_max?: number | null;
+};
+
+type TaskPhotoRow = {
+  task_id: string;
+  storage_path: string;
+  created_at: string;
+};
+
 function chunk<T>(arr: T[], size: number) {
   const out: T[][] = [];
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
@@ -91,30 +108,9 @@ function HeroAdCarousel({ ads }: { ads: Ad[] }) {
   );
 }
 
-function InlineAdSpace() {
-  return (
-    <div className="rounded-2xl border bg-white p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-sm font-semibold">Advertising Space</div>
-          <div className="mt-1 text-xs text-neutral-600">
-            Promote tile shops, tools, leveling systems, adhesives, services.
-          </div>
-        </div>
-        <span className="text-[10px] rounded-full border px-2 py-1 text-neutral-600">
-          Sponsored
-        </span>
-      </div>
-
-      <div className="mt-3 h-20 rounded-xl bg-neutral-100 grid place-items-center text-sm text-neutral-600">
-        728×90 / 320×100 Banner Area
-      </div>
-    </div>
-  );
-}
-
 export default function TasksHomePage() {
-  const [tasks, setTasks] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<TaskRow[]>([]);
+  const [thumbs, setThumbs] = useState<Record<string, string | null>>({});
   const [loading, setLoading] = useState(true);
   const [msg, setMsg] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"all" | "myarea">("all");
@@ -124,19 +120,55 @@ export default function TasksHomePage() {
     setLoading(true);
     setMsg(null);
 
-    // ✅ IMPORTANT: include task_sections(data) so TaskCard can show image thumbnail
-    const { data, error } = await supabase
+    // 1) load tasks
+    const { data: taskData, error: taskError } = await supabase
       .from("tasks")
-      .select("id,title,description,location_text,status,created_at,budget_min,budget_max,task_sections(data)")
+      .select("*")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      setMsg(error.message);
+    if (taskError) {
+      setMsg(taskError.message);
       setTasks([]);
-    } else {
-      setTasks(data ?? []);
+      setThumbs({});
+      setLoading(false);
+      return;
     }
 
+    const rows = (taskData ?? []) as TaskRow[];
+    setTasks(rows);
+
+    // 2) load first photo per task (simple approach: fetch all photos for these tasks, then pick earliest)
+    const taskIds = rows.map((t) => t.id);
+    if (taskIds.length === 0) {
+      setThumbs({});
+      setLoading(false);
+      return;
+    }
+
+    const { data: photoData, error: photoError } = await supabase
+      .from("task_photos")
+      .select("task_id, storage_path, created_at")
+      .in("task_id", taskIds)
+      .order("created_at", { ascending: true });
+
+    if (photoError) {
+      // If RLS blocks task_photos, thumbnails will be empty but page still works
+      setThumbs({});
+      setLoading(false);
+      return;
+    }
+
+    const photos = (photoData ?? []) as TaskPhotoRow[];
+
+    // 3) build map: task_id -> publicUrl
+    const map: Record<string, string | null> = {};
+    for (const ph of photos) {
+      if (map[ph.task_id]) continue; // keep first only
+      const { data } = supabase.storage.from("task-photos").getPublicUrl(ph.storage_path);
+      map[ph.task_id] = data.publicUrl ?? null;
+    }
+
+    setThumbs(map);
     setLoading(false);
   };
 
@@ -151,6 +183,7 @@ export default function TasksHomePage() {
     return () => {
       supabase.removeChannel(ch);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filteredTasks = useMemo(() => {
@@ -227,7 +260,7 @@ export default function TasksHomePage() {
           {!loading && filteredTasks.length > 0 && (
             <div className="space-y-4">
               {filteredTasks.map((t) => (
-                <TaskCard key={t.id} task={t} />
+                <TaskCard key={t.id} task={t} thumbUrl={thumbs[t.id] ?? null} />
               ))}
             </div>
           )}
