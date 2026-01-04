@@ -1,11 +1,5 @@
 import Link from "next/link";
 
-type TaskSection = {
-  data?: {
-    imagePath?: string | null;
-  } | null;
-} | null;
-
 type Task = {
   id: string;
   title: string;
@@ -15,9 +9,6 @@ type Task = {
   created_at: string;
   budget_min?: number | null;
   budget_max?: number | null;
-
-  // ✅ comes from query: task_sections(data)
-  task_sections?: TaskSection[] | null;
 };
 
 function timeAgo(date: string) {
@@ -34,11 +25,13 @@ function timeAgo(date: string) {
   return `${days}d ago`;
 }
 
-export default function TaskCard({ task }: { task: Task }) {
-  // ✅ pick first image in any section
-  const thumb =
-    task.task_sections?.find((s) => s?.data?.imagePath)?.data?.imagePath ?? null;
-
+export default function TaskCard({
+  task,
+  thumbUrl,
+}: {
+  task: Task;
+  thumbUrl?: string | null;
+}) {
   return (
     <Link
       href={`/task/${task.id}`}
@@ -46,12 +39,13 @@ export default function TaskCard({ task }: { task: Task }) {
     >
       <div className="flex gap-4 p-4">
         <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
-          {thumb ? (
+          {thumbUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={thumb}
-              alt={task.title}
+              src={thumbUrl}
+              alt="Task thumbnail"
               className="w-full h-full object-cover"
+              loading="lazy"
             />
           ) : (
             <svg
@@ -77,9 +71,24 @@ export default function TaskCard({ task }: { task: Task }) {
 
           {task.location_text && (
             <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              <svg
+                className="w-3 h-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
               </svg>
               <span className="truncate">{task.location_text}</span>
             </div>
