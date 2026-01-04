@@ -9,6 +9,9 @@ type Task = {
   created_at: string;
   budget_min?: number | null;
   budget_max?: number | null;
+
+  // ✅ NEW: stored on tasks table
+  cover_image?: string | null;
 };
 
 function timeAgo(date: string) {
@@ -27,11 +30,15 @@ function timeAgo(date: string) {
 
 export default function TaskCard({
   task,
+  // keep optional override (useful if later you want to show first task photo)
   thumbUrl,
 }: {
   task: Task;
   thumbUrl?: string | null;
 }) {
+  // ✅ Single source of truth:
+  const thumbnail = thumbUrl ?? task.cover_image ?? null;
+
   return (
     <Link
       href={`/task/${task.id}`}
@@ -39,10 +46,10 @@ export default function TaskCard({
     >
       <div className="flex gap-4 p-4">
         <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
-          {thumbUrl ? (
+          {thumbnail ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={thumbUrl}
+              src={thumbnail}
               alt="Task thumbnail"
               className="w-full h-full object-cover"
               loading="lazy"
