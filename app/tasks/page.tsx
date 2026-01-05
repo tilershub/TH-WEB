@@ -112,6 +112,34 @@ export default function TasksHomePage() {
   const [activeTab, setActiveTab] = useState<"all" | "myarea">("all");
   const [q, setQ] = useState("");
 
+  // ✅ Full name for header
+  const [fullName, setFullName] = useState<string>("");
+
+  const loadFullName = async () => {
+    const { data: authData, error } = await supabase.auth.getUser();
+    if (error || !authData?.user) {
+      setFullName("");
+      return;
+    }
+
+    const user = authData.user;
+
+    // ✅ Preferred: profiles table
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("full_name, first_name, last_name")
+      .eq("id", user.id)
+      .single();
+
+    const name =
+      profile?.full_name ||
+      `${profile?.first_name ?? ""} ${profile?.last_name ?? ""}`.trim() ||
+      (user.user_metadata?.full_name as string) ||
+      "";
+
+    setFullName(name);
+  };
+
   const load = async () => {
     setLoading(true);
     setMsg(null);
@@ -134,6 +162,7 @@ export default function TasksHomePage() {
   };
 
   useEffect(() => {
+    loadFullName();
     load();
 
     const ch = supabase
@@ -141,8 +170,14 @@ export default function TasksHomePage() {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "tasks" }, () => load())
       .subscribe();
 
+    // ✅ keep header updated on login/logout
+    const { data: authListener } = supabase.auth.onAuthStateChange(() => {
+      loadFullName();
+    });
+
     return () => {
       supabase.removeChannel(ch);
+      authListener.subscription.unsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -163,16 +198,29 @@ export default function TasksHomePage() {
     <div className="min-h-screen bg-gray-50 pb-28">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-navy">Welcome, John</h1>
-          <button className="p-2 hover:bg-gray-100 rounded-full">
+          <h1 className="text-2xl font-bold text-navy">
+            Welcome{fullName ? `, ${fullName}` : ""}
+          </h1>
+
+          <button className="p-2 hover:bg-gray-100 rounded-full" aria-label="Profile">
             <svg className="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
             </svg>
           </button>
         </div>
 
         <div className="relative">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
