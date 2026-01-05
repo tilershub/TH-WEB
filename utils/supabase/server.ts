@@ -1,12 +1,5 @@
-// utils/supabase/server.ts
-import { cookies } from "next/headers";
 import { createServerClient } from "@supabase/ssr";
-
-type CookieToSet = {
-  name: string;
-  value: string;
-  options?: Parameters<ReturnType<typeof cookies>["set"]>[2];
-};
+import { cookies } from "next/headers";
 
 export function createSupabaseServerClient() {
   const cookieStore = cookies();
@@ -19,16 +12,19 @@ export function createSupabaseServerClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet: CookieToSet[]) {
+        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
               cookieStore.set(name, value, options);
             });
           } catch {
-            // This can fail in Server Components; it's safe to ignore.
+            // Ignore errors if called from a Server Component where cookies cannot be set
           }
         },
       },
     }
   );
 }
+
+// ✅ alias so your route can import { createClient }
+export const createClient = createSupabaseServerClient;
