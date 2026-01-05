@@ -81,33 +81,27 @@ export default function AuthPage() {
 
   // ✅ GOOGLE OAUTH (WORKING)
   const handleGoogleLogin = async () => {
-  setBusy(true);
-  setMsg(null);
+    setBusy(true);
+    setMsg(null);
 
-  try {
-    const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
+    try {
+      const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo,
-        queryParams: { access_type: "offline", prompt: "consent" },
-      },
-    });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+          queryParams: { access_type: "offline", prompt: "consent" },
+        },
+      });
 
-    if (error) throw error;
-  } catch (e: any) {
-    setMsg(e?.message ?? "Google login failed");
-    setBusy(false);
-  }
-};
-
-    if (error) throw error;
-  } catch (e: any) {
-    setMsg(e?.message ?? "Google login failed");
-    setBusy(false);
-  }
-};
+      if (error) throw error;
+      // Supabase redirects to Google automatically
+    } catch (e: any) {
+      setMsg(e?.message ?? "Google login failed");
+      setBusy(false);
+    }
+  };
 
   // (Optional) Apple placeholder - keep button but no action yet
   const handleAppleLogin = async () => {
