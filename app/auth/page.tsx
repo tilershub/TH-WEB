@@ -18,11 +18,8 @@ export default function AuthPage() {
 
   const handleCredentialsSubmit = () => {
     if (!email || !password) return;
-    if (mode === "signup") {
-      setStep("role");
-    } else {
-      handleLogin();
-    }
+    if (mode === "signup") setStep("role");
+    else handleLogin();
   };
 
   const handleLogin = async () => {
@@ -114,6 +111,7 @@ export default function AuthPage() {
           {step === "role" ? (
             <div className="space-y-4">
               <button
+                type="button"
                 onClick={() => setRole("homeowner")}
                 className={`w-full p-6 rounded-2xl border-2 transition-all text-left ${
                   role === "homeowner"
@@ -146,6 +144,7 @@ export default function AuthPage() {
               </button>
 
               <button
+                type="button"
                 onClick={() => setRole("tiler")}
                 className={`w-full p-6 rounded-2xl border-2 transition-all text-left ${
                   role === "tiler"
@@ -224,11 +223,7 @@ export default function AuthPage() {
                 </div>
               )}
 
-              <Button
-                onClick={handleCredentialsSubmit}
-                disabled={busy || !email || !password}
-                className="w-full"
-              >
+              <Button onClick={handleCredentialsSubmit} disabled={busy || !email || !password} className="w-full">
                 {busy ? "Please wait..." : mode === "login" ? "Login" : "Continue"}
               </Button>
 
