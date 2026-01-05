@@ -9,36 +9,21 @@ type Task = {
   created_at: string;
   budget_min?: number | null;
   budget_max?: number | null;
-
-  // ✅ NEW: stored on tasks table
-  cover_image?: string | null;
+  cover_image?: string | null; // ✅ add this
 };
 
 function timeAgo(date: string) {
   const diff = Date.now() - new Date(date).getTime();
   const minutes = Math.floor(diff / 60000);
-
   if (minutes < 1) return "just now";
   if (minutes < 60) return `${minutes}m ago`;
-
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
-
   const days = Math.floor(hours / 24);
   return `${days}d ago`;
 }
 
-export default function TaskCard({
-  task,
-  // keep optional override (useful if later you want to show first task photo)
-  thumbUrl,
-}: {
-  task: Task;
-  thumbUrl?: string | null;
-}) {
-  // ✅ Single source of truth:
-  const thumbnail = thumbUrl ?? task.cover_image ?? null;
-
+export default function TaskCard({ task }: { task: Task }) {
   return (
     <Link
       href={`/task/${task.id}`}
@@ -46,10 +31,10 @@ export default function TaskCard({
     >
       <div className="flex gap-4 p-4">
         <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
-          {thumbnail ? (
+          {task.cover_image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={thumbnail}
+              src={task.cover_image}
               alt="Task thumbnail"
               className="w-full h-full object-cover"
               loading="lazy"
@@ -73,29 +58,15 @@ export default function TaskCard({
 
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-navy mb-1 truncate">{task.title}</h3>
-
           <p className="text-xs text-gray-600 mb-2">{timeAgo(task.created_at)}</p>
 
           {task.location_text && (
             <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
-              <svg
-                className="w-3 h-3"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
               <span className="truncate">{task.location_text}</span>
             </div>
