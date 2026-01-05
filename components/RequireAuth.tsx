@@ -22,16 +22,21 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  if (loading) return <div className="text-sm text-neutral-600">Loading…</div>;
+  useEffect(() => {
+    if (!loading && !session) {
+      window.location.href = "/auth";
+    }
+  }, [loading, session]);
 
-  if (!session) {
+  if (loading) {
     return (
-      <div className="rounded-lg border border-neutral-200 p-4 text-sm">
-        You must be logged in to view this page.{" "}
-        <a className="underline" href="/auth">Go to login</a>
+      <div className="flex items-center justify-center min-h-[40vh] text-sm text-neutral-600">
+        Checking authentication…
       </div>
     );
   }
+
+  if (!session) return null;
 
   return <>{children}</>;
 }
