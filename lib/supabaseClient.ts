@@ -1,4 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
+// lib/supabaseClient.ts  (or whatever your current file path is)
+
+import { createBrowserClient } from "@supabase/ssr";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
@@ -9,11 +11,5 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    flowType: "pkce",          // ✅ PKCE enabled here
-    detectSessionInUrl: true,  // ✅ handles OAuth redirect URL parsing
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-});
+// ✅ This stores the PKCE verifier in COOKIES so your /auth/callback route can exchange the code
+export const supabase = createBrowserClient(supabaseUrl, supabaseAnonKey);
