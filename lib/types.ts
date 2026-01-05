@@ -104,6 +104,9 @@ export type Task = {
   status: TaskStatus;
   created_at: string;
   updated_at: string;
+
+  // ✅ NEW: thumbnail image saved on task row
+  cover_image?: string | null;
 };
 
 /* =========================
