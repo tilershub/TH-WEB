@@ -49,8 +49,8 @@ export default function AuthPage() {
         email,
         password,
         options: {
-          data: { role, full_name: email.split("@")[0] }
-        }
+          data: { role, full_name: email.split("@")[0] },
+        },
       });
       if (error) throw error;
 
@@ -79,29 +79,34 @@ export default function AuthPage() {
     setMsg(null);
   };
 
-const handleGoogleLogin = async () => {
-  setBusy(true);
-  setMsg(null);
+  // ✅ GOOGLE OAUTH (WORKING)
+  const handleGoogleLogin = async () => {
+    setBusy(true);
+    setMsg(null);
 
-  try {
-    const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
+    try {
+      const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
 
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo,
-        // optional, but helps with refresh tokens:
-        queryParams: { access_type: "offline", prompt: "consent" },
-      },
-    });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo,
+          queryParams: { access_type: "offline", prompt: "consent" },
+        },
+      });
 
-    if (error) throw error;
-    // Supabase redirects to Google automatically
-  } catch (e: any) {
-    setMsg(e?.message ?? "Google login failed");
-    setBusy(false);
-  }
-};
+      if (error) throw error;
+      // Supabase will redirect to Google automatically
+    } catch (e: any) {
+      setMsg(e?.message ?? "Google login failed");
+      setBusy(false);
+    }
+  };
+
+  // (Optional) Apple placeholder - keep button but no action yet
+  const handleAppleLogin = async () => {
+    setMsg("Apple login not enabled yet.");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -122,14 +127,14 @@ const handleGoogleLogin = async () => {
             </div>
 
             <h1 className="text-2xl font-bold text-navy mb-2">
-              {mode === "login" 
-                ? "Login to TILERS HUB" 
-                : step === "role" 
-                  ? "Choose Your Role" 
-                  : "Sign Up to TILERS HUB"}
+              {mode === "login"
+                ? "Login to TILERS HUB"
+                : step === "role"
+                ? "Choose Your Role"
+                : "Sign Up to TILERS HUB"}
             </h1>
             <p className="text-gray-600 text-center text-sm">
-              {step === "role" 
+              {step === "role"
                 ? "Are you looking to hire a tiler or offer tiling services?"
                 : "Join Tilers Hub to post or find tiling jobs nearby"}
             </p>
@@ -146,11 +151,20 @@ const handleGoogleLogin = async () => {
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    role === "homeowner" ? "bg-primary text-white" : "bg-gray-100 text-gray-600"
-                  }`}>
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      role === "homeowner"
+                        ? "bg-primary text-white"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -169,11 +183,18 @@ const handleGoogleLogin = async () => {
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                    role === "tiler" ? "bg-primary text-white" : "bg-gray-100 text-gray-600"
-                  }`}>
+                  <div
+                    className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                      role === "tiler" ? "bg-primary text-white" : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
                     </svg>
                   </div>
                   <div>
@@ -190,18 +211,10 @@ const handleGoogleLogin = async () => {
               )}
 
               <div className="flex gap-3 pt-2">
-                <Button
-                  onClick={() => setStep("credentials")}
-                  variant="secondary"
-                  className="flex-1"
-                >
+                <Button onClick={() => setStep("credentials")} variant="secondary" className="flex-1">
                   Back
                 </Button>
-                <Button
-                  onClick={handleSignup}
-                  disabled={busy || !role}
-                  className="flex-1"
-                >
+                <Button onClick={handleSignup} disabled={busy || !role} className="flex-1">
                   {busy ? "Creating..." : "Create Account"}
                 </Button>
               </div>
@@ -209,19 +222,44 @@ const handleGoogleLogin = async () => {
           ) : (
             <>
               <div className="space-y-3 mb-4">
-                <button className="w-full flex items-center justify-center gap-3 px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                {/* ✅ GOOGLE button now works */}
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={busy}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors disabled:opacity-60"
+                >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
                   </svg>
-                  <span className="text-sm font-medium text-gray-700">Continue with Google</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {busy ? "Opening Google..." : "Continue with Google"}
+                  </span>
                 </button>
 
-                <button className="w-full flex items-center justify-center gap-3 px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors">
+                {/* keep Apple button (no remove) */}
+                <button
+                  type="button"
+                  onClick={handleAppleLogin}
+                  className="w-full flex items-center justify-center gap-3 px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
+                >
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
                   </svg>
                   <span className="text-sm font-medium text-gray-700">Continue with Apple</span>
                 </button>
@@ -258,41 +296,33 @@ const handleGoogleLogin = async () => {
                 </div>
 
                 {msg && (
-                  <div className={`rounded-xl p-3 text-sm ${
-                    msg.includes("successful") 
-                      ? "bg-green-50 border border-green-200 text-green-800"
-                      : "bg-blue-50 border border-blue-200 text-blue-800"
-                  }`}>
+                  <div
+                    className={`rounded-xl p-3 text-sm ${
+                      msg.includes("successful")
+                        ? "bg-green-50 border border-green-200 text-green-800"
+                        : "bg-blue-50 border border-blue-200 text-blue-800"
+                    }`}
+                  >
                     {msg}
                   </div>
                 )}
 
-                <Button
-                  onClick={handleCredentialsSubmit}
-                  disabled={busy || !email || !password}
-                  className="w-full"
-                >
-                  {busy ? "Please wait..." : (mode === "login" ? "Login" : "Continue")}
+                <Button onClick={handleCredentialsSubmit} disabled={busy || !email || !password} className="w-full">
+                  {busy ? "Please wait..." : mode === "login" ? "Login" : "Continue"}
                 </Button>
 
                 <p className="text-center text-sm text-gray-600">
                   {mode === "login" ? (
                     <>
                       Don&apos;t have an account?{" "}
-                      <button
-                        onClick={resetToSignup}
-                        className="text-primary font-medium hover:underline"
-                      >
+                      <button onClick={resetToSignup} className="text-primary font-medium hover:underline">
                         Sign Up
                       </button>
                     </>
                   ) : (
                     <>
                       Already have an account?{" "}
-                      <button
-                        onClick={resetToLogin}
-                        className="text-primary font-medium hover:underline"
-                      >
+                      <button onClick={resetToLogin} className="text-primary font-medium hover:underline">
                         Login
                       </button>
                     </>
