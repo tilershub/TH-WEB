@@ -1,7 +1,8 @@
-import { createServerClient } from "@supabase/ssr";
+// utils/supabase/server.ts
 import { cookies } from "next/headers";
+import { createServerClient } from "@supabase/ssr";
 
-export function createSupabaseServerClient() {
+export function createClient() {
   const cookieStore = cookies();
 
   return createServerClient(
@@ -12,19 +13,16 @@ export function createSupabaseServerClient() {
         getAll() {
           return cookieStore.getAll();
         },
-        setAll(cookiesToSet: { name: string; value: string; options?: any }[]) {
+        setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) => {
               cookieStore.set(name, value, options);
             });
           } catch {
-            // Ignore errors if called from a Server Component where cookies cannot be set
+            // ignore (server components can't always set cookies)
           }
         },
       },
     }
   );
 }
-
-// ✅ alias so your route can import { createClient }
-export const createClient = createSupabaseServerClient;
