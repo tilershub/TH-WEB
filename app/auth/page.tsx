@@ -81,27 +81,24 @@ export default function AuthPage() {
 
   // ✅ GOOGLE OAUTH (WORKING)
   const handleGoogleLogin = async () => {
-    setBusy(true);
-    setMsg(null);
+  setBusy(true);
+  setMsg(null);
 
-    try {
-      const redirectTo = `https://tilershub.lk/auth/callback?next=/profile`;
+  const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
 
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo,
-          queryParams: { access_type: "offline", prompt: "consent" },
-        },
-      });
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo,
+      flowType: "pkce", // ✅ VERY IMPORTANT
+    },
+  });
 
-      if (error) throw error;
-      // Supabase will redirect to Google automatically
-    } catch (e: any) {
-      setMsg(e?.message ?? "Google login failed");
-      setBusy(false);
-    }
-  };
+  if (error) {
+    setMsg(error.message);
+    setBusy(false);
+  }
+};
 
   // (Optional) Apple placeholder - keep button but no action yet
   const handleAppleLogin = async () => {
