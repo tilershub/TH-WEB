@@ -85,7 +85,7 @@ export default function AuthPage() {
   setMsg(null);
 
   try {
-    const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
+    const redirectTo = `https://tilershub.lk/auth/callback?next=/profile`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
