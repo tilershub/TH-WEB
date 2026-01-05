@@ -8,7 +8,6 @@ export async function GET(request: Request) {
   const code = url.searchParams.get("code");
   const next = url.searchParams.get("next") ?? "/";
 
-  // If someone opens /auth/callback without a code, send them to /auth
   if (!code) {
     return NextResponse.redirect(`${origin}/auth`);
   }
@@ -18,7 +17,6 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-      // send user back with readable error (prevents "site can't be reached")
       return NextResponse.redirect(
         `${origin}/auth?error=${encodeURIComponent(error.message)}`
       );
