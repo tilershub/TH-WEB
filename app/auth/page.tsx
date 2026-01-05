@@ -79,6 +79,30 @@ export default function AuthPage() {
     setMsg(null);
   };
 
+const handleGoogleLogin = async () => {
+  setBusy(true);
+  setMsg(null);
+
+  try {
+    const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+        // optional, but helps with refresh tokens:
+        queryParams: { access_type: "offline", prompt: "consent" },
+      },
+    });
+
+    if (error) throw error;
+    // Supabase redirects to Google automatically
+  } catch (e: any) {
+    setMsg(e?.message ?? "Google login failed");
+    setBusy(false);
+  }
+};
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
