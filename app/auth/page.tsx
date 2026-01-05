@@ -84,18 +84,21 @@ export default function AuthPage() {
   setBusy(true);
   setMsg(null);
 
-  const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
+  try {
+    const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
 
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-      redirectTo,
-      flowType: "pkce", // ✅ VERY IMPORTANT
-    },
-  });
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo,
+        // optional:
+        queryParams: { access_type: "offline", prompt: "consent" },
+      },
+    });
 
-  if (error) {
-    setMsg(error.message);
+    if (error) throw error;
+  } catch (e: any) {
+    setMsg(e?.message ?? "Google login failed");
     setBusy(false);
   }
 };
