@@ -9,6 +9,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-// Create client with empty strings if missing (prevents hard crash)
-// Your UI can handle missing auth gracefully instead of server dying.
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    flowType: "pkce",          // ✅ PKCE enabled here
+    detectSessionInUrl: true,  // ✅ handles OAuth redirect URL parsing
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+});
