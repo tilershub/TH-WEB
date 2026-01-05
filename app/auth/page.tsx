@@ -85,16 +85,22 @@ export default function AuthPage() {
   setMsg(null);
 
   try {
-    const redirectTo = `https://tilershub.lk/auth/callback?next=/profile`;
+    const redirectTo = `${window.location.origin}/auth/callback?next=/profile`;
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo,
-        // optional:
         queryParams: { access_type: "offline", prompt: "consent" },
       },
     });
+
+    if (error) throw error;
+  } catch (e: any) {
+    setMsg(e?.message ?? "Google login failed");
+    setBusy(false);
+  }
+};
 
     if (error) throw error;
   } catch (e: any) {
