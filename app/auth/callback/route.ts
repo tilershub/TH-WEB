@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const origin = url.origin;
 
   const code = url.searchParams.get("code");
-  const next = url.searchParams.get("next") ?? "/";
+  const next = url.searchParams.get("next") || "/";
 
   if (!code) {
     return NextResponse.redirect(`${origin}/auth`);
@@ -14,19 +14,18 @@ export async function GET(request: Request) {
 
   try {
     const supabase = createClient();
+
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-      return NextResponse.redirect(
-        `${origin}/auth?error=${encodeURIComponent(error.message)}`
-      );
+      console.error("OAuth exchange error:", error.message);
+      return NextResponse.redirect(`${origin}/auth`);
     }
 
     const safeNext = next.startsWith("/") ? next : `/${next}`;
     return NextResponse.redirect(`${origin}${safeNext}`);
-  } catch (e: any) {
-    return NextResponse.redirect(
-      `${origin}/auth?error=${encodeURIComponent(e?.message ?? "callback_failed")}`
-    );
+  } catch (err) {
+    console.error("OAuth callback crash:", err);
+    return NextResponse.redirect(`${origin}/auth`);
   }
 }
