@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { Page } from "@/components/Page";
 import { supabase } from "@/lib/supabaseClient";
-import type { Bid, Profile, Task } from "@/lib/types";
+import type { Bid, Profile, Task, TaskPhoto } from "@/lib/types";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
@@ -28,6 +28,11 @@ export default function TaskDetailsPage() {
   const [bids, setBids] = useState<Bid[]>([]);
   const [me, setMe] = useState<{ userId: string; profile: Profile | null } | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
+
+  // Photos uploaded via the simplified Task Hub flow. These are stored in
+  // the task_photos table with a storage_path for each image. We also
+  // include the task.cover_image (a direct URL) in our image list below.
+  const [photos, setPhotos] = useState<TaskPhoto[]>([]);
 
   const [bidAmount, setBidAmount] = useState("");
   const [bidMessage, setBidMessage] = useState("");
@@ -54,6 +59,10 @@ export default function TaskDetailsPage() {
         return;
       }
       setTask(t.data as Task);
+
+      // ✅ load any photos associated with this task (simplified flow)
+      const p = await supabase.from("task_photos").select("*").eq("task_id", id).order("created_at", { ascending: true });
+      if (!p.error && p.data) setPhotos((p.data as TaskPhoto[]) ?? []);
 
       // ✅ load sections (contains data.imagePath)
       const sres = await supabase
@@ -86,6 +95,29 @@ export default function TaskDetailsPage() {
     // remove duplicates
     return Array.from(new Set(urls));
   }, [sections]);
+
+  // ✅ collect image URLs from cover_image and task_photos
+  const allImageUrls = useMemo(() => {
+    const urls = new Set<string>();
+    // include cover image from task row if present
+    if (task?.cover_image) urls.add(task.cover_image);
+    // include photos from task_photos table using storage bucket public URL
+    photos.forEach((photo) => {
+      // Determine the public URL from storage. If the path is already a full URL
+      // (as might be the case if cover_image was saved), add it directly. Otherwise
+      // use Supabase storage helper to get a signed public URL.
+      const path = photo.storage_path;
+      if (path.startsWith("http://") || path.startsWith("https://")) {
+        urls.add(path);
+      } else {
+        const { data } = supabase.storage.from("task-images").getPublicUrl(path);
+        if (data?.publicUrl) urls.add(data.publicUrl);
+      }
+    });
+    // include images from old sections JSON for backwards compatibility
+    sectionImageUrls.forEach((u) => urls.add(u));
+    return Array.from(urls);
+  }, [task, photos, sectionImageUrls]);
 
   const placeBid = async () => {
     setMsg(null);
@@ -200,13 +232,17 @@ export default function TaskDetailsPage() {
               <div className="text-xs text-neutral-500">Status: {task.status}</div>
             </div>
 
-            {/* ✅ images from task_sections.data.imagePath */}
-            {sectionImageUrls.length > 0 && (
+            {/* ✅ images from cover_image, task_photos and old sections (unique set) */}
+            {allImageUrls.length > 0 && (
               <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {sectionImageUrls.map((u) => (
+                {allImageUrls.map((u) => (
                   <a key={u} href={u} target="_blank" rel="noreferrer" className="block">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={u} alt="task" className="h-28 w-full rounded-md object-cover border" />
+                    <img
+                      src={u}
+                      alt="Task image"
+                      className="h-28 w-full rounded-md object-cover border"
+                    />
                   </a>
                 ))}
               </div>
