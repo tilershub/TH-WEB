@@ -7,6 +7,7 @@ import { Page } from "@/components/Page";
 import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
 import { Button } from "@/components/Button";
+import { FormField } from "@/components/FormField";
 import ServiceMultiSelect, { ServiceOption } from "@/components/ServiceMultiSelect";
 import PhotoPicker from "@/components/PhotoPicker";
 
@@ -131,77 +132,82 @@ export default function PostTaskPage() {
 
   return (
     <RequireAuth>
-      <Page title="Post Task">
-        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-          {msg && <div className="rounded bg-red-50 text-red-700 p-3 text-sm">{msg}</div>}
-          <div>
-            <label className="text-sm font-medium">City</label>
-            <Input
-              className="mt-1"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="e.g., Colombo"
-            />
+      <Page
+        title="Post a task"
+        description="Share the basics and let taskers bid. You can edit your task later."
+      >
+        <div className="mx-auto max-w-3xl space-y-4">
+          {msg && <div className="rounded-xl bg-red-50 text-red-700 p-3 text-sm">{msg}</div>}
+
+          <div className="card p-4 md:p-6 space-y-4">
+            <FormField label="City" hint="Where is the job?" required>
+              <Input
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="e.g., Colombo"
+                autoComplete="address-level2"
+              />
+            </FormField>
+
+            <FormField label="Start" hint="When do you want to start?" required>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                <select
+                  className="input-field"
+                  value={startType}
+                  onChange={(e) => setStartType(e.target.value as any)}
+                >
+                  <option value="asap">ASAP</option>
+                  <option value="date">Choose a date</option>
+                </select>
+                {startType === "date" && (
+                  <input
+                    type="date"
+                    className="input-field"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                )}
+              </div>
+            </FormField>
+
+            <FormField label="Services" hint="Pick one or more" required>
+              <ServiceMultiSelect services={serviceOptions} selected={services} setSelected={setServices} />
+            </FormField>
+
+            <FormField label="Title" hint="Optional">
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder={suggestion || "Task title"}
+              />
+              {suggestion && !title ? (
+                <div className="text-xs text-neutral-500 mt-1">Suggestion: {suggestion}</div>
+              ) : null}
+            </FormField>
+
+            <FormField label="Description" hint="What should we know?" required>
+              <Textarea
+                rows={6}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Tell taskers what you want done, measurements, materials, access details, etc."
+              />
+            </FormField>
+
+            <FormField label="Photos" hint="Up to 5">
+              <PhotoPicker files={files} setFiles={setFiles} max={5} />
+            </FormField>
           </div>
-          <div>
-            <label className="text-sm font-medium">Start Date</label>
-            <div className="mt-1 flex items-center gap-2">
-              <select
-                className="border px-2 py-1 rounded"
-                value={startType}
-                onChange={(e) => setStartType(e.target.value as any)}
-              >
-                <option value="asap">ASAP</option>
-                <option value="date">Select date</option>
-              </select>
-              {startType === "date" && (
-                <input
-                  type="date"
-                  className="border px-2 py-1 rounded"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
-              )}
+
+          <div className="sticky bottom-0 left-0 right-0 bg-[rgb(var(--bg))] pb-4 pt-3">
+            <div className="mx-auto max-w-3xl">
+              <Button onClick={publish} loading={saving} fullWidth size="lg">
+                Publish task
+              </Button>
+              <p className="mt-2 text-xs text-gray-500 text-center">
+                By publishing you agree to share your task details with taskers.
+              </p>
             </div>
-          </div>
-          <div>
-            <label className="text-sm font-medium">Services</label>
-            <ServiceMultiSelect
-              services={serviceOptions}
-              selected={services}
-              setSelected={setServices}
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium">Title (optional)</label>
-            <Input
-              className="mt-1"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={suggestion || "Task title"}
-            />
-            {suggestion && !title && (
-              <div className="text-xs text-neutral-500 mt-1">Suggestion: {suggestion}</div>
-            )}
-          </div>
-          <div>
-            <label className="text-sm font-medium">Description</label>
-            <Textarea
-              className="mt-1"
-              rows={5}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add any additional details here…"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-medium">Photos</label>
-            <PhotoPicker files={files} setFiles={setFiles} max={5} />
-          </div>
-          <div>
-            <Button onClick={publish} disabled={saving}>
-              {saving ? "Publishing…" : "Publish Task"}
-            </Button>
           </div>
         </div>
       </Page>
