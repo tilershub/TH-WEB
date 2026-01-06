@@ -92,7 +92,6 @@ export type PortfolioItem = {
 ========================= */
 
 export type TaskStatus = "open" | "awarded" | "closed";
-
 export type Task = {
   id: string;
   owner_id: string;
@@ -105,7 +104,22 @@ export type Task = {
   created_at: string;
   updated_at: string;
 
-  // ✅ NEW: thumbnail image saved on task row
+  // new optional fields for the simplified flow
+  city?: string | null;
+  /**
+   * "asap" for immediate jobs or "date" when start_date is provided
+   */
+  start_date_type?: string | null;
+  /**
+   * ISO date string (YYYY‑MM‑DD) when start_date_type = 'date'
+   */
+  start_date?: string | null;
+  /**
+   * List of service keys (e.g. ['floor_tiling','plumbing'])
+   */
+  service_ids?: string[] | null;
+
+  // existing optional cover image
   cover_image?: string | null;
 };
 
