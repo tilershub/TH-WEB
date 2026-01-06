@@ -1,10 +1,23 @@
 import type { ReactNode } from "react";
 
-export function Page({ title, children }: { title: string; children: ReactNode }) {
+export function Page({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
-      <h1 className="text-xl font-semibold">{title}</h1>
-      <div className="mt-4">{children}</div>
+      <header className="mb-4">
+        <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+        {description ? (
+          <p className="mt-1 text-sm text-gray-600">{description}</p>
+        ) : null}
+      </header>
+      {children}
     </main>
   );
 }
