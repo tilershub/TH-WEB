@@ -9,6 +9,7 @@ import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
 import { formatLkr } from "@/lib/utils";
+import { FormField } from "@/components/FormField";
 
 type TaskSectionRow = {
   id: string;
@@ -36,6 +37,8 @@ export default function TaskDetailsPage() {
 
   const [bidAmount, setBidAmount] = useState("");
   const [bidMessage, setBidMessage] = useState("");
+
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const isOwner = useMemo(() => !!me?.userId && task?.owner_id === me.userId, [me, task]);
 
@@ -119,6 +122,17 @@ export default function TaskDetailsPage() {
     return Array.from(urls);
   }, [task, photos, sectionImageUrls]);
 
+  // Keep a stable selected image for the gallery
+  useEffect(() => {
+    if (!selectedImage && allImageUrls.length > 0) {
+      setSelectedImage(allImageUrls[0]);
+    }
+    // If the previously selected image no longer exists, fall back to first
+    if (selectedImage && allImageUrls.length > 0 && !allImageUrls.includes(selectedImage)) {
+      setSelectedImage(allImageUrls[0]);
+    }
+  }, [allImageUrls, selectedImage]);
+
   const placeBid = async () => {
     setMsg(null);
     if (!me?.userId) {
@@ -126,7 +140,8 @@ export default function TaskDetailsPage() {
       return;
     }
     if (me.profile?.role !== "tiler") {
-      setMsg("Only Tilers can place bids. Change role in Profile.");
+      // Backend role is still 'tiler' for compatibility; UI refers to taskers.
+      setMsg("Only taskers can place bids. Change role in Profile.");
       return;
     }
     if (!bidAmount) {
@@ -215,18 +230,18 @@ export default function TaskDetailsPage() {
   };
 
   return (
-    <Page title="Task Details">
-      {msg && <div className="mb-3 rounded-md bg-neutral-50 p-2 text-sm">{msg}</div>}
+    <Page title="Task details">
+      {msg && <div className="mb-3 rounded-xl bg-neutral-50 p-3 text-sm text-neutral-800">{msg}</div>}
 
       {!task ? (
         <div className="text-sm text-neutral-600">Loading…</div>
       ) : (
         <div className="grid gap-6">
-          <div className="rounded-lg border border-neutral-200 p-4">
+          <div className="card p-4 md:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <div className="text-lg font-semibold">{task.title}</div>
-                <div className="text-sm text-neutral-600">{task.location_text ?? "Sri Lanka"}</div>
+                <div className="text-2xl font-semibold text-gray-900">{task.title}</div>
+                <div className="mt-1 text-sm text-gray-600">{task.location_text ?? "Sri Lanka"}</div>
                 <div className="mt-2 text-sm whitespace-pre-wrap">{task.description}</div>
               </div>
               <div className="text-xs text-neutral-500">Status: {task.status}</div>
@@ -234,28 +249,52 @@ export default function TaskDetailsPage() {
 
             {/* ✅ images from cover_image, task_photos and old sections (unique set) */}
             {allImageUrls.length > 0 && (
-              <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {allImageUrls.map((u) => (
-                  <a key={u} href={u} target="_blank" rel="noreferrer" className="block">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={u}
-                      alt="Task image"
-                      className="h-28 w-full rounded-md object-cover border"
-                    />
+              <div className="mt-4">
+                <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={selectedImage ?? allImageUrls[0]}
+                    alt="Task photo"
+                    className="w-full aspect-video object-cover"
+                  />
+                </div>
+                <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+                  {allImageUrls.map((u) => (
+                    <button
+                      key={u}
+                      type="button"
+                      onClick={() => setSelectedImage(u)}
+                      className={
+                        "shrink-0 overflow-hidden rounded-xl border transition " +
+                        (u === (selectedImage ?? allImageUrls[0])
+                          ? "border-primary ring-2 ring-primary/30"
+                          : "border-gray-200 hover:border-gray-300")
+                      }
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={u} alt="Thumbnail" className="h-20 w-24 object-cover" />
+                    </button>
+                  ))}
+                  <a
+                    href={selectedImage ?? allImageUrls[0]}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="shrink-0 inline-flex items-center rounded-xl border border-gray-200 px-3 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Open
                   </a>
-                ))}
+                </div>
               </div>
             )}
           </div>
 
           {/* ✅ show sections (and their images) */}
           {sections.length > 0 && (
-            <div className="rounded-lg border border-neutral-200 p-4">
-              <div className="font-medium">Service Sections</div>
+            <div className="card p-4 md:p-6">
+              <div className="font-semibold text-gray-900">Service sections</div>
               <div className="mt-3 grid gap-3">
                 {sections.map((sec) => (
-                  <div key={sec.id} className="rounded-md border border-neutral-200 p-3">
+                  <div key={sec.id} className="rounded-xl border border-gray-200 p-3">
                     <div className="font-medium">{sec.title}</div>
                     <div className="mt-1 text-xs text-neutral-500">{sec.section_type}</div>
 
@@ -264,7 +303,7 @@ export default function TaskDetailsPage() {
                       <img
                         src={sec.data.imagePath}
                         alt="section"
-                        className="mt-3 h-40 w-full max-w-md rounded-md object-cover border"
+                        className="mt-3 h-40 w-full max-w-md rounded-xl object-cover border"
                       />
                     )}
                   </div>
@@ -274,32 +313,33 @@ export default function TaskDetailsPage() {
           )}
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-lg border border-neutral-200 p-4">
-              <div className="font-medium">Place a Bid</div>
-              <div className="mt-2 text-sm text-neutral-600">Tilers can bid with amount and a short message.</div>
+            <div className="card p-4 md:p-6">
+              <div className="font-semibold text-gray-900">Place a bid</div>
+              <div className="mt-1 text-sm text-gray-600">Taskers can bid with an amount and a short note.</div>
 
-              <label className="mt-4 block text-sm font-medium">Amount (LKR)</label>
-              <Input className="mt-1" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} placeholder="e.g., 180000" />
+              <div className="mt-4 space-y-4">
+                <FormField label="Amount (LKR)" required>
+                  <Input value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} placeholder="e.g., 180000" inputMode="numeric" />
+                </FormField>
 
-              <label className="mt-4 block text-sm font-medium">Message (optional)</label>
-              <Textarea
-                className="mt-1"
-                rows={4}
-                value={bidMessage}
-                onChange={(e) => setBidMessage(e.target.value)}
-                placeholder="Explain timeline, experience, tile leveling system, etc."
-              />
+                <FormField label="Message" hint="Optional">
+                  <Textarea
+                    rows={4}
+                    value={bidMessage}
+                    onChange={(e) => setBidMessage(e.target.value)}
+                    placeholder="Timeline, experience, materials included, etc."
+                  />
+                </FormField>
 
-              <div className="mt-4">
-                <Button onClick={placeBid}>Submit Bid</Button>
+                <Button onClick={placeBid} fullWidth size="lg">
+                  Submit bid
+                </Button>
               </div>
             </div>
 
-            <div className="rounded-lg border border-neutral-200 p-4">
-              <div className="font-medium">Bids</div>
-              <div className="mt-2 text-sm text-neutral-600">
-                Homeowner can accept a bid to start chat. (Visibility depends on RLS.)
-              </div>
+            <div className="card p-4 md:p-6">
+              <div className="font-semibold text-gray-900">Bids</div>
+              <div className="mt-1 text-sm text-gray-600">Accept a bid to start a chat.</div>
 
               <div className="mt-4 grid gap-2">
                 {bids.map((b) => (
@@ -309,11 +349,11 @@ export default function TaskDetailsPage() {
                       <div className="text-xs text-neutral-500">{b.status}</div>
                     </div>
                     {b.message && <div className="mt-2 text-sm text-neutral-700">{b.message}</div>}
-                    <div className="mt-2 text-xs text-neutral-500">Tiler ID: {b.tiler_id}</div>
+                    <div className="mt-2 text-xs text-neutral-500">Tasker ID: {b.tiler_id}</div>
 
                     {isOwner && task.status !== "closed" && (
                       <div className="mt-3">
-                        <Button onClick={() => acceptBid(b)} disabled={b.status === "accepted"}>
+                        <Button onClick={() => acceptBid(b)} disabled={b.status === "accepted"} fullWidth>
                           {b.status === "accepted" ? "Accepted" : "Accept bid & Chat"}
                         </Button>
                       </div>
