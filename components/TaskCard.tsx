@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { useMemo } from "react";
+import { getPublicUrl } from "@/lib/storage";
 
 type Task = {
   id: string;
@@ -24,6 +26,22 @@ function timeAgo(date: string) {
 }
 
 export default function TaskCard({ task }: { task: Task }) {
+  // Compute a full thumbnail URL. If the stored cover_image path is already a full
+  // URL (begins with http/https), use it directly. Otherwise generate a
+  // public URL via the Supabase storage helper. Memoize to avoid repeated
+  // computation on re-renders.
+  const thumbnailUrl = useMemo(() => {
+    const path = task.cover_image;
+    if (!path) return null;
+    const lower = path.toLowerCase();
+    if (lower.startsWith("http://") || lower.startsWith("https://")) {
+      return path;
+    }
+    // Convert storage path to full URL. If getPublicUrl returns null
+    // (e.g. invalid path), return null so we fall back to placeholder.
+    return getPublicUrl("task-images", path) ?? null;
+  }, [task.cover_image]);
+
   return (
     <Link
       href={`/task/${task.id}`}
@@ -31,10 +49,10 @@ export default function TaskCard({ task }: { task: Task }) {
     >
       <div className="flex gap-4 p-4">
         <div className="w-24 h-24 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
-          {task.cover_image ? (
+          {thumbnailUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={task.cover_image}
+              src={thumbnailUrl}
               alt="Task thumbnail"
               className="w-full h-full object-cover"
               loading="lazy"
