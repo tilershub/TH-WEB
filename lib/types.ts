@@ -92,6 +92,7 @@ export type PortfolioItem = {
 ========================= */
 
 export type TaskStatus = "open" | "awarded" | "closed";
+
 export type Task = {
   id: string;
   owner_id: string;
@@ -104,23 +105,38 @@ export type Task = {
   created_at: string;
   updated_at: string;
 
-  // new optional fields for the simplified flow
-  city?: string | null;
-  /**
-   * "asap" for immediate jobs or "date" when start_date is provided
-   */
-  start_date_type?: string | null;
-  /**
-   * ISO date string (YYYY‑MM‑DD) when start_date_type = 'date'
-   */
-  start_date?: string | null;
-  /**
-   * List of service keys (e.g. ['floor_tiling','plumbing'])
-   */
-  service_ids?: string[] | null;
-
-  // existing optional cover image
+  // ✅ NEW: thumbnail image saved on task row
   cover_image?: string | null;
+
+    /**
+     * Optional city for this task. When using the simplified posting flow
+     * (Task Hub), the city represents the general location of the job. It
+     * replaces the more free‑form `location_text` when available. This
+     * field may be null for older tasks that were created without a city.
+     */
+    city?: string | null;
+
+    /**
+     * Indicates how the start date for the task should be interpreted. A value
+     * of "asap" means the job should start as soon as possible, whereas
+     * "date" means a specific date is provided in `start_date`. This field
+     * will be null for legacy tasks created before the simplified posting flow.
+     */
+    start_date_type?: string | null;
+
+    /**
+     * The scheduled start date for the task when `start_date_type` is "date".
+     * Stored as an ISO 8601 string (YYYY‑MM‑DD) or null when not applicable.
+     */
+    start_date?: string | null;
+
+    /**
+     * A list of service identifiers for this task. These correspond to the
+     * keys defined in the SERVICES constant in `lib/services.ts`. When using
+     * the simplified posting flow, tasks can involve one or more services.
+     * This field may be null for legacy tasks.
+     */
+    service_ids?: string[] | null;
 };
 
 /* =========================
