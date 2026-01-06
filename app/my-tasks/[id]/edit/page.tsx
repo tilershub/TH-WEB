@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { Page } from "@/components/Page";
 import { RequireAuth } from "@/components/RequireAuth";
 import { supabase } from "@/lib/supabaseClient";
+import type { Task } from "@/lib/types";
 import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
 import { Button } from "@/components/Button";
@@ -18,12 +19,12 @@ export default function EditTaskPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  // Load task once on mount
   useEffect(() => {
     const load = async () => {
       const { data, error } = await supabase.from("tasks").select("*").eq("id", id).single();
       if (error) { setMsg(error.message); return; }
-      // Default missing fields for controlled inputs
+      // When loading a task, ensure new optional fields are defined so inputs are controlled.
+      // Some legacy tasks may not have city, start_date_type, start_date or service_ids.
       const t: any = {
         ...data,
         city: (data as any).city ?? "",
@@ -36,7 +37,6 @@ export default function EditTaskPage() {
     load();
   }, [id]);
 
-  // Save updated task
   const save = async () => {
     if (!task) return;
     setBusy(true);
@@ -60,7 +60,6 @@ export default function EditTaskPage() {
     setMsg("Saved.");
   };
 
-  // Delete the task (unchanged from original)
   const del = async () => {
     const ok = confirm("Delete this task? This cannot be undone.");
     if (!ok) return;
@@ -79,11 +78,7 @@ export default function EditTaskPage() {
           <div className="max-w-2xl rounded-lg border border-neutral-200 p-4">
             {/* Title */}
             <label className="text-sm font-medium">Title</label>
-            <Input
-              className="mt-1"
-              value={task.title}
-              onChange={(e) => setTask({ ...task, title: e.target.value })}
-            />
+            <Input className="mt-1" value={task.title} onChange={(e) => setTask({ ...task, title: e.target.value })} />
 
             {/* Description */}
             <label className="mt-4 block text-sm font-medium">Description</label>
@@ -135,7 +130,7 @@ export default function EditTaskPage() {
               />
             )}
 
-            {/* Service selection */}
+            {/* Services */}
             <label className="mt-4 block text-sm font-medium">Services</label>
             <ServiceMultiSelect
               services={SERVICES.map((svc) => ({ id: svc.key, name: svc.label }))}
@@ -143,7 +138,7 @@ export default function EditTaskPage() {
               setSelected={(sel) => setTask({ ...task, service_ids: sel })}
             />
 
-            {/* Legacy fields: location text and budgets */}
+            {/* Legacy location & budget fields */}
             <label className="mt-4 block text-sm font-medium">Location (Legacy)</label>
             <Input
               className="mt-1"
@@ -156,7 +151,9 @@ export default function EditTaskPage() {
                 <Input
                   className="mt-1"
                   value={task.budget_min?.toString() ?? ""}
-                  onChange={(e) => setTask({ ...task, budget_min: e.target.value ? Number(e.target.value) : null })}
+                  onChange={(e) =>
+                    setTask({ ...task, budget_min: e.target.value ? Number(e.target.value) : null })
+                  }
                 />
               </div>
               <div>
@@ -164,7 +161,9 @@ export default function EditTaskPage() {
                 <Input
                   className="mt-1"
                   value={task.budget_max?.toString() ?? ""}
-                  onChange={(e) => setTask({ ...task, budget_max: e.target.value ? Number(e.target.value) : null })}
+                  onChange={(e) =>
+                    setTask({ ...task, budget_max: e.target.value ? Number(e.target.value) : null })
+                  }
                 />
               </div>
             </div>
