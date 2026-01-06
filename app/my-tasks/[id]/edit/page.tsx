@@ -9,6 +9,7 @@ import type { Task } from "@/lib/types";
 import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
 import { Button } from "@/components/Button";
+import { FormField } from "@/components/FormField";
 import ServiceMultiSelect from "@/components/ServiceMultiSelect";
 import { SERVICES } from "@/lib/services";
 
@@ -70,112 +71,106 @@ export default function EditTaskPage() {
 
   return (
     <RequireAuth>
-      <Page title="Edit Task">
-        {msg && <div className="mb-3 rounded-md bg-neutral-50 p-2 text-sm">{msg}</div>}
+      <Page title="Edit task" description="Update your task details. Changes are visible to taskers.">
+        {msg && <div className="mb-3 rounded-xl bg-neutral-50 p-3 text-sm text-neutral-800">{msg}</div>}
         {!task ? (
           <div className="text-sm text-neutral-600">Loading…</div>
         ) : (
-          <div className="max-w-2xl rounded-lg border border-neutral-200 p-4">
-            {/* Title */}
-            <label className="text-sm font-medium">Title</label>
-            <Input className="mt-1" value={task.title} onChange={(e) => setTask({ ...task, title: e.target.value })} />
+          <div className="mx-auto max-w-2xl">
+            <div className="card p-4 md:p-6 space-y-4">
+              <FormField label="Title" hint="Optional">
+                <Input value={task.title} onChange={(e) => setTask({ ...task, title: e.target.value })} />
+              </FormField>
 
-            {/* Description */}
-            <label className="mt-4 block text-sm font-medium">Description</label>
-            <Textarea
-              className="mt-1"
-              rows={6}
-              value={task.description}
-              onChange={(e) => setTask({ ...task, description: e.target.value })}
-            />
-
-            {/* City */}
-            <label className="mt-4 block text-sm font-medium">City</label>
-            <Input
-              className="mt-1"
-              value={task.city ?? ""}
-              onChange={(e) => setTask({ ...task, city: e.target.value })}
-            />
-
-            {/* Start date type */}
-            <label className="mt-4 block text-sm font-medium">Start Date</label>
-            <div className="mt-1 flex items-center gap-4 text-sm">
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="startType"
-                  className="mr-2"
-                  checked={task.start_date_type === "asap"}
-                  onChange={() => setTask({ ...task, start_date_type: "asap", start_date: "" })}
+              <FormField label="Description" required>
+                <Textarea
+                  rows={6}
+                  value={task.description}
+                  onChange={(e) => setTask({ ...task, description: e.target.value })}
                 />
-                ASAP
-              </label>
-              <label className="inline-flex items-center">
-                <input
-                  type="radio"
-                  name="startType"
-                  className="mr-2"
-                  checked={task.start_date_type === "date"}
-                  onChange={() => setTask({ ...task, start_date_type: "date" })}
-                />
-                Specific Date
-              </label>
-            </div>
-            {task.start_date_type === "date" && (
-              <input
-                type="date"
-                className="mt-2 w-full rounded-xl border bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
-                value={task.start_date ?? ""}
-                onChange={(e) => setTask({ ...task, start_date: e.target.value })}
-              />
-            )}
+              </FormField>
 
-            {/* Services */}
-            <label className="mt-4 block text-sm font-medium">Services</label>
-            <ServiceMultiSelect
-              services={SERVICES.map((svc) => ({ id: svc.key, name: svc.label }))}
-              selected={task.service_ids ?? []}
-              setSelected={(sel) => setTask({ ...task, service_ids: sel })}
-            />
+              <FormField label="City" required>
+                <Input value={task.city ?? ""} onChange={(e) => setTask({ ...task, city: e.target.value })} />
+              </FormField>
 
-            {/* Legacy location & budget fields */}
-            <label className="mt-4 block text-sm font-medium">Location (Legacy)</label>
-            <Input
-              className="mt-1"
-              value={task.location_text ?? ""}
-              onChange={(e) => setTask({ ...task, location_text: e.target.value || null })}
-            />
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label className="text-sm font-medium">Budget min</label>
-                <Input
-                  className="mt-1"
-                  value={task.budget_min?.toString() ?? ""}
-                  onChange={(e) =>
-                    setTask({ ...task, budget_min: e.target.value ? Number(e.target.value) : null })
-                  }
+              <FormField label="Start" hint="ASAP or choose a date" required>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  <select
+                    className="input-field"
+                    value={task.start_date_type}
+                    onChange={(e) =>
+                      setTask({
+                        ...task,
+                        start_date_type: e.target.value,
+                        start_date: e.target.value === "asap" ? "" : task.start_date,
+                      })
+                    }
+                  >
+                    <option value="asap">ASAP</option>
+                    <option value="date">Choose a date</option>
+                  </select>
+                  {task.start_date_type === "date" && (
+                    <input
+                      type="date"
+                      className="input-field"
+                      value={task.start_date ?? ""}
+                      onChange={(e) => setTask({ ...task, start_date: e.target.value })}
+                    />
+                  )}
+                </div>
+              </FormField>
+
+              <FormField label="Services" hint="Pick one or more">
+                <ServiceMultiSelect
+                  services={SERVICES.map((svc) => ({ id: svc.key, name: svc.label }))}
+                  selected={task.service_ids ?? []}
+                  setSelected={(sel) => setTask({ ...task, service_ids: sel })}
                 />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Budget max</label>
-                <Input
-                  className="mt-1"
-                  value={task.budget_max?.toString() ?? ""}
-                  onChange={(e) =>
-                    setTask({ ...task, budget_max: e.target.value ? Number(e.target.value) : null })
-                  }
-                />
-              </div>
+              </FormField>
+
+              {/* Legacy fields */}
+              <details className="rounded-xl border border-gray-200 p-3">
+                <summary className="cursor-pointer text-sm font-medium text-gray-900">Advanced (budget & legacy fields)</summary>
+                <div className="mt-3 space-y-3">
+                  <FormField label="Location text">
+                    <Input
+                      value={task.location_text ?? ""}
+                      onChange={(e) => setTask({ ...task, location_text: e.target.value || null })}
+                    />
+                  </FormField>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <FormField label="Budget min">
+                      <Input
+                        value={task.budget_min?.toString() ?? ""}
+                        onChange={(e) =>
+                          setTask({ ...task, budget_min: e.target.value ? Number(e.target.value) : null })
+                        }
+                      />
+                    </FormField>
+                    <FormField label="Budget max">
+                      <Input
+                        value={task.budget_max?.toString() ?? ""}
+                        onChange={(e) =>
+                          setTask({ ...task, budget_max: e.target.value ? Number(e.target.value) : null })
+                        }
+                      />
+                    </FormField>
+                  </div>
+                </div>
+              </details>
+
             </div>
 
-            {/* Action buttons */}
-            <div className="mt-5 flex items-center gap-2">
-              <Button onClick={save} disabled={busy}>
-                {busy ? "Saving…" : "Save"}
-              </Button>
-              <Button variant="danger" onClick={del} type="button">
-                Delete
-              </Button>
+            <div className="sticky bottom-0 left-0 right-0 bg-[rgb(var(--bg))] pb-4 pt-3">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button onClick={save} loading={busy} fullWidth size="lg">
+                  Save changes
+                </Button>
+                <Button variant="danger" onClick={del} type="button" fullWidth size="lg">
+                  Delete
+                </Button>
+              </div>
             </div>
           </div>
         )}
