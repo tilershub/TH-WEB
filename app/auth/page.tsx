@@ -78,8 +78,14 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      {/*
+        The markup here follows a three‑layer container structure:
+        1. outer: centers the auth card on the page
+        2. mid: constrains the card width
+        3. inner: the actual white card with padding and shadow
+      */}
       <div className="w-full max-w-md">
-      <div className="bg-white rounded-3xl shadow-lg p-8">
+        <div className="bg-white rounded-3xl shadow-lg p-8">
         <div className="flex flex-col items-center mb-8">
           <div className="relative w-32 h-32 mb-6">
             <div className="absolute inset-0 rounded-full border-4 border-navy overflow-hidden">
@@ -88,7 +94,7 @@ export default function AuthPage() {
             </div>
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-white font-bold text-center leading-tight">
-                <div className="text-xs">TILERS</div>
+                <div className="text-xs">TASK</div>
                 <div className="text-xs">HUB</div>
               </div>
             </div>
@@ -96,15 +102,15 @@ export default function AuthPage() {
 
           <h1 className="text-2xl font-bold text-navy mb-2">
             {mode === "login"
-              ? "Login to TILERS HUB"
+              ? "Login to TASK HUB"
               : step === "role"
               ? "Choose Your Role"
-              : "Sign Up to TILERS HUB"}
+              : "Sign Up to TASK HUB"}
           </h1>
           <p className="text-gray-600 text-center text-sm">
             {step === "role"
               ? "Are you here to hire help or offer services?"
-              : "Join Tilers Hub to post or find tasks nearby"}
+              : "Join Task Hub to post or find tasks nearby"}
           </p>
         </div>
 
@@ -246,7 +252,8 @@ export default function AuthPage() {
             </p>
           </div>
         )}
-      </div>
+        </div>{/* end inner card */}
+      </div>{/* end max-w-md container */}
     </div>
   );
 }
