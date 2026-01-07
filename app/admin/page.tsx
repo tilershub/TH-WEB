@@ -6,7 +6,10 @@ import { getAdminStats } from "@/lib/admin";
 
 type Stats = {
   totalUsers: number;
-  totalTilers: number;
+  /**
+   * Total number of taskers (professionals) on the platform.
+   */
+  totalTaskers: number;
   totalTasks: number;
   totalBlogPosts: number;
   totalGuides: number;
@@ -58,7 +61,7 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-navy">Admin Dashboard</h1>
-        <p className="text-gray-600">Manage your Tilers Hub content</p>
+        <p className="text-gray-600">Manage your Task Hub content</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -74,9 +77,9 @@ export default function AdminDashboard() {
           }
         />
         <StatCard
-          title="Total Tilers"
-          value={stats?.totalTilers || 0}
-          href="/admin/users?role=tiler"
+          title="Total Taskers"
+          value={stats?.totalTaskers || 0}
+          href="/admin/users?role=tasker"
           color="bg-green-100"
           icon={
             <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -152,7 +155,7 @@ export default function AdminDashboard() {
               </div>
             </Link>
             <Link
-              href="/admin/users?verified=false&role=tiler"
+              href="/admin/users?verified=false&role=tasker"
               className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
             >
               <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
@@ -161,7 +164,7 @@ export default function AdminDashboard() {
                 </svg>
               </div>
               <div>
-                <p className="font-medium text-navy">Verify Tilers</p>
+                <p className="font-medium text-navy">Verify Taskers</p>
                 <p className="text-sm text-gray-500">Review pending verifications</p>
               </div>
             </Link>
@@ -171,9 +174,9 @@ export default function AdminDashboard() {
         <div className="bg-white rounded-xl p-6 shadow-sm">
           <h2 className="font-semibold text-navy mb-4">Getting Started</h2>
           <div className="space-y-4 text-sm text-gray-600">
-            <p>Welcome to the Tilers Hub Admin Dashboard. Here you can:</p>
+            <p>Welcome to the Task Hub Admin Dashboard. Here you can:</p>
             <ul className="space-y-2 list-disc list-inside">
-              <li>Manage user profiles and verify tilers</li>
+              <li>Manage user profiles and verify taskers</li>
               <li>Create and edit blog posts</li>
               <li>Create and manage how-to guides</li>
               <li>View and moderate tasks</li>

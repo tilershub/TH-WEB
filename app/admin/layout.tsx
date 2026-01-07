@@ -1,7 +1,7 @@
 import AdminLayout from "@/components/admin/AdminLayout";
 
 export const metadata = {
-  title: "Admin Dashboard - Tilers Hub",
+  title: "Admin Dashboard - Task Hub",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
