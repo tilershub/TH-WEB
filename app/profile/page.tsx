@@ -48,7 +48,10 @@ export default function ProfilePage() {
       const p = data as Profile;
       setProfile(p);
 
-      if (p.role === "tiler") {
+      // Load portfolio and certifications for taskers.  We continue to use
+      // the tiler_portfolio table because it hasn't been renamed in the
+      // database yet.
+      if (p.role === "tasker") {
         const [portfolioRes, certsRes] = await Promise.all([
           supabase
             .from("tiler_portfolio")
@@ -116,8 +119,12 @@ export default function ProfilePage() {
       .filter(img => img.url);
   }, [skillsWithRates]);
 
-  const isTiler = profile?.role === "tiler";
-  const hasCompletedTilerProfile = profile?.profile_completed === true;
+  // Determine if the current user is a tasker.  We continue to store
+  // the string 'tasker' in the role column even though the original
+  // database value was 'tiler'.  This flag drives which view is
+  // rendered below.
+  const isTasker = profile?.role === "tasker";
+  const hasCompletedTaskerProfile = profile?.profile_completed === true;
 
   if (loading) {
     return (
@@ -129,7 +136,7 @@ export default function ProfilePage() {
     );
   }
 
-  if (!isTiler) {
+  if (!isTasker) {
     return (
       <RequireAuth>
         <div className="min-h-screen bg-gray-100 pb-28">
@@ -241,7 +248,7 @@ export default function ProfilePage() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0 pb-1">
-                  <h1 className="text-xl font-bold text-gray-900">{profile?.full_name || "Tiler"}</h1>
+                  <h1 className="text-xl font-bold text-gray-900">{profile?.full_name || "Tasker"}</h1>
                   <div className="flex items-center gap-1 text-gray-600">
                     <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
@@ -255,7 +262,7 @@ export default function ProfilePage() {
                 <StarRating rating={4.9} />
               </div>
 
-              {hasCompletedTilerProfile ? (
+              {hasCompletedTaskerProfile ? (
                 <Link
                   href="/profile/setup"
                   className="mt-4 w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-semibold py-3 px-6 rounded-xl transition-colors"
@@ -277,7 +284,7 @@ export default function ProfilePage() {
                 </Link>
               )}
 
-              <p className="text-center text-gray-500 text-sm mt-2">Professional Tiler</p>
+              <p className="text-center text-gray-500 text-sm mt-2">Professional Tasker</p>
             </div>
           </div>
 
