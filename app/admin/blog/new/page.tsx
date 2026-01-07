@@ -6,7 +6,7 @@ import Link from "next/link";
 import { createBlogPost } from "@/lib/admin";
 import { supabase } from "@/lib/supabaseClient";
 
-const CATEGORIES = ["Tips", "Trends", "Pricing", "Guides", "For Tilers"];
+const CATEGORIES = ["Tips", "Trends", "Pricing", "Guides", "For Taskers"];
 
 export default function NewBlogPostPage() {
   const router = useRouter();
