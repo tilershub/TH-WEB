@@ -70,7 +70,7 @@ export default function AdminUsersPage() {
           >
             <option value="">All Roles</option>
             <option value="homeowner">Homeowners</option>
-            <option value="tiler">Tilers</option>
+            <option value="tasker">Taskers</option>
           </select>
         </div>
 
@@ -118,7 +118,7 @@ export default function AdminUsersPage() {
                     <td className="px-4 py-3">
                       <span
                         className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          profile.role === "tiler"
+                          profile.role === "tasker"
                             ? "bg-green-100 text-green-800"
                             : "bg-blue-100 text-blue-800"
                         }`}
@@ -132,7 +132,7 @@ export default function AdminUsersPage() {
                         : profile.district || "-"}
                     </td>
                     <td className="px-4 py-3">
-                      {profile.role === "tiler" && (
+                      {profile.role === "tasker" && (
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             profile.is_verified
@@ -157,7 +157,7 @@ export default function AdminUsersPage() {
                       {new Date(profile.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
-                      {profile.role === "tiler" && (
+                      {profile.role === "tasker" && (
                         <button
                           onClick={() => handleVerify(profile.id, !profile.is_verified)}
                           className={`text-sm font-medium ${
