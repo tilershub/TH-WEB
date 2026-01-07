@@ -185,7 +185,10 @@ export default function ServicePage() {
   const [tilers, setTilers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const info = SERVICE_INFO[service] || { title: "Service", description: "Find professional tilers", icon: "floor" };
+  // If the service isn’t found in the map, fall back to a generic entry.  Note
+  // that we refer to "taskers" instead of "tilers" here to align with the
+  // Task Hub rebranding.
+  const info = SERVICE_INFO[service] || { title: "Service", description: "Find professional taskers", icon: "floor" };
   const blogs = SERVICE_BLOGS[service] || [];
   const guides = SERVICE_GUIDES[service] || [];
 
@@ -197,7 +200,11 @@ export default function ServicePage() {
         const { data, error } = await supabase
           .from("profiles")
           .select("id, display_name, full_name, avatar_path, city, district, years_experience, service_rates")
-          .eq("role", "tiler")
+          // Query for taskers rather than tilers.  The database role value
+          // has been migrated from 'tiler' to 'tasker', so this should now
+          // use 'tasker'.  If you still use 'tiler' here, TypeScript will
+          // complain because Role no longer includes 'tiler'.
+          .eq("role", "tasker")
           .limit(20);
 
         if (!cancelled && !error && data) {
@@ -241,7 +248,10 @@ export default function ServicePage() {
 
         <section>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-bold text-navy">Available Tilers</h2>
+            {/* Update heading to reflect the new Task Hub terminology.  Although
+                the route remains `/tilers` for backward compatibility, we
+                display “Available Taskers” to users. */}
+            <h2 className="text-lg font-bold text-navy">Available Taskers</h2>
             <Link href="/tilers" className="text-sm text-primary font-medium">See All</Link>
           </div>
           
@@ -258,8 +268,8 @@ export default function ServicePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">No Tilers Available</h3>
-              <p className="text-gray-600 text-sm">Post a task and tilers will reach out to you!</p>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">No Taskers Available</h3>
+              <p className="text-gray-600 text-sm">Post a task and taskers will reach out to you!</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -286,7 +296,7 @@ export default function ServicePage() {
 
         {tilers.length > 3 && (
           <section>
-            <h2 className="text-lg font-bold text-navy mb-3">More Tilers</h2>
+            <h2 className="text-lg font-bold text-navy mb-3">More Taskers</h2>
             <div className="space-y-3">
               {tilers.slice(3, 6).map((tiler) => (
                 <MemoizedTilerCard key={tiler.id} tiler={tiler} />
@@ -311,7 +321,7 @@ export default function ServicePage() {
 
         {tilers.length > 6 && (
           <section>
-            <h2 className="text-lg font-bold text-navy mb-3">Even More Tilers</h2>
+            <h2 className="text-lg font-bold text-navy mb-3">Even More Taskers</h2>
             <div className="space-y-3">
               {tilers.slice(6).map((tiler) => (
                 <MemoizedTilerCard key={tiler.id} tiler={tiler} />
