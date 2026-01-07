@@ -26,9 +26,24 @@ const BLOG_POSTS = [
 ];
 
 const GUIDES = [
-  { title: "How to Post a Task on Tilers Hub", steps: 4, duration: "2 min", href: "/guides/post-task-guide" },
-  { title: "How to Choose the Right Tiler", steps: 6, duration: "4 min", href: "/guides/choose-right-tiler" },
-  { title: "How to Compare Tiler Quotes", steps: 5, duration: "3 min", href: "/guides/compare-quotes" },
+  {
+    title: "How to Post a Task on Task Hub",
+    steps: 4,
+    duration: "2 min",
+    href: "/guides/post-task-guide",
+  },
+  {
+    title: "How to Choose the Right Tasker",
+    steps: 6,
+    duration: "4 min",
+    href: "/guides/choose-right-tiler",
+  },
+  {
+    title: "How to Compare Tasker Quotes",
+    steps: 5,
+    duration: "3 min",
+    href: "/guides/compare-quotes",
+  },
 ];
 
 function FloorIcon() {
@@ -95,7 +110,9 @@ export default function HomeownerHome() {
         const { data, error } = await supabase
           .from("profiles")
           .select("id, display_name, full_name, avatar_path, city, district, years_experience")
-          .eq("role", "tiler")
+          // We now query for taskers instead of tilers.  The underlying role
+          // value in the database has been migrated from 'tiler' to 'tasker'.
+          .eq("role", "tasker")
           .limit(6);
 
         if (!cancelled && !error && data) {
@@ -128,7 +145,10 @@ export default function HomeownerHome() {
 
       <section className="mt-6">
         <div className="flex items-center justify-between px-4 mb-3">
-          <h2 className="text-lg font-bold text-navy">Top Tilers</h2>
+          {/* Show top taskers instead of tilers.  The route remains `/tilers`
+              for now to maintain compatibility, but the label uses the
+              new terminology. */}
+          <h2 className="text-lg font-bold text-navy">Top Taskers</h2>
           <a href="/tilers" className="text-sm text-primary font-medium">See All</a>
         </div>
         <div className="overflow-x-auto scrollbar-hide">
@@ -139,8 +159,8 @@ export default function HomeownerHome() {
                 <SkeletonTilerCard />
                 <SkeletonTilerCard />
               </>
-            ) : tilers.length === 0 ? (
-              <div className="text-sm text-gray-500">No tilers available</div>
+              ) : tilers.length === 0 ? (
+              <div className="text-sm text-gray-500">No taskers available</div>
             ) : (
               tilers.map((t) => <MemoizedTilerCard key={t.id} tiler={t} />)
             )}
