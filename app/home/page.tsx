@@ -40,7 +40,15 @@ export default function HomePage() {
     );
   }
 
-  if (role === "tiler") {
+
+  // Show the tasker dashboard if the user is a tasker.  We keep importing
+  // the TilerHome component for backwards compatibility – it now renders
+  // the tasker experience.  Note: the database now stores `tasker` instead
+  // of `tiler`, so we compare against the string "tasker" here.  If you
+  // see a compile error complaining about comparing Role | null to
+  // 'tiler', it means some code still refers to the old value.  Update
+  // those comparisons to 'tasker' as well.
+  if (role === "tasker") {
     return <TilerHome />;
   }
 
