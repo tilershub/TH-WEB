@@ -150,7 +150,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="p-6">
           <Link href="/admin" className="flex items-center gap-2">
-            <span className="text-xl font-bold text-primary">TILERS HUB</span>
+            <span className="text-xl font-bold text-primary">TASK HUB</span>
           </Link>
           <p className="text-sm text-gray-400 mt-1">Admin Dashboard</p>
         </div>
