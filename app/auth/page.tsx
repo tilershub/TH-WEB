@@ -5,7 +5,7 @@ import { Input } from "@/components/Input";
 import { Button } from "@/components/Button";
 import { supabase } from "@/lib/supabaseClient";
 
-type Role = "homeowner" | "tiler";
+type Role = 'homeowner' | 'tasker';
 
 export default function AuthPage() {
   const [email, setEmail] = useState("");
