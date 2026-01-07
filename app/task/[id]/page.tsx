@@ -139,11 +139,10 @@ export default function TaskDetailsPage() {
       setMsg("Login to place a bid.");
       return;
     }
-    if (me.profile?.role !== "tiler") {
-      // Backend role is still 'tiler' for compatibility; UI refers to taskers.
-      setMsg("Only taskers can place bids. Change role in Profile.");
-      return;
-    }
+    if (me.profile?.role !== "tasker") {
+  setMsg("Only taskers can place bids. Change role in Profile.");
+  return;
+}
     if (!bidAmount) {
       setMsg("Enter amount.");
       return;
