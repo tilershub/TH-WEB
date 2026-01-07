@@ -59,10 +59,15 @@ export async function checkIsAdmin(userId: string): Promise<{ isAdmin: boolean; 
   return { isAdmin: true };
 }
 
+/**
+ * Fetch aggregated statistics for the admin dashboard.  Counts taskers using the
+ * updated role value "tasker".  If you still have existing rows with
+ * role = 'tiler' in your profiles table, run a migration to update them.
+ */
 export async function getAdminStats() {
-  const [usersResult, tilersResult, tasksResult, blogResult, guidesResult] = await Promise.all([
+  const [usersResult, taskersResult, tasksResult, blogResult, guidesResult] = await Promise.all([
     supabase.from("profiles").select("id", { count: "exact", head: true }),
-    supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "tiler"),
+    supabase.from("profiles").select("id", { count: "exact", head: true }).eq("role", "tasker"),
     supabase.from("tasks").select("id", { count: "exact", head: true }),
     supabase.from("blog_posts").select("id", { count: "exact", head: true }),
     supabase.from("guides").select("id", { count: "exact", head: true }),
@@ -70,7 +75,7 @@ export async function getAdminStats() {
 
   return {
     totalUsers: usersResult.count || 0,
-    totalTilers: tilersResult.count || 0,
+    totalTaskers: taskersResult.count || 0,
     totalTasks: tasksResult.count || 0,
     totalBlogPosts: blogResult.count || 0,
     totalGuides: guidesResult.count || 0,
