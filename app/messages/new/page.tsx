@@ -15,11 +15,15 @@ function pub(bucket: string, path?: string | null) {
 function NewConversationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const tilerId = searchParams.get("tiler");
+  // We continue to accept the `tiler` query param for backwards
+  // compatibility, but refer to the current value as `taskerId` in
+  // the code for clarity.  If you change your frontend to use
+  // `tasker` instead, update this as well.
+  const taskerId = searchParams.get("tiler");
 
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
-  const [tiler, setTiler] = useState<Profile | null>(null);
+  const [tasker, setTasker] = useState<Profile | null>(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [currentUser, setCurrentUser] = useState<{ id: string } | null>(null);
@@ -31,42 +35,42 @@ function NewConversationContent() {
 
       const { data: session } = await supabase.auth.getSession();
       if (!session.session?.user) {
-        router.push(`/login?redirect=/messages/new?tiler=${tilerId}`);
+        router.push(`/login?redirect=/messages/new?tiler=${taskerId}`);
         return;
       }
 
       setCurrentUser({ id: session.session.user.id });
 
-      if (!tilerId) {
-        setError("No tiler specified");
+      if (!taskerId) {
+        setError("No tasker specified");
         setLoading(false);
         return;
       }
 
-      const { data: tilerData, error: tilerError } = await supabase
+      const { data: taskerData, error: taskerError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", tilerId)
+        .eq("id", taskerId)
         .maybeSingle();
 
-      if (tilerError) {
-        setError(tilerError.message);
+      if (taskerError) {
+        setError(taskerError.message);
         setLoading(false);
         return;
       }
 
-      if (!tilerData) {
-        setError("Tiler not found");
+      if (!taskerData) {
+        setError("Tasker not found");
         setLoading(false);
         return;
       }
 
-      setTiler(tilerData as Profile);
+      setTasker(taskerData as Profile);
       setLoading(false);
     };
 
     load();
-  }, [tilerId, router]);
+  }, [taskerId, router]);
 
   const handleSend = async () => {
     if (!message.trim()) {
@@ -74,7 +78,7 @@ function NewConversationContent() {
       return;
     }
 
-    if (!currentUser || !tiler) return;
+    if (!currentUser || !tasker) return;
 
     setSending(true);
     setError(null);
@@ -84,7 +88,8 @@ function NewConversationContent() {
         .from("conversations")
         .select("id")
         .eq("homeowner_id", currentUser.id)
-        .eq("tiler_id", tiler.id)
+        // conversations table still uses tiler_id column; use tasker.id here
+        .eq("tiler_id", tasker.id)
         .is("task_id", null)
         .maybeSingle();
 
@@ -97,7 +102,8 @@ function NewConversationContent() {
           .from("conversations")
           .insert({
             homeowner_id: currentUser.id,
-            tiler_id: tiler.id,
+            // Again, conversations table still uses tiler_id column
+            tiler_id: tasker.id,
             task_id: null,
           })
           .select("id")
@@ -127,8 +133,11 @@ function NewConversationContent() {
     }
   };
 
-  const avatarUrl = pub("profile-avatars", tiler?.avatar_path);
-  const displayName = tiler?.full_name || tiler?.display_name || "Professional Tiler";
+  // Generate a public URL for the tasker's avatar.  We removed the
+  // obsolete tiler-based avatar reference so there is only one
+  // declaration here.
+  const avatarUrl = pub("profile-avatars", tasker?.avatar_path);
+  const displayName = tasker?.full_name || tasker?.display_name || "Professional Tasker";
 
   if (loading) {
     return (
@@ -138,13 +147,13 @@ function NewConversationContent() {
     );
   }
 
-  if (error && !tiler) {
+  if (error && !tasker) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <Link href="/tilers" className="text-primary hover:underline">
-            Browse tilers
+            Browse taskers
           </Link>
         </div>
       </div>
@@ -166,11 +175,11 @@ function NewConversationContent() {
           <h1 className="text-xl font-bold text-gray-900">Request Quote</h1>
         </div>
 
-        {tiler && (
+        {tasker && (
           <div className="bg-white rounded-2xl shadow-sm p-4 mb-6">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0 relative">
-                {avatarUrl ? (
+              {avatarUrl ? (
                   <Image
                     src={avatarUrl}
                     alt={displayName}
@@ -179,7 +188,7 @@ function NewConversationContent() {
                     sizes="56px"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-white text-xl font-bold">
+                <div className="w-full h-full flex items-center justify-center text-white text-xl font-bold">
                     {displayName[0]?.toUpperCase() || "T"}
                   </div>
                 )}
@@ -187,7 +196,7 @@ function NewConversationContent() {
               <div>
                 <h2 className="font-semibold text-gray-900">{displayName}</h2>
                 <p className="text-sm text-gray-500">
-                  {[tiler.city, tiler.district].filter(Boolean).join(", ") || "Sri Lanka"}
+                  {[tasker.city, tasker.district].filter(Boolean).join(", ") || "Sri Lanka"}
                 </p>
               </div>
             </div>
@@ -236,7 +245,7 @@ function NewConversationContent() {
         </div>
 
         <p className="mt-4 text-center text-sm text-gray-500">
-          The tiler will receive your message and can respond in the app.
+          The tasker will receive your message and can respond in the app.
         </p>
       </div>
     </div>
