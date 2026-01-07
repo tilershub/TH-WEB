@@ -2,7 +2,7 @@
    ROLES
 ========================= */
 
-export type Role = "homeowner" | "tiler";
+export type Role = 'homeowner' | 'tasker';
 
 /* =========================
    PROFILE (UPGRADED)
