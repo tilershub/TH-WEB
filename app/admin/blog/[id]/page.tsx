@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { getBlogPost, updateBlogPost, type BlogPost } from "@/lib/admin";
 
-const CATEGORIES = ["Tips", "Trends", "Pricing", "Guides", "For Tilers"];
+const CATEGORIES = ["Tips", "Trends", "Pricing", "Guides", "For Taskers"];
 
 export default function EditBlogPostPage() {
   const router = useRouter();
