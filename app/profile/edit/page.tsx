@@ -49,7 +49,8 @@ export default function HomeownerEditPage() {
         const prof = data as Profile | null;
         setProfile(prof);
 
-        if (prof?.role === "tiler") {
+        // Redirect taskers to complete their profile via the setup page.
+        if (prof?.role === "tasker") {
           router.push("/profile/setup");
           return;
         }
@@ -253,23 +254,23 @@ export default function HomeownerEditPage() {
                 </svg>
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-navy">Are you a professional tiler?</h3>
-                <p className="text-sm text-gray-600 mt-1">Switch to a tiler account to find jobs, showcase your work, and grow your business.</p>
+                <h3 className="font-semibold text-navy">Are you a professional tasker?</h3>
+                <p className="text-sm text-gray-600 mt-1">Switch to a tasker account to find tasks, showcase your work, and grow your business.</p>
                 <button
                   type="button"
                   onClick={async () => {
-                    const confirmed = window.confirm("Switch to a Tiler account? You'll be able to set up your services and portfolio.");
+                    const confirmed = window.confirm("Switch to a Tasker account? You'll be able to set up your services and portfolio.");
                     if (confirmed) {
                       const { data: { user } } = await supabase.auth.getUser();
                       if (user) {
-                        await supabase.from("profiles").update({ role: "tiler" }).eq("id", user.id);
+                        await supabase.from("profiles").update({ role: "tasker" }).eq("id", user.id);
                         router.push("/profile/setup");
                       }
                     }
                   }}
                   className="mt-3 text-sm font-medium text-primary hover:underline"
                 >
-                  Become a Tiler →
+                  Become a Tasker →
                 </button>
               </div>
             </div>
