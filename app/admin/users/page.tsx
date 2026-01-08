@@ -11,18 +11,21 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState(searchParams.get("role") || "");
+  const [verifiedFilter, setVerifiedFilter] = useState(searchParams.get("verified") || "");
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
   const loadProfiles = async () => {
     setLoading(true);
-    const { data, count } = await getAllProfiles(page, 20, search);
+    const { data, count } = await getAllProfiles({
+      page,
+      limit: 20,
+      search,
+      role: roleFilter || undefined,
+      isVerified: verifiedFilter === "true" ? true : verifiedFilter === "false" ? false : undefined,
+    });
     if (data) {
-      let filtered = data;
-      if (roleFilter) {
-        filtered = data.filter((p: Profile) => p.role === roleFilter);
-      }
-      setProfiles(filtered);
+      setProfiles(data);
       setTotalCount(count || 0);
     }
     setLoading(false);
@@ -30,7 +33,13 @@ export default function AdminUsersPage() {
 
   useEffect(() => {
     loadProfiles();
-  }, [page, search, roleFilter]);
+  }, [page, search, roleFilter, verifiedFilter]);
+
+  useEffect(() => {
+    setRoleFilter(searchParams.get("role") || "");
+    setVerifiedFilter(searchParams.get("verified") || "");
+    setPage(1);
+  }, [searchParams]);
 
   const handleVerify = async (profileId: string, isVerified: boolean) => {
     const { error } = await updateProfileVerification(profileId, isVerified);
