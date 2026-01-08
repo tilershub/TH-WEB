@@ -113,7 +113,7 @@ export default function TaskDetailsPage() {
       if (path.startsWith("http://") || path.startsWith("https://")) {
         urls.add(path);
       } else {
-        const { data } = supabase.storage.from("task-photos").getPublicUrl(path);
+        const { data } = supabase.storage.from("task-images").getPublicUrl(path);
         if (data?.publicUrl) urls.add(data.publicUrl);
       }
     });
