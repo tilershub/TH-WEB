@@ -82,7 +82,21 @@ export async function getAdminStats() {
   };
 }
 
-export async function getAllProfiles(page = 1, limit = 20, search = "") {
+type ProfileFilters = {
+  page?: number;
+  limit?: number;
+  search?: string;
+  role?: string;
+  isVerified?: boolean;
+};
+
+export async function getAllProfiles({
+  page = 1,
+  limit = 20,
+  search = "",
+  role,
+  isVerified,
+}: ProfileFilters = {}) {
   let query = supabase
     .from("profiles")
     .select("*", { count: "exact" })
@@ -91,6 +105,14 @@ export async function getAllProfiles(page = 1, limit = 20, search = "") {
 
   if (search) {
     query = query.or(`display_name.ilike.%${search}%,full_name.ilike.%${search}%,email.ilike.%${search}%`);
+  }
+
+  if (role) {
+    query = query.eq("role", role);
+  }
+
+  if (typeof isVerified === "boolean") {
+    query = query.eq("is_verified", isVerified);
   }
 
   const { data, error, count } = await query;
