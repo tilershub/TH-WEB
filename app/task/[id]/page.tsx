@@ -140,9 +140,9 @@ export default function TaskDetailsPage() {
       return;
     }
     if (me.profile?.role !== "tasker") {
-  setMsg("Only taskers can place bids. Change role in Profile.");
-  return;
-}
+      setMsg("Only taskers can place bids. Change role in Profile.");
+      return;
+    }
     if (!bidAmount) {
       setMsg("Enter amount.");
       return;

@@ -16,7 +16,7 @@ import { SERVICES } from "@/lib/services";
 export default function EditTaskPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
-  const [task, setTask] = useState<any>(null);
+  const [task, setTask] = useState<Task | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -26,12 +26,15 @@ export default function EditTaskPage() {
       if (error) { setMsg(error.message); return; }
       // When loading a task, ensure new optional fields are defined so inputs are controlled.
       // Some legacy tasks may not have city, start_date_type, start_date or service_ids.
-      const t: any = {
-        ...data,
-        city: (data as any).city ?? "",
-        start_date_type: (data as any).start_date_type ?? "asap",
-        start_date: (data as any).start_date ?? "",
-        service_ids: (data as any).service_ids ?? [],
+      const base = data as Task;
+      const t: Task = {
+        ...base,
+        title: base.title ?? "",
+        description: base.description ?? "",
+        city: base.city ?? "",
+        start_date_type: base.start_date_type ?? "asap",
+        start_date: base.start_date ?? "",
+        service_ids: base.service_ids ?? [],
       };
       setTask(t);
     };
@@ -42,11 +45,12 @@ export default function EditTaskPage() {
     if (!task) return;
     setBusy(true);
     setMsg(null);
+    const normalizedTitle = task.title?.trim() ?? "";
     const { error } = await supabase
       .from("tasks")
       .update({
-        title: task.title,
-        description: task.description,
+        title: normalizedTitle || null,
+        description: task.description ?? "",
         location_text: task.location_text,
         budget_min: task.budget_min,
         budget_max: task.budget_max,
