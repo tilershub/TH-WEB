@@ -198,6 +198,42 @@ export type Message = {
 };
 
 /* =========================
+   SERVICES & SUB-SERVICES
+========================= */
+
+export type Service = {
+  id: string;
+  name: string;
+  icon: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
+export type SubService = {
+  id: string;
+  service_id: string;
+  name: string;
+  unit: "sq.ft" | "lin.ft" | "item" | "hour" | "day" | "fixed";
+  default_price: number | null;
+  description: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
+export type TaskerSubService = {
+  id: string;
+  tasker_id: string;
+  sub_service_id: string;
+  price: number;
+  currency: string;
+  image_path: string | null;
+  note: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+/* =========================
    BID CHANGE REQUESTS
 ========================= */
 
