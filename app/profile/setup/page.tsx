@@ -45,7 +45,7 @@ type ServiceRate = {
   photo_path?: string | null;
 };
 
-export default function TilerProfileSetup() {
+export default function TaskerProfileSetup() {
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -119,12 +119,6 @@ export default function TilerProfileSetup() {
 
       const p = data as Profile;
       setProfile(p);
-
-      if (p.role !== "tiler") {
-        setError("This page is for tilers only. Please switch to a tiler account first.");
-        setLoading(false);
-        return;
-      }
 
       setFullName(p.full_name || "");
       setBio(p.bio || "");
@@ -395,10 +389,10 @@ export default function TilerProfileSetup() {
   }
 
   return (
-    <Page title="Tiler Profile Setup">
+    <Page title="Tasker Profile Setup">
       <div className="max-w-2xl mx-auto px-4 py-6 pb-32">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-navy">Setup Your Tiler Profile</h1>
+          <h1 className="text-2xl font-bold text-navy">Setup Your Tasker Profile</h1>
           <p className="text-gray-500 mt-1">Complete your profile to start receiving job requests</p>
         </div>
 
@@ -453,7 +447,7 @@ export default function TilerProfileSetup() {
                     <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
-                      {fullName?.[0]?.toUpperCase() || "T"}
+                      {fullName?.[0]?.toUpperCase() || "S"}
                     </div>
                   )}
                 </div>
