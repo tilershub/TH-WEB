@@ -102,7 +102,7 @@ export default function EditTaskPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                   <select
                     className="input-field"
-                    value={task.start_date_type}
+                    value={task.start_date_type ?? "asap"}
                     onChange={(e) =>
                       setTask({
                         ...task,
