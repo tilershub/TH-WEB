@@ -389,12 +389,11 @@ export default function TaskerProfileSetup() {
   }
 
   return (
-    <Page title="Tasker Profile Setup">
-      <div className="max-w-2xl mx-auto px-4 py-6 pb-32">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-navy">Setup Your Tasker Profile</h1>
-          <p className="text-gray-500 mt-1">Complete your profile to start receiving job requests</p>
-        </div>
+    <Page
+      title="Tiler Profile Setup"
+      description="Complete your profile to start receiving job requests."
+    >
+      <div className="max-w-2xl mx-auto px-4 py-2 pb-32">
 
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
