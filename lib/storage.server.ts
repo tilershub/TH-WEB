@@ -27,7 +27,7 @@ export async function createSignedUrlsBatch(paths: string[], expiresIn = DEFAULT
 
   const urlMap = new Map<string, string>();
   data?.forEach((item) => {
-    if (item.signedUrl && item.path) {
+    if (item.signedUrl && typeof item.path === "string") {
       urlMap.set(item.path, item.signedUrl);
     }
   });
