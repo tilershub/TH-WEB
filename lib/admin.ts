@@ -120,11 +120,18 @@ export async function getAllProfiles({
 }
 
 export async function updateProfileVerification(profileId: string, isVerified: boolean) {
-  const { error } = await supabase
-    .from("profiles")
-    .update({ is_verified: isVerified })
-    .eq("id", profileId);
-  return { error };
+  const response = await fetch("/api/admin/users/verify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: profileId, verified: isVerified }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    return { error: body?.error || "Failed to update verification status" };
+  }
+
+  return { error: null };
 }
 
 export async function getAllBlogPosts(page = 1, limit = 20, includeUnpublished = true) {
