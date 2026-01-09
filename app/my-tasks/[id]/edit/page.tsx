@@ -100,9 +100,13 @@ export default function EditTaskPage() {
 
               <FormField label="Start" hint="ASAP or choose a date" required>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+                  {(() => {
+                    const startDateType = task.start_date_type ?? "asap";
+                    return (
+                      <>
                   <select
                     className="input-field"
-                    value={task.start_date_type}
+                    value={startDateType}
                     onChange={(e) =>
                       setTask({
                         ...task,
@@ -114,7 +118,7 @@ export default function EditTaskPage() {
                     <option value="asap">ASAP</option>
                     <option value="date">Choose a date</option>
                   </select>
-                  {task.start_date_type === "date" && (
+                  {startDateType === "date" && (
                     <input
                       type="date"
                       className="input-field"
@@ -122,6 +126,9 @@ export default function EditTaskPage() {
                       onChange={(e) => setTask({ ...task, start_date: e.target.value })}
                     />
                   )}
+                      </>
+                    );
+                  })()}
                 </div>
               </FormField>
 
