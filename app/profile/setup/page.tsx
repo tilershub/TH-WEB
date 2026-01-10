@@ -69,6 +69,7 @@ export default function TaskerProfileSetup() {
   const [address, setAddress] = useState("");
   const [nicNo, setNicNo] = useState("");
   const [yearsExperience, setYearsExperience] = useState("");
+  const [serviceMode, setServiceMode] = useState<"single" | "multiple">("single");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [serviceRates, setServiceRates] = useState<Record<string, ServiceRate>>({});
   const [workingDistricts, setWorkingDistricts] = useState<string[]>([]);
@@ -103,16 +104,16 @@ export default function TaskerProfileSetup() {
 
       if (fetchError) {
         if (fetchError.code === "PGRST116") {
-          setError("Profile not found. Please sign out and create a new account.");
+          setError("පැතිකඩ හමු නොවීය. කරුණාකර පිටවී නැවත ගිණුමක් සාදන්න.");
         } else {
-          setError(`Error loading profile: ${fetchError.message}`);
+          setError(`පැතිකඩ ලබාගැනීමේ දෝෂය: ${fetchError.message}`);
         }
         setLoading(false);
         return;
       }
 
       if (!data) {
-        setError("Profile not found. Please sign out and create a new account.");
+        setError("පැතිකඩ හමු නොවීය. කරුණාකර පිටවී නැවත ගිණුමක් සාදන්න.");
         setLoading(false);
         return;
       }
@@ -131,8 +132,10 @@ export default function TaskerProfileSetup() {
       setWorkingDistricts(p.working_districts || []);
       
       if (p.service_rates && typeof p.service_rates === "object") {
-        setSelectedServices(Object.keys(p.service_rates));
+        const serviceKeys = Object.keys(p.service_rates);
+        setSelectedServices(serviceKeys);
         setServiceRates(p.service_rates as Record<string, ServiceRate>);
+        setServiceMode(serviceKeys.length > 1 ? "multiple" : "single");
       }
 
       setAvatarUrl(getPublicUrl("profile-avatars", p.avatar_path));
@@ -147,7 +150,7 @@ export default function TaskerProfileSetup() {
       if (certs) setCertifications(certs as Certification[]);
 
     } catch (err: any) {
-      setError(err?.message || "Failed to load profile");
+      setError(err?.message || "පැතිකඩ ලබාගැනීමට අසමත් විය");
     } finally {
       setLoading(false);
     }
@@ -172,10 +175,10 @@ export default function TaskerProfileSetup() {
       if (updateError) throw updateError;
 
       setAvatarUrl(getPublicUrl("profile-avatars", path));
-      setSuccess("Profile photo updated!");
+      setSuccess("පැතිකඩ ඡායාරූපය යාවත්කාලීන විය!");
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
-      setError(err?.message || "Failed to upload photo");
+      setError(err?.message || "ඡායාරූපය උඩුගත කිරීමට අසමත් විය");
     } finally {
       setUploadingAvatar(false);
     }
@@ -200,10 +203,10 @@ export default function TaskerProfileSetup() {
       if (updateError) throw updateError;
 
       setCoverUrl(getPublicUrl("profile-covers", path));
-      setSuccess("Cover photo updated!");
+      setSuccess("කවර ඡායාරූපය යාවත්කාලීන විය!");
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
-      setError(err?.message || "Failed to upload cover photo");
+      setError(err?.message || "කවර ඡායාරූපය උඩුගත කිරීමට අසමත් විය");
     } finally {
       setUploadingCover(false);
     }
@@ -242,10 +245,10 @@ export default function TaskerProfileSetup() {
       setNewCertIssuer("");
       setNewCertFile(null);
       if (certInputRef.current) certInputRef.current.value = "";
-      setSuccess("Certificate added!");
+      setSuccess("සහතිකය එක් කරන ලදි!");
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
-      setError(err?.message || "Failed to add certificate");
+      setError(err?.message || "සහතිකය එක් කිරීමට අසමත් විය");
     } finally {
       setUploadingCert(false);
     }
@@ -262,7 +265,7 @@ export default function TaskerProfileSetup() {
 
       setCertifications(prev => prev.filter(c => c.id !== certId));
     } catch (err: any) {
-      setError(err?.message || "Failed to delete certificate");
+      setError(err?.message || "සහතිකය මකා දැමීමට අසමත් විය");
     }
   };
 
@@ -285,10 +288,10 @@ export default function TaskerProfileSetup() {
         }
       }));
 
-      setSuccess("Service image uploaded!");
+      setSuccess("සේවා ඡායාරූපය උඩුගත විය!");
       setTimeout(() => setSuccess(null), 2000);
     } catch (err: any) {
-      setError(err?.message || "Failed to upload service image");
+      setError(err?.message || "සේවා ඡායාරූපය උඩුගත කිරීමට අසමත් විය");
     } finally {
       setUploadingServiceImage(null);
     }
@@ -334,16 +337,26 @@ export default function TaskerProfileSetup() {
 
       if (updateError) throw updateError;
 
-      setSuccess("Profile saved successfully!");
+      setSuccess("පැතිකඩ සාර්ථකව සුරකින ලදී!");
       setTimeout(() => {
         setSuccess(null);
         router.push("/profile");
       }, 1500);
 
     } catch (err: any) {
-      setError(err?.message || "Failed to save profile");
+      setError(err?.message || "පැතිකඩ සුරැකීමට අසමත් විය");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleServiceModeChange = (mode: "single" | "multiple") => {
+    setServiceMode(mode);
+    if (mode === "single" && selectedServices.length > 1) {
+      const [firstKey] = selectedServices;
+      const firstRate = serviceRates[firstKey];
+      setSelectedServices(firstKey ? [firstKey] : []);
+      setServiceRates(firstKey ? { [firstKey]: firstRate } : {});
     }
   };
 
@@ -357,9 +370,13 @@ export default function TaskerProfileSetup() {
       }
       const svc = SERVICES.find(s => s.key === key);
       if (svc) {
+        if (serviceMode === "single") {
+          setServiceRates({ [key]: { rate: null, unit: svc.unit } });
+          return [key];
+        }
         setServiceRates(r => ({ ...r, [key]: { rate: null, unit: svc.unit } }));
       }
-      return [...prev, key];
+      return serviceMode === "single" ? [key] : [...prev, key];
     });
   };
 
@@ -385,13 +402,13 @@ export default function TaskerProfileSetup() {
   };
 
   if (loading) {
-    return <LoadingPage message="Loading your profile..." />;
+    return <LoadingPage message="ඔබගේ පැතිකඩ ලබාගනිමින්..." />;
   }
 
   return (
     <Page
-      title="Tasker Profile Setup"
-      description="Complete your profile to start receiving job requests."
+      title="සේවාදායක පැතිකඩ සැකසීම"
+      description="කාර්ය ඉල්ලීම් ලබාගැනීම සඳහා ඔබගේ පැතිකඩ සම්පූර්ණ කරන්න."
     >
       <div className="max-w-3xl mx-auto px-4 py-6 pb-36 space-y-6">
         {(error || success) && (
@@ -409,7 +426,7 @@ export default function TaskerProfileSetup() {
         <section className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
           <div className="relative h-32 bg-gradient-to-r from-primary to-primary-dark">
             {coverUrl && (
-              <img src={coverUrl} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={coverUrl} alt="කවර ඡායාරූපය" className="absolute inset-0 w-full h-full object-cover" />
             )}
             <button
               onClick={() => coverInputRef.current?.click()}
@@ -417,14 +434,14 @@ export default function TaskerProfileSetup() {
               className="absolute bottom-3 right-3 z-10 bg-white text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors flex items-center gap-1 shadow-md"
             >
               {uploadingCover ? (
-                "Uploading..."
+                "උඩුගත වෙමින්..."
               ) : (
                 <>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  Cover Photo
+                  කවර ඡායාරූපය
                 </>
               )}
             </button>
@@ -441,7 +458,7 @@ export default function TaskerProfileSetup() {
             <div className="relative inline-block">
               <div className="w-20 h-20 rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary-dark overflow-hidden shadow-lg">
                 {avatarUrl ? (
-                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
+                  <img src={avatarUrl} alt="පැතිකඩ ඡායාරූපය" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
                     {fullName?.[0]?.toUpperCase() || "S"}
@@ -470,26 +487,26 @@ export default function TaskerProfileSetup() {
                 className="hidden"
               />
             </div>
-            <p className="text-xs text-gray-500 mt-2">Tap icons to upload photos</p>
+            <p className="text-xs text-gray-500 mt-2">ඡායාරූප උඩුගත කිරීමට අයිකන ටැප් කරන්න</p>
           </div>
         </section>
 
         <section className="bg-white rounded-2xl border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-navy mb-4">Basic Information</h2>
+          <h2 className="text-lg font-semibold text-navy mb-4">මූලික තොරතුරු</h2>
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Full Name *</label>
+              <label className="block text-sm font-medium text-gray-700">සම්පූර්ණ නම *</label>
               <Input
                 className="mt-2"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="Your full name"
+                placeholder="ඔබගේ සම්පූර්ණ නම"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">WhatsApp Number *</label>
+              <label className="block text-sm font-medium text-gray-700">WhatsApp අංකය *</label>
               <Input
                 className="mt-2"
                 value={whatsapp}
@@ -499,64 +516,64 @@ export default function TaskerProfileSetup() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">NIC Number</label>
+              <label className="block text-sm font-medium text-gray-700">ජා.හැ. අංකය</label>
               <Input
                 className="mt-2"
                 value={nicNo}
                 onChange={(e) => setNicNo(e.target.value)}
-                placeholder="123456789V or 200012345678"
+                placeholder="123456789V හෝ 200012345678"
               />
-              <p className="text-xs text-gray-400 mt-1">For verification purposes (not shown publicly)</p>
+              <p className="text-xs text-gray-400 mt-1">සත්‍යාපනය සඳහා පමණි (පොදු දර්ශනය නොවේ)</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Bio / About You</label>
+              <label className="block text-sm font-medium text-gray-700">ඔබ ගැන / හැඳින්වීම</label>
               <Textarea
                 className="mt-2"
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Tell clients about yourself and your experience..."
+                placeholder="ඔබගේ අත්දැකීම් සහ කුසලතා ගැන කියන්න..."
                 rows={3}
               />
             </div>
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700">District *</label>
+                <label className="block text-sm font-medium text-gray-700">දිස්ත්‍රික්කය *</label>
                 <select
                   value={district}
                   onChange={(e) => setDistrict(e.target.value)}
                   className="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  <option value="">Select</option>
+                  <option value="">තෝරන්න</option>
                   {SRI_LANKA_DISTRICTS.map(d => (
                     <option key={d} value={d}>{d}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">City</label>
+                <label className="block text-sm font-medium text-gray-700">නගරය</label>
                 <Input
                   className="mt-2"
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  placeholder="Your city"
+                  placeholder="ඔබගේ නගරය"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Address</label>
+              <label className="block text-sm font-medium text-gray-700">ලිපිනය</label>
               <Input
                 className="mt-2"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="Your business address"
+                placeholder="ඔබගේ ව්‍යාපාර ලිපිනය"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Years of Experience</label>
+              <label className="block text-sm font-medium text-gray-700">අත්දැකීම් වසර</label>
               <Input
                 className="mt-2"
                 type="number"
@@ -571,8 +588,52 @@ export default function TaskerProfileSetup() {
         </section>
 
         <section className="bg-white rounded-2xl border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-navy mb-2">Services & Rates</h2>
-          <p className="text-sm text-gray-500 mb-4">Select services you offer and set your rates</p>
+          <h2 className="text-lg font-semibold text-navy mb-2">සේවා සහ ගාස්තු</h2>
+          <p className="text-sm text-gray-500 mb-4">ඔබ ලබාදෙන සේවා තෝරා ගාස්තු සකසන්න</p>
+
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 mb-4">
+            <p className="text-sm font-medium text-gray-700 mb-3">ඔබේ සේවා හැඳින්වීම</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={() => handleServiceModeChange("single")}
+                className={`flex-1 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
+                  serviceMode === "single"
+                    ? "border-primary bg-white text-primary"
+                    : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span>එක සේවාවක් පමණයි</span>
+                  {serviceMode === "single" && (
+                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">තනි සේවාවක් පමණක් තෝරාගන්න.</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleServiceModeChange("multiple")}
+                className={`flex-1 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
+                  serviceMode === "multiple"
+                    ? "border-primary bg-white text-primary"
+                    : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span>බහු සේවාවන් (සමාගම්/කණ්ඩායම්)</span>
+                  {serviceMode === "multiple" && (
+                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">බහු සේවා සපයන්නේ නම් තෝරන්න.</p>
+              </button>
+            </div>
+          </div>
 
           <div className="space-y-3">
             {SERVICES.map(service => {
@@ -615,7 +676,7 @@ export default function TaskerProfileSetup() {
                   {isSelected && (
                     <div className="px-4 pb-4 pt-0 space-y-3">
                       <div className="flex items-center gap-2 ml-8">
-                        <span className="text-xs text-gray-500">Rate:</span>
+                        <span className="text-xs text-gray-500">ගාස්තු:</span>
                         <input
                           type="number"
                           value={rate || ""}
@@ -627,7 +688,7 @@ export default function TaskerProfileSetup() {
                       </div>
 
                       <div className="ml-8">
-                        <p className="text-xs text-gray-500 mb-2">Add a sample work photo for this service (shows in portfolio)</p>
+                        <p className="text-xs text-gray-500 mb-2">මෙම සේවාව සඳහා උදාහරණ ඡායාරූපයක් එක් කරන්න (පෝර්ට්ෆෝලියෝවෙහි දිස්වේ)</p>
                         <div className="flex items-center gap-3">
                           {serviceRates[service.key]?.photo_path ? (
                             <img
@@ -651,14 +712,14 @@ export default function TaskerProfileSetup() {
                             {uploadingServiceImage === service.key ? (
                               <>
                                 <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
-                                Uploading...
+                                උඩුගත වෙමින්...
                               </>
                             ) : (
                               <>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                 </svg>
-                                {serviceRates[service.key]?.photo_path ? "Change" : "Upload"}
+                                {serviceRates[service.key]?.photo_path ? "වෙනස් කරන්න" : "උඩුගත කරන්න"}
                               </>
                             )}
                           </button>
@@ -680,8 +741,8 @@ export default function TaskerProfileSetup() {
         </section>
 
         <section className="bg-white rounded-2xl border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-navy mb-4">Working Areas</h2>
-          <p className="text-sm text-gray-500 mb-4">Select districts where you can work</p>
+          <h2 className="text-lg font-semibold text-navy mb-4">කාර්ය ප්‍රදේශ</h2>
+          <p className="text-sm text-gray-500 mb-4">ඔබට සේවය සැපයිය හැකි දිස්ත්‍රික්ක තෝරන්න</p>
 
           <div className="flex flex-wrap gap-2">
             {SRI_LANKA_DISTRICTS.map(d => (
@@ -702,8 +763,8 @@ export default function TaskerProfileSetup() {
         </section>
 
         <section className="bg-white rounded-2xl border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-navy mb-4">Certificates & Qualifications</h2>
-          <p className="text-sm text-gray-500 mb-4">Add your professional certificates</p>
+          <h2 className="text-lg font-semibold text-navy mb-4">සහතික හා සුදුසුකම්</h2>
+          <p className="text-sm text-gray-500 mb-4">ඔබගේ වෘත්තීය සහතික එක් කරන්න</p>
 
           {certifications.length > 0 && (
             <div className="space-y-3 mb-4">
@@ -739,12 +800,12 @@ export default function TaskerProfileSetup() {
             <Input
               value={newCertTitle}
               onChange={(e) => setNewCertTitle(e.target.value)}
-              placeholder="Certificate title (e.g., NVQ Level 3)"
+              placeholder="සහතිකයේ නම (උදා: NVQ Level 3)"
             />
             <Input
               value={newCertIssuer}
               onChange={(e) => setNewCertIssuer(e.target.value)}
-              placeholder="Issued by (optional)"
+              placeholder="නිකුත් කළ ආයතනය (විකල්ප)"
             />
             <div className="flex items-center gap-2">
               <input
@@ -761,7 +822,7 @@ export default function TaskerProfileSetup() {
               className="w-full"
               variant="secondary"
             >
-              {uploadingCert ? "Adding..." : "Add Certificate"}
+              {uploadingCert ? "එක් වෙමින්..." : "සහතිකය එක් කරන්න"}
             </Button>
           </div>
         </section>
@@ -773,7 +834,7 @@ export default function TaskerProfileSetup() {
               disabled={saving || !fullName.trim() || !whatsapp.trim() || !district}
               className="w-full"
             >
-              {saving ? "Saving..." : "Save Profile"}
+              {saving ? "සුරැකෙමින්..." : "පැතිකඩ සුරකින්න"}
             </Button>
           </div>
         </div>

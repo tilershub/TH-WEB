@@ -17,7 +17,16 @@ export type ServiceKey =
   | "waterproofing"
   | "screed"
   | "demolition"
-  | "nosing";
+  | "nosing"
+  | "construction"
+  | "plumbing"
+  | "electrical"
+  | "painting"
+  | "carpentry"
+  | "masonry"
+  | "roofing"
+  | "landscaping"
+  | "cleaning";
 
 export type RateUnit = "LKR/sqft" | "LKR/ft" | "LKR/job" | "LKR/step";
 
