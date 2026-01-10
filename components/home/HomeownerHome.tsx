@@ -25,6 +25,42 @@ const BLOG_POSTS = [
   { title: "Cost of Tiling in Sri Lanka", excerpt: "A breakdown of tiling costs per square foot across different services.", category: "Pricing", href: "/blog/tiling-cost-guide" },
 ];
 
+const STATS = [
+  { label: "Verified taskers", value: "150+" },
+  { label: "Projects completed", value: "1,200+" },
+  { label: "Avg. response time", value: "< 24 hrs" },
+];
+
+const HIGHLIGHTS = [
+  {
+    title: "Post once, reach many",
+    description: "Share your project and receive multiple quotes from vetted taskers.",
+  },
+  {
+    title: "Transparent profiles",
+    description: "Compare experience, photos, and reviews before you decide.",
+  },
+  {
+    title: "Stay in control",
+    description: "Chat directly with taskers and finalize timelines on your terms.",
+  },
+];
+
+const HOW_IT_WORKS = [
+  {
+    title: "Tell us about your space",
+    description: "Share the room, scope, and budget range to help taskers respond accurately.",
+  },
+  {
+    title: "Review tailored quotes",
+    description: "Compare bids side-by-side, ask questions, and pick the best fit.",
+  },
+  {
+    title: "Kick off with confidence",
+    description: "Confirm the start date and keep everything organized in one place.",
+  },
+];
+
 const GUIDES = [
   {
     title: "How to Post a Task on Task Hub",
@@ -130,15 +166,77 @@ export default function HomeownerHome() {
 
   return (
     <div className="pb-8">
-      <div className="px-4 pt-4">
-        <SearchBar />
-      </div>
+      <section className="px-4 pt-6">
+        <div className="rounded-2xl bg-gradient-to-br from-primary/10 via-white to-primary/5 p-5 shadow-sm">
+          <p className="text-sm font-semibold text-primary">Welcome back</p>
+          <h1 className="text-2xl font-bold text-navy mt-2">
+            Find trusted taskers for your next tiling project
+          </h1>
+          <p className="text-sm text-neutral-600 mt-2">
+            Post a task in minutes, compare quotes, and move forward with confidence.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <a
+              href="/post-task"
+              className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm"
+            >
+              Post a task
+            </a>
+            <a
+              href="/tilers"
+              className="rounded-full border border-primary/20 bg-white px-4 py-2 text-sm font-semibold text-primary"
+            >
+              Browse taskers
+            </a>
+          </div>
+          <div className="mt-5 grid grid-cols-3 gap-3 text-center">
+            {STATS.map((stat) => (
+              <div key={stat.label} className="rounded-xl bg-white/70 px-2 py-3">
+                <p className="text-base font-bold text-navy">{stat.value}</p>
+                <p className="text-xs text-neutral-500 mt-1">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="mt-4">
+          <SearchBar />
+        </div>
+      </section>
+
+      <section className="mt-6 px-4">
+        <h2 className="text-lg font-bold text-navy mb-3">Why homeowners choose us</h2>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {HIGHLIGHTS.map((highlight) => (
+            <div key={highlight.title} className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+              <h3 className="text-sm font-semibold text-navy">{highlight.title}</h3>
+              <p className="text-xs text-neutral-600 mt-2">{highlight.description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="mt-6 px-4">
         <h2 className="text-lg font-bold text-navy mb-3">Services</h2>
         <div className="grid grid-cols-3 gap-3">
           {SERVICES.map((s) => (
             <ServiceCard key={s.title} title={s.title} href={s.href} icon={s.icon} />
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-6 px-4">
+        <h2 className="text-lg font-bold text-navy mb-3">How it works</h2>
+        <div className="space-y-3">
+          {HOW_IT_WORKS.map((step, index) => (
+            <div key={step.title} className="flex items-start gap-3 rounded-2xl border border-gray-100 bg-white p-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                {index + 1}
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-navy">{step.title}</h3>
+                <p className="text-xs text-neutral-600 mt-1">{step.description}</p>
+              </div>
+            </div>
           ))}
         </div>
       </section>
