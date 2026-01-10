@@ -46,7 +46,7 @@ export default function AuthPage() {
     try {
       const full_name = email.split("@")[0];
 
-      // 1) signup (email confirmation OFF, so a session is created immediately)
+      // 1) signup (if email confirmation is ON, session may be null)
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -59,8 +59,16 @@ export default function AuthPage() {
       const user = data.user;
       if (!user) throw new Error("Signup succeeded but user was not returned.");
 
-      // 2) ensure profile row exists with correct role
-      // (this is the missing piece in your current system)
+      if (!data.session) {
+        setMsg("Signup successful! Please confirm your email, then log in.");
+        setMode("login");
+        setStep("credentials");
+        setRole(null);
+        setPassword("");
+        return;
+      }
+
+      // 2) ensure profile row exists with correct role when session is present
       const upsertRes = await supabase.from("profiles").upsert(
         {
           id: user.id,
