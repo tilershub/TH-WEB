@@ -103,6 +103,7 @@ export default function PublicTilerProfilePage() {
   }, [id]);
 
   const coverUrl = useMemo(() => pub("profile-covers", tiler?.cover_path), [tiler?.cover_path]);
+  const hasCover = Boolean(coverUrl);
   const avatarUrl = useMemo(() => pub("profile-avatars", tiler?.avatar_path), [tiler?.avatar_path]);
 
   const locationLine = useMemo(() => {
@@ -192,10 +193,14 @@ export default function PublicTilerProfilePage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" aria-hidden="true" />
           </div>
         ) : (
-          <div className="h-40 bg-gradient-to-br from-primary to-primary-dark" role="img" aria-label="Default cover background" />
+          <div
+            className="h-24 bg-gradient-to-br from-primary to-primary-dark"
+            role="img"
+            aria-label="Default cover background"
+          />
         )}
 
-        <div className="px-5 -mt-12 relative z-10">
+        <div className={`px-5 relative z-10 ${hasCover ? "-mt-12" : "-mt-8"}`}>
           <div className="flex items-end gap-4">
             <div className="w-24 h-24 rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0 shadow-lg relative">
               {avatarUrl ? (
