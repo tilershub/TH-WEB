@@ -93,7 +93,7 @@ export default function TilersPage() {
       const { data, error } = await supabase
         .from("profiles")
         .select("id, display_name, full_name, avatar_path, city, district, years_experience, role")
-        .eq("role", "tiler")
+        .eq("role", "tasker")
         .order("created_at", { ascending: false })
         .range(pageNum * TILERS_PER_PAGE, (pageNum + 1) * TILERS_PER_PAGE - 1);
 
@@ -146,7 +146,7 @@ export default function TilersPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <h1 className="text-2xl font-bold text-navy">Browse Tilers</h1>
+          <h1 className="text-2xl font-bold text-navy">Browse Taskers</h1>
         </div>
 
         <div className="relative">
@@ -174,9 +174,9 @@ export default function TilersPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">No Tilers Found</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">No Taskers Found</h3>
             <p className="text-gray-600 text-sm">
-              {search ? "Try a different search term." : "Be the first tiler to join Tilers Hub!"}
+              {search ? "Try a different search term." : "Be the first tasker to join Tilers Hub!"}
             </p>
           </div>
         ) : (
