@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminEditLink from "@/components/AdminEditLink";
+import { supabase } from "@/lib/supabaseClient";
 
 const GUIDES: Record<string, {
   title: string;
@@ -402,8 +404,38 @@ const GUIDES: Record<string, {
   },
 };
 
-export default function GuidePage({ params }: { params: { slug: string } }) {
-  const guide = GUIDES[params.slug];
+type GuideContent = {
+  id?: string;
+  title: string;
+  description: string;
+  steps: { title: string; content: string[] }[];
+  isFromDb?: boolean;
+};
+
+async function getDbGuide(slug: string): Promise<GuideContent | null> {
+  const { data } = await supabase
+    .from("guides")
+    .select("id, slug, title, description, steps")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
+
+  if (!data) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    title: data.title,
+    description: data.description || "",
+    steps: Array.isArray(data.steps) ? data.steps : [],
+    isFromDb: true,
+  };
+}
+
+export default async function GuidePage({ params }: { params: { slug: string } }) {
+  const dbGuide = await getDbGuide(params.slug);
+  const guide = dbGuide ?? GUIDES[params.slug];
 
   if (!guide) {
     notFound();
@@ -412,12 +444,19 @@ export default function GuidePage({ params }: { params: { slug: string } }) {
   return (
     <div className="min-h-screen bg-gray-50 pb-28">
       <div className="max-w-3xl mx-auto px-4 py-6">
-        <Link href="/guides" className="inline-flex items-center gap-2 text-primary font-medium mb-6 hover:underline">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Guides
-        </Link>
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/guides" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Guides
+          </Link>
+          {dbGuide?.id && (
+            <AdminEditLink href={`/admin/guides/${dbGuide.id}`} className="text-sm">
+              Edit Guide
+            </AdminEditLink>
+          )}
+        </div>
 
         <div className="card p-6 md:p-8">
           <div className="flex items-center gap-2 mb-4">

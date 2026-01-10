@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdminEditLink from "@/components/AdminEditLink";
+import { supabase } from "@/lib/supabaseClient";
 
 const BLOG_POSTS: Record<string, {
   title: string;
@@ -238,8 +240,45 @@ const BLOG_POSTS: Record<string, {
   },
 };
 
-export default function BlogPostPage({ params }: { params: { slug: string } }) {
-  const post = BLOG_POSTS[params.slug];
+type BlogContent = {
+  id?: string;
+  title: string;
+  category: string;
+  date: string;
+  readTime: string;
+  content: string[];
+  isFromDb?: boolean;
+};
+
+async function getDbPost(slug: string): Promise<BlogContent | null> {
+  const { data } = await supabase
+    .from("blog_posts")
+    .select("id, slug, title, category, read_time, content, created_at")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .maybeSingle();
+
+  if (!data) {
+    return null;
+  }
+
+  return {
+    id: data.id,
+    title: data.title,
+    category: data.category,
+    date: new Date(data.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    readTime: data.read_time,
+    content: String(data.content || "")
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean),
+    isFromDb: true,
+  };
+}
+
+export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+  const dbPost = await getDbPost(params.slug);
+  const post = dbPost ?? BLOG_POSTS[params.slug];
 
   if (!post) {
     notFound();
@@ -248,12 +287,19 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
   return (
     <div className="min-h-screen bg-gray-50 pb-28">
       <div className="max-w-3xl mx-auto px-4 py-6">
-        <Link href="/blog" className="inline-flex items-center gap-2 text-primary font-medium mb-6 hover:underline">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Blog
-        </Link>
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/blog" className="inline-flex items-center gap-2 text-primary font-medium hover:underline">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Blog
+          </Link>
+          {dbPost?.id && (
+            <AdminEditLink href={`/admin/blog/${dbPost.id}`} className="text-sm">
+              Edit Post
+            </AdminEditLink>
+          )}
+        </div>
 
         <article className="card p-6 md:p-8">
           <div className="flex items-center gap-3 mb-4">

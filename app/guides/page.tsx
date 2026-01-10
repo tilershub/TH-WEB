@@ -1,64 +1,7 @@
 import Link from "next/link";
 import { Page } from "@/components/Page";
-
-const GUIDES = [
-  {
-    id: "prepare-for-tiling",
-    title: "How to Prepare Your Home for Tiling",
-    description: "Essential steps to take before the tiler arrives",
-    icon: "home",
-    steps: 5,
-  },
-  {
-    id: "choose-right-tiler",
-    title: "How to Choose the Right Tiler",
-    description: "Tips for finding and vetting professional tilers",
-    icon: "user",
-    steps: 6,
-  },
-  {
-    id: "post-task-guide",
-    title: "How to Post a Task on Tilers Hub",
-    description: "Get the best quotes by creating a detailed task",
-    icon: "edit",
-    steps: 4,
-  },
-  {
-    id: "compare-quotes",
-    title: "How to Compare Tiler Quotes",
-    description: "What to look for beyond just the price",
-    icon: "scale",
-    steps: 5,
-  },
-  {
-    id: "bathroom-renovation",
-    title: "Bathroom Tiling: Complete Guide",
-    description: "Everything you need to know about bathroom tiles",
-    icon: "droplet",
-    steps: 8,
-  },
-  {
-    id: "kitchen-tiling",
-    title: "Kitchen Tiling: Floor & Backsplash",
-    description: "Choose and install the perfect kitchen tiles",
-    icon: "kitchen",
-    steps: 6,
-  },
-  {
-    id: "outdoor-tiling",
-    title: "Outdoor & Patio Tiling Guide",
-    description: "Weather-resistant options for outdoor spaces",
-    icon: "sun",
-    steps: 5,
-  },
-  {
-    id: "tile-maintenance",
-    title: "How to Maintain Your Tiles",
-    description: "Keep your tiles looking new for years",
-    icon: "sparkle",
-    steps: 4,
-  },
-];
+import AdminEditLink from "@/components/AdminEditLink";
+import { getGuides } from "@/lib/content";
 
 function getIcon(name: string) {
   const icons: Record<string, JSX.Element> = {
@@ -106,7 +49,9 @@ function getIcon(name: string) {
   return icons[name] || icons.home;
 }
 
-export default function GuidesPage() {
+export default async function GuidesPage() {
+  const guides = await getGuides();
+
   return (
     <Page title="How-To Guides">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -123,31 +68,45 @@ export default function GuidesPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          {GUIDES.map((guide) => (
-            <Link
-              key={guide.id}
-              href={`/guides/${guide.id}`}
-              className="card hover:shadow-card-hover transition-shadow"
-            >
-              <div className="flex gap-4 p-5">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
-                  {getIcon(guide.icon)}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="font-semibold text-navy mb-1">{guide.title}</h2>
-                  <p className="text-sm text-gray-600 mb-2">{guide.description}</p>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <span>{guide.steps} steps</span>
-                    <span className="text-primary font-medium">Read Guide</span>
+          {guides.map((guide) => (
+            <article key={guide.id} className="card hover:shadow-card-hover transition-shadow">
+              <Link
+                href={`/guides/${guide.slug}`}
+                className="block"
+              >
+                <div className="flex gap-4 p-5 pb-3">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
+                    {getIcon(guide.icon)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-semibold text-navy mb-1">{guide.title}</h2>
+                    <p className="text-sm text-gray-600 mb-2">{guide.description}</p>
+                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                      <span>{guide.steps} steps</span>
+                      <span className="text-primary font-medium">Read Guide</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
                   </div>
                 </div>
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
+              </Link>
+              <div className="flex items-center justify-between px-5 pb-4">
+                <span className="text-xs text-gray-500">{guide.steps} steps</span>
+                <div className="flex items-center gap-3">
+                  <Link href={`/guides/${guide.slug}`} className="text-primary text-sm font-medium">
+                    Read Guide
+                  </Link>
+                  {guide.isFromDb && (
+                    <AdminEditLink href={`/admin/guides/${guide.id}`}>
+                      Edit
+                    </AdminEditLink>
+                  )}
                 </div>
               </div>
-            </Link>
+            </article>
           ))}
         </div>
 
