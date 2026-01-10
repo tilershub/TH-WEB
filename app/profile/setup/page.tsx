@@ -390,387 +390,391 @@ export default function TaskerProfileSetup() {
 
   return (
     <Page
-      title="Tiler Profile Setup"
+      title="Tasker Profile Setup"
       description="Complete your profile to start receiving job requests."
     >
-      <div className="max-w-2xl mx-auto px-4 py-2 pb-32">
-
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm">
-            {error}
+      <div className="max-w-3xl mx-auto px-4 py-6 pb-36 space-y-6">
+        {(error || success) && (
+          <div
+            className={`rounded-2xl border p-4 text-sm ${
+              error
+                ? "border-red-200 bg-red-50 text-red-700"
+                : "border-green-200 bg-green-50 text-green-700"
+            }`}
+          >
+            {error || success}
           </div>
         )}
 
-        {success && (
-          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-xl text-green-700 text-sm">
-            {success}
-          </div>
-        )}
-
-        <div className="space-y-6">
-          <section className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-            <div className="relative h-32 bg-gradient-to-r from-primary to-primary-dark">
-              {coverUrl && (
-                <img src={coverUrl} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+        <section className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
+          <div className="relative h-32 bg-gradient-to-r from-primary to-primary-dark">
+            {coverUrl && (
+              <img src={coverUrl} alt="Cover" className="absolute inset-0 w-full h-full object-cover" />
+            )}
+            <button
+              onClick={() => coverInputRef.current?.click()}
+              disabled={uploadingCover}
+              className="absolute bottom-3 right-3 z-10 bg-white text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors flex items-center gap-1 shadow-md"
+            >
+              {uploadingCover ? (
+                "Uploading..."
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  Cover Photo
+                </>
               )}
-              <button
-                onClick={() => coverInputRef.current?.click()}
-                disabled={uploadingCover}
-                className="absolute bottom-2 right-2 z-10 bg-white text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors flex items-center gap-1 shadow-md"
-              >
-                {uploadingCover ? (
-                  "Uploading..."
+            </button>
+            <input
+              ref={coverInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleCoverUpload}
+              className="hidden"
+            />
+          </div>
+
+          <div className="px-6 pb-5 -mt-10 relative">
+            <div className="relative inline-block">
+              <div className="w-20 h-20 rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary-dark overflow-hidden shadow-lg">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                    Cover Photo
-                  </>
+                  <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
+                    {fullName?.[0]?.toUpperCase() || "S"}
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute bottom-0 right-0 w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary-dark transition-colors"
+              >
+                {uploadingAvatar ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
                 )}
               </button>
               <input
-                ref={coverInputRef}
+                ref={avatarInputRef}
                 type="file"
                 accept="image/*"
-                onChange={handleCoverUpload}
+                onChange={handleAvatarUpload}
                 className="hidden"
               />
             </div>
-            
-            <div className="px-4 pb-4 -mt-10 relative">
-              <div className="relative inline-block">
-                <div className="w-20 h-20 rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary-dark overflow-hidden shadow-lg">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
-                      {fullName?.[0]?.toUpperCase() || "S"}
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={() => avatarInputRef.current?.click()}
-                  disabled={uploadingAvatar}
-                  className="absolute bottom-0 right-0 w-7 h-7 bg-primary text-white rounded-full flex items-center justify-center shadow-lg hover:bg-primary-dark transition-colors"
+            <p className="text-xs text-gray-500 mt-2">Tap icons to upload photos</p>
+          </div>
+        </section>
+
+        <section className="bg-white rounded-2xl border border-gray-200 p-5">
+          <h2 className="text-lg font-semibold text-navy mb-4">Basic Information</h2>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Full Name *</label>
+              <Input
+                className="mt-2"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Your full name"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">WhatsApp Number *</label>
+              <Input
+                className="mt-2"
+                value={whatsapp}
+                onChange={(e) => setWhatsapp(e.target.value)}
+                placeholder="+94 77 123 4567"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">NIC Number</label>
+              <Input
+                className="mt-2"
+                value={nicNo}
+                onChange={(e) => setNicNo(e.target.value)}
+                placeholder="123456789V or 200012345678"
+              />
+              <p className="text-xs text-gray-400 mt-1">For verification purposes (not shown publicly)</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Bio / About You</label>
+              <Textarea
+                className="mt-2"
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Tell clients about yourself and your experience..."
+                rows={3}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">District *</label>
+                <select
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  className="mt-2 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  {uploadingAvatar ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  )}
-                </button>
-                <input
-                  ref={avatarInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  className="hidden"
-                />
+                  <option value="">Select</option>
+                  {SRI_LANKA_DISTRICTS.map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
               </div>
-              <p className="text-xs text-gray-500 mt-2">Tap icons to upload photos</p>
-            </div>
-          </section>
-
-          <section className="bg-white rounded-xl border border-gray-200 p-4">
-            <h2 className="text-lg font-semibold text-navy mb-4">Basic Information</h2>
-            
-            <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                <label className="block text-sm font-medium text-gray-700">City</label>
                 <Input
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Your full name"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number *</label>
-                <Input
-                  value={whatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
-                  placeholder="+94 77 123 4567"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">NIC Number</label>
-                <Input
-                  value={nicNo}
-                  onChange={(e) => setNicNo(e.target.value)}
-                  placeholder="123456789V or 200012345678"
-                />
-                <p className="text-xs text-gray-400 mt-1">For verification purposes (not shown publicly)</p>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Bio / About You</label>
-                <Textarea
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Tell clients about yourself and your experience..."
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">District *</label>
-                  <select
-                    value={district}
-                    onChange={(e) => setDistrict(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary text-sm"
-                  >
-                    <option value="">Select</option>
-                    {SRI_LANKA_DISTRICTS.map(d => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                  <Input
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="Your city"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <Input
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  placeholder="Your business address"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Years of Experience</label>
-                <Input
-                  type="number"
-                  value={yearsExperience}
-                  onChange={(e) => setYearsExperience(e.target.value)}
-                  placeholder="5"
-                  min="0"
-                  max="50"
+                  className="mt-2"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  placeholder="Your city"
                 />
               </div>
             </div>
-          </section>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-4">
-            <h2 className="text-lg font-semibold text-navy mb-2">Services & Rates</h2>
-            <p className="text-sm text-gray-500 mb-4">Select services you offer and set your rates</p>
-            
-            <div className="space-y-3">
-              {SERVICES.map(service => {
-                const isSelected = selectedServices.includes(service.key);
-                const rate = serviceRates[service.key]?.rate;
-                
-                return (
-                  <div 
-                    key={service.key}
-                    className={`rounded-lg border transition-all ${
-                      isSelected 
-                        ? "border-primary bg-primary/5" 
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={() => toggleService(service.key)}
-                      className="w-full p-3 flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          isSelected
-                            ? "border-primary bg-primary"
-                            : "border-gray-300"
-                        }`}>
-                          {isSelected && (
-                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                            </svg>
-                          )}
-                        </div>
-                        <div className="text-left">
-                          <span className="text-sm font-medium text-gray-900">{service.label}</span>
-                          <p className="text-xs text-gray-500">{service.unit}</p>
-                        </div>
-                      </div>
-                    </button>
-                    
-                    {isSelected && (
-                      <div className="px-3 pb-3 pt-0 space-y-3">
-                        <div className="flex items-center gap-2 ml-8">
-                          <span className="text-xs text-gray-500">Rate:</span>
-                          <input
-                            type="number"
-                            value={rate || ""}
-                            onChange={(e) => updateServiceRate(service.key, e.target.value)}
-                            placeholder="0"
-                            className="w-24 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-primary focus:border-primary"
-                          />
-                          <span className="text-xs text-gray-500">{service.unit}</span>
-                        </div>
-                        
-                        <div className="ml-8">
-                          <p className="text-xs text-gray-500 mb-2">Add a sample work photo for this service (shows in portfolio)</p>
-                          <div className="flex items-center gap-3">
-                            {serviceRates[service.key]?.photo_path ? (
-                              <img 
-                                src={getPublicUrl("portfolio", serviceRates[service.key].photo_path!) || ""}
-                                alt={`${service.label} sample`}
-                                className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                              />
-                            ) : (
-                              <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
-                                <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                              </div>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => serviceImageRefs.current[service.key]?.click()}
-                              disabled={uploadingServiceImage === service.key}
-                              className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-1"
-                            >
-                              {uploadingServiceImage === service.key ? (
-                                <>
-                                  <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
-                                  Uploading...
-                                </>
-                              ) : (
-                                <>
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                  </svg>
-                                  {serviceRates[service.key]?.photo_path ? "Change" : "Upload"}
-                                </>
-                              )}
-                            </button>
-                            <input
-                              ref={(el) => { serviceImageRefs.current[service.key] = el; }}
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => handleServiceImageUpload(service.key, e)}
-                              className="hidden"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Address</label>
+              <Input
+                className="mt-2"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                placeholder="Your business address"
+              />
             </div>
-          </section>
 
-          <section className="bg-white rounded-xl border border-gray-200 p-4">
-            <h2 className="text-lg font-semibold text-navy mb-4">Working Areas</h2>
-            <p className="text-sm text-gray-500 mb-4">Select districts where you can work</p>
-            
-            <div className="flex flex-wrap gap-2">
-              {SRI_LANKA_DISTRICTS.map(d => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => toggleWorkingDistrict(d)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                    workingDistricts.includes(d)
-                      ? "bg-primary text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Years of Experience</label>
+              <Input
+                className="mt-2"
+                type="number"
+                value={yearsExperience}
+                onChange={(e) => setYearsExperience(e.target.value)}
+                placeholder="5"
+                min="0"
+                max="50"
+              />
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-white rounded-2xl border border-gray-200 p-5">
+          <h2 className="text-lg font-semibold text-navy mb-2">Services & Rates</h2>
+          <p className="text-sm text-gray-500 mb-4">Select services you offer and set your rates</p>
+
+          <div className="space-y-3">
+            {SERVICES.map(service => {
+              const isSelected = selectedServices.includes(service.key);
+              const rate = serviceRates[service.key]?.rate;
+
+              return (
+                <div
+                  key={service.key}
+                  className={`rounded-xl border transition-all ${
+                    isSelected
+                      ? "border-primary bg-primary/5"
+                      : "border-gray-200"
                   }`}
                 >
-                  {d}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="bg-white rounded-xl border border-gray-200 p-4">
-            <h2 className="text-lg font-semibold text-navy mb-4">Certificates & Qualifications</h2>
-            <p className="text-sm text-gray-500 mb-4">Add your professional certificates</p>
-            
-            {certifications.length > 0 && (
-              <div className="space-y-3 mb-4">
-                {certifications.map(cert => (
-                  <div key={cert.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => toggleService(service.key)}
+                    className="w-full p-4 flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-3">
-                      {cert.image_path && (
-                        <img 
-                          src={getPublicUrl("certifications", cert.image_path) || ""} 
-                          alt={cert.title}
-                          className="w-12 h-12 rounded object-cover"
-                        />
-                      )}
-                      <div>
-                        <p className="font-medium text-sm text-gray-900">{cert.title}</p>
-                        {cert.issuer && <p className="text-xs text-gray-500">{cert.issuer}</p>}
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        isSelected
+                          ? "border-primary bg-primary"
+                          : "border-gray-300"
+                      }`}>
+                        {isSelected && (
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="text-left">
+                        <span className="text-sm font-medium text-gray-900">{service.label}</span>
+                        <p className="text-xs text-gray-500">{service.unit}</p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDeleteCertificate(cert.id)}
-                      className="p-1.5 text-red-500 hover:bg-red-50 rounded"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                  </button>
+
+                  {isSelected && (
+                    <div className="px-4 pb-4 pt-0 space-y-3">
+                      <div className="flex items-center gap-2 ml-8">
+                        <span className="text-xs text-gray-500">Rate:</span>
+                        <input
+                          type="number"
+                          value={rate || ""}
+                          onChange={(e) => updateServiceRate(service.key, e.target.value)}
+                          placeholder="0"
+                          className="w-24 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-primary focus:border-primary"
+                        />
+                        <span className="text-xs text-gray-500">{service.unit}</span>
+                      </div>
+
+                      <div className="ml-8">
+                        <p className="text-xs text-gray-500 mb-2">Add a sample work photo for this service (shows in portfolio)</p>
+                        <div className="flex items-center gap-3">
+                          {serviceRates[service.key]?.photo_path ? (
+                            <img
+                              src={getPublicUrl("portfolio", serviceRates[service.key].photo_path!) || ""}
+                              alt={`${service.label} sample`}
+                              className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => serviceImageRefs.current[service.key]?.click()}
+                            disabled={uploadingServiceImage === service.key}
+                            className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-1"
+                          >
+                            {uploadingServiceImage === service.key ? (
+                              <>
+                                <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                {serviceRates[service.key]?.photo_path ? "Change" : "Upload"}
+                              </>
+                            )}
+                          </button>
+                          <input
+                            ref={(el) => { serviceImageRefs.current[service.key] = el; }}
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => handleServiceImageUpload(service.key, e)}
+                            className="hidden"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="bg-white rounded-2xl border border-gray-200 p-5">
+          <h2 className="text-lg font-semibold text-navy mb-4">Working Areas</h2>
+          <p className="text-sm text-gray-500 mb-4">Select districts where you can work</p>
+
+          <div className="flex flex-wrap gap-2">
+            {SRI_LANKA_DISTRICTS.map(d => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => toggleWorkingDistrict(d)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  workingDistricts.includes(d)
+                    ? "bg-primary text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="bg-white rounded-2xl border border-gray-200 p-5">
+          <h2 className="text-lg font-semibold text-navy mb-4">Certificates & Qualifications</h2>
+          <p className="text-sm text-gray-500 mb-4">Add your professional certificates</p>
+
+          {certifications.length > 0 && (
+            <div className="space-y-3 mb-4">
+              {certifications.map(cert => (
+                <div key={cert.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    {cert.image_path && (
+                      <img
+                        src={getPublicUrl("certifications", cert.image_path) || ""}
+                        alt={cert.title}
+                        className="w-12 h-12 rounded object-cover"
+                      />
+                    )}
+                    <div>
+                      <p className="font-medium text-sm text-gray-900">{cert.title}</p>
+                      {cert.issuer && <p className="text-xs text-gray-500">{cert.issuer}</p>}
+                    </div>
                   </div>
-                ))}
-              </div>
-            )}
-
-            <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
-              <Input
-                value={newCertTitle}
-                onChange={(e) => setNewCertTitle(e.target.value)}
-                placeholder="Certificate title (e.g., NVQ Level 3)"
-              />
-              <Input
-                value={newCertIssuer}
-                onChange={(e) => setNewCertIssuer(e.target.value)}
-                placeholder="Issued by (optional)"
-              />
-              <div className="flex items-center gap-2">
-                <input
-                  ref={certInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setNewCertFile(e.target.files?.[0] || null)}
-                  className="flex-1 text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                />
-              </div>
-              <Button
-                onClick={handleAddCertificate}
-                disabled={uploadingCert || !newCertTitle.trim()}
-                className="w-full"
-                variant="secondary"
-              >
-                {uploadingCert ? "Adding..." : "Add Certificate"}
-              </Button>
+                  <button
+                    onClick={() => handleDeleteCertificate(cert.id)}
+                    className="p-1.5 text-red-500 hover:bg-red-50 rounded"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
             </div>
-          </section>
+          )}
 
-          <div className="fixed bottom-20 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg">
-            <div className="max-w-2xl mx-auto">
-              <Button
-                onClick={handleSave}
-                disabled={saving || !fullName.trim() || !whatsapp.trim() || !district}
-                className="w-full"
-              >
-                {saving ? "Saving..." : "Save Profile"}
-              </Button>
+          <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+            <Input
+              value={newCertTitle}
+              onChange={(e) => setNewCertTitle(e.target.value)}
+              placeholder="Certificate title (e.g., NVQ Level 3)"
+            />
+            <Input
+              value={newCertIssuer}
+              onChange={(e) => setNewCertIssuer(e.target.value)}
+              placeholder="Issued by (optional)"
+            />
+            <div className="flex items-center gap-2">
+              <input
+                ref={certInputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => setNewCertFile(e.target.files?.[0] || null)}
+                className="flex-1 text-sm text-gray-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+              />
             </div>
+            <Button
+              onClick={handleAddCertificate}
+              disabled={uploadingCert || !newCertTitle.trim()}
+              className="w-full"
+              variant="secondary"
+            >
+              {uploadingCert ? "Adding..." : "Add Certificate"}
+            </Button>
+          </div>
+        </section>
+
+        <div className="fixed bottom-20 left-0 right-0 bg-white/95 border-t border-gray-200 p-4 shadow-lg backdrop-blur">
+          <div className="max-w-3xl mx-auto">
+            <Button
+              onClick={handleSave}
+              disabled={saving || !fullName.trim() || !whatsapp.trim() || !district}
+              className="w-full"
+            >
+              {saving ? "Saving..." : "Save Profile"}
+            </Button>
           </div>
         </div>
       </div>
