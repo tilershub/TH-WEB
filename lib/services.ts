@@ -7,7 +7,16 @@ export type ServiceKey =
   | "waterproofing"
   | "screed"
   | "demolition"
-  | "nosing";
+  | "nosing"
+  | "construction"
+  | "plumbing"
+  | "electrical"
+  | "painting"
+  | "carpentry"
+  | "masonry"
+  | "roofing"
+  | "landscaping"
+  | "cleaning";
 
 export type RateUnit = "LKR/sqft" | "LKR/ft" | "LKR/job" | "LKR/step";
 
@@ -19,57 +28,111 @@ export const SERVICES: {
 }[] = [
   { 
     key: "floor_tiling", 
-    label: "Floor Tiling", 
-    description: "Tiling for floors - ground floor, upper floors, etc.",
+    label: "බිම් ටයිල් කිරීම", 
+    description: "බිම් සඳහා ටයිල් කිරීම - ග්‍රවුන්ඩ් ෆ්ලෝර්, උඩු මහල් ආදී.",
     unit: "LKR/sqft" 
   },
   { 
     key: "wall_tiling", 
-    label: "Wall Tiling", 
-    description: "Tiling for walls in any room",
+    label: "බිත්ති ටයිල් කිරීම", 
+    description: "ඕනෑම කාමරයක බිත්ති ටයිල් කිරීම",
     unit: "LKR/sqft" 
   },
   { 
     key: "staircase_tiling", 
-    label: "Staircase Tiling", 
-    description: "Tiling for staircases including steps, risers, and landings",
+    label: "පඩිපෙළ ටයිල් කිරීම", 
+    description: "පඩිපෙළ, පියවිසි හා ලැන්ඩිං සඳහා ටයිල් කිරීම",
     unit: "LKR/step" 
   },
   { 
     key: "bathroom_tiling", 
-    label: "Bathroom Tiling", 
-    description: "Complete bathroom tiling (walls and floor)",
+    label: "නානකාමර ටයිල් කිරීම", 
+    description: "නානකාමර බිත්ති සහ බිම සඳහා සම්පූර්ණ ටයිල් කිරීම",
     unit: "LKR/sqft" 
   },
   { 
     key: "pantry_backsplash", 
-    label: "Pantry Top / Backsplash", 
-    description: "Granite/tile work for pantry tops and backsplashes",
+    label: "පෑන්ට්‍රි ටොප්/බැක්ස්ප්ලෑෂ්", 
+    description: "පෑන්ට්‍රි ටොප් සහ බැක්ස්ප්ලෑෂ් සඳහා ටයිල්/ග්‍රැනයිට් වැඩ",
     unit: "LKR/ft" 
   },
   { 
     key: "waterproofing", 
-    label: "Waterproofing", 
-    description: "Waterproofing service for bathrooms and wet areas",
+    label: "ජලරෝධනය", 
+    description: "නානකාමර සහ තෙත් ප්‍රදේශ සඳහා ජලරෝධන සේවාව",
     unit: "LKR/sqft" 
   },
   { 
     key: "screed", 
-    label: "Screed Work", 
-    description: "Floor screed preparation before tiling",
+    label: "ස්ක్రీඩ් වැඩ", 
+    description: "ටයිල් කිරීමට පෙර බිම් ස්ක್ರೀඩ් සකස් කිරීම",
     unit: "LKR/sqft" 
   },
   { 
     key: "demolition", 
-    label: "Demolition Work", 
-    description: "Removal of existing tiles and surfaces",
+    label: "විනාශ කිරීමේ වැඩ", 
+    description: "පවතින ටයිල් සහ පෘෂ්ඨ ඉවත් කිරීම",
     unit: "LKR/sqft" 
   },
   { 
     key: "nosing", 
-    label: "Nosing (Edge Finishing)", 
-    description: "Double/single nosing and edge finishing work",
+    label: "නෝසිං (එජ් ෆිනිෂින්)", 
+    description: "ඩබල්/සිංගල් නෝසිං සහ එජ් ෆිනිෂින් වැඩ",
     unit: "LKR/ft" 
+  },
+  { 
+    key: "construction", 
+    label: "නව ගොඩනැගිලි/අලුත්වැඩියා", 
+    description: "ගොඩනැගිලි ඉදිකිරීම සහ අලුත්වැඩියා සේවා",
+    unit: "LKR/job" 
+  },
+  { 
+    key: "plumbing", 
+    label: "ප්ලම්බින්", 
+    description: "ජල හා නාලිකා වැඩ",
+    unit: "LKR/job" 
+  },
+  { 
+    key: "electrical", 
+    label: "විදුලි වැඩ", 
+    description: "වයර්, ලයිට්, සහ විදුලි පද්ධති",
+    unit: "LKR/job" 
+  },
+  { 
+    key: "painting", 
+    label: "පේන්ට් කිරීම", 
+    description: "අභ්‍යන්තර හා බාහිර පේන්ට් වැඩ",
+    unit: "LKR/sqft" 
+  },
+  { 
+    key: "carpentry", 
+    label: "වඩු වැඩ", 
+    description: "ලී වැඩ, කැබිනට්, දොර/කවුළු",
+    unit: "LKR/job" 
+  },
+  { 
+    key: "masonry", 
+    label: "මැසිවන් වැඩ", 
+    description: "ගඩොල්/කොන්ක්‍රීට් බිත්ති සහ ඉදිකිරීම්",
+    unit: "LKR/sqft" 
+  },
+  { 
+    key: "roofing", 
+    label: "මහල/වරළ (රුෆින්)", 
+    description: "ඉස්සරළි/අලුත්වැඩියා රුෆින් සේවා",
+    unit: "LKR/sqft" 
+  },
+  { 
+    key: "landscaping", 
+    label: "උද්‍යානය/ලෑන්ඩ්ස්කේපින්", 
+    description: "ගස් ලගාව, උද්‍යාන සැකසුම්",
+    unit: "LKR/job" 
+  },
+  { 
+    key: "cleaning", 
+    label: "පිරිසිදු කිරීම", 
+    description: "ගොඩනැගිලි සහ ඉදිකිරීම් පසු පිරිසිදු කිරීම",
+    unit: "LKR/job" 
   },
 ];
 
