@@ -102,8 +102,6 @@ export default function PublicTilerProfilePage() {
     load();
   }, [id]);
 
-  const coverUrl = useMemo(() => pub("profile-covers", tiler?.cover_path), [tiler?.cover_path]);
-  const hasCover = Boolean(coverUrl);
   const avatarUrl = useMemo(() => pub("profile-avatars", tiler?.avatar_path), [tiler?.avatar_path]);
 
   const locationLine = useMemo(() => {
@@ -180,28 +178,8 @@ export default function PublicTilerProfilePage() {
   return (
     <div className="min-h-screen bg-gray-100 pb-28">
       <div className="max-w-lg mx-auto bg-white min-h-screen shadow-lg">
-        {coverUrl ? (
-          <div className="relative h-40 bg-gradient-to-br from-primary to-primary-dark">
-            <Image 
-              src={coverUrl} 
-              alt={`${displayName}'s cover photo`}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 512px"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" aria-hidden="true" />
-          </div>
-        ) : (
-          <div
-            className="h-24 bg-gradient-to-br from-primary to-primary-dark"
-            role="img"
-            aria-label="Default cover background"
-          />
-        )}
-
-        <div className={`px-5 relative z-10 ${hasCover ? "-mt-12" : "-mt-8"}`}>
-          <div className="flex items-end gap-4">
+        <div className="px-5 pt-6">
+          <div className="flex items-center gap-4">
             <div className="w-24 h-24 rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary-dark overflow-hidden flex-shrink-0 shadow-lg relative">
               {avatarUrl ? (
                 <Image 
