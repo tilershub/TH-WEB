@@ -58,13 +58,11 @@ type ServiceDetail = {
 export default function TaskerProfileSetup() {
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
   const certInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [uploadingCover, setUploadingCover] = useState(false);
   const [uploadingCert, setUploadingCert] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -85,7 +83,6 @@ export default function TaskerProfileSetup() {
   const [serviceDetails, setServiceDetails] = useState<Record<string, ServiceDetail[]>>({});
   const [workingDistricts, setWorkingDistricts] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [coverUrl, setCoverUrl] = useState<string | null>(null);
 
   const [newCertTitle, setNewCertTitle] = useState("");
   const [newCertIssuer, setNewCertIssuer] = useState("");
@@ -168,7 +165,6 @@ export default function TaskerProfileSetup() {
       }
 
       setAvatarUrl(getPublicUrl("profile-avatars", p.avatar_path));
-      setCoverUrl(getPublicUrl("profile-covers", p.cover_path));
 
       const { data: certs } = await supabase
         .from("certifications")
@@ -210,34 +206,6 @@ export default function TaskerProfileSetup() {
       setError(err?.message || "ඡායාරූපය උඩුගත කිරීමට අසමත් විය");
     } finally {
       setUploadingAvatar(false);
-    }
-  };
-
-  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !profile) return;
-
-    setUploadingCover(true);
-    setError(null);
-
-    try {
-      const path = generateFilePath(profile.id, "cover", file);
-      await uploadFile("profile-covers", path, file);
-
-      const { error: updateError } = await supabase
-        .from("profiles")
-        .update({ cover_path: path })
-        .eq("id", profile.id);
-
-      if (updateError) throw updateError;
-
-      setCoverUrl(getPublicUrl("profile-covers", path));
-      setSuccess("කවර ඡායාරූපය යාවත්කාලීන විය!");
-      setTimeout(() => setSuccess(null), 2000);
-    } catch (err: any) {
-      setError(err?.message || "කවර ඡායාරූපය උඩුගත කිරීමට අසමත් විය");
-    } finally {
-      setUploadingCover(false);
     }
   };
 
@@ -540,38 +508,8 @@ export default function TaskerProfileSetup() {
           </div>
         )}
 
-        <section className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-          <div className="relative h-32 bg-gradient-to-r from-primary to-primary-dark">
-            {coverUrl && (
-              <img src={coverUrl} alt="කවර ඡායාරූපය" className="absolute inset-0 w-full h-full object-cover" />
-            )}
-            <button
-              onClick={() => coverInputRef.current?.click()}
-              disabled={uploadingCover}
-              className="absolute bottom-3 right-3 z-10 bg-white text-gray-700 px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-gray-100 transition-colors flex items-center gap-1 shadow-md"
-            >
-              {uploadingCover ? (
-                "උඩුගත වෙමින්..."
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  කවර ඡායාරූපය
-                </>
-              )}
-            </button>
-            <input
-              ref={coverInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleCoverUpload}
-              className="hidden"
-            />
-          </div>
-
-          <div className="px-6 pb-5 -mt-10 relative">
+        <section className="bg-white rounded-2xl border border-gray-200 p-6">
+          <div className="relative">
             <div className="relative inline-block">
               <div className="w-20 h-20 rounded-full border-4 border-white bg-gradient-to-br from-primary to-primary-dark overflow-hidden shadow-lg">
                 {avatarUrl ? (
