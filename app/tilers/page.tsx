@@ -16,8 +16,8 @@ function pub(bucket: string, path?: string | null) {
 
 function TilerCard({ tiler }: { tiler: Profile }) {
   const avatarUrl = pub("profile-avatars", tiler.avatar_path);
-  const location = [tiler.city, tiler.district].filter(Boolean).join(", ") || "Sri Lanka";
-  const displayName = tiler.full_name || tiler.display_name || "Professional Tiler";
+  const location = [tiler.city, tiler.district].filter(Boolean).join(", ") || "ශ්‍රී ලංකාව";
+  const displayName = tiler.full_name || tiler.display_name || "වෘත්තීය කාර්යකරු";
 
   return (
     <Link href={`/tilers/${tiler.id}`} className="card hover:shadow-card-hover transition-shadow">
@@ -63,7 +63,7 @@ function TilerCard({ tiler }: { tiler: Profile }) {
 
           {tiler.years_experience && (
             <div className="mt-2 text-xs text-gray-500">
-              {tiler.years_experience}+ years experience
+              {tiler.years_experience}+ වසර අත්දැකීම
             </div>
           )}
         </div>
@@ -146,7 +146,7 @@ export default function TilersPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <h1 className="text-2xl font-bold text-navy">Browse Taskers</h1>
+          <h1 className="text-2xl font-bold text-navy">කාර්යකරුවන් සොයන්න</h1>
         </div>
 
         <div className="relative">
@@ -156,7 +156,7 @@ export default function TilersPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name or location..."
+            placeholder="නම හෝ ස්ථානය අනුව සොයන්න..."
             className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
@@ -174,9 +174,9 @@ export default function TilersPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
             </div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">No Taskers Found</h3>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">කාර්යකරුවන් හමු නොවීය</h3>
             <p className="text-gray-600 text-sm">
-              {search ? "Try a different search term." : "Be the first tasker to join Tilers Hub!"}
+              {search ? "වෙනත් සෙවුම් පදයක් උත්සාහ කරන්න." : "Tilers Hub එකට එක්වන පළමු කාර්යකරු වන්න!"}
             </p>
           </div>
         ) : (
@@ -194,7 +194,7 @@ export default function TilersPage() {
                   disabled={loadingMore}
                   className="px-6 py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-medium transition-colors disabled:opacity-50"
                 >
-                  {loadingMore ? "Loading..." : "Load More"}
+                  {loadingMore ? "ලෝඩ් වෙමින්..." : "තවත් බලන්න"}
                 </button>
               </div>
             )}

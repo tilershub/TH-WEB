@@ -53,7 +53,7 @@ export default async function GuidesPage() {
   const guides = await getGuides();
 
   return (
-    <Page title="How-To Guides">
+    <Page title="කෙසේ කරන්න මාර්ගෝපදේශ">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
           <Link href="/home" className="p-2 hover:bg-gray-100 rounded-full">
@@ -62,8 +62,8 @@ export default async function GuidesPage() {
             </svg>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-navy">How-To Guides</h1>
-            <p className="text-gray-600 text-sm">Step-by-step guides for your tiling project</p>
+            <h1 className="text-2xl font-bold text-navy">කෙසේ කරන්න මාර්ගෝපදේශ</h1>
+            <p className="text-gray-600 text-sm">ඔබගේ ටයිල් ව්‍යාපෘතිය සඳහා පියවරෙන් පියවර මාර්ගෝපදේශ</p>
           </div>
         </div>
 
@@ -82,8 +82,8 @@ export default async function GuidesPage() {
                     <h2 className="font-semibold text-navy mb-1">{guide.title}</h2>
                     <p className="text-sm text-gray-600 mb-2">{guide.description}</p>
                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <span>{guide.steps} steps</span>
-                      <span className="text-primary font-medium">Read Guide</span>
+                      <span>{guide.steps} පියවර</span>
+                      <span className="text-primary font-medium">මාර්ගෝපදේශය කියවන්න</span>
                     </div>
                   </div>
                   <div className="flex items-center">
@@ -94,14 +94,14 @@ export default async function GuidesPage() {
                 </div>
               </Link>
               <div className="flex items-center justify-between px-5 pb-4">
-                <span className="text-xs text-gray-500">{guide.steps} steps</span>
+                <span className="text-xs text-gray-500">{guide.steps} පියවර</span>
                 <div className="flex items-center gap-3">
                   <Link href={`/guides/${guide.slug}`} className="text-primary text-sm font-medium">
-                    Read Guide
+                    මාර්ගෝපදේශය කියවන්න
                   </Link>
                   {guide.isFromDb && (
                     <AdminEditLink href={`/admin/guides/${guide.id}`}>
-                      Edit
+                      සංස්කරණය
                     </AdminEditLink>
                   )}
                 </div>
@@ -113,14 +113,14 @@ export default async function GuidesPage() {
         <div className="card p-6 bg-gradient-to-br from-primary/5 to-primary/10">
           <div className="flex flex-col md:flex-row items-center gap-4">
             <div className="flex-1">
-              <h3 className="font-semibold text-navy mb-2">Ready to Start Your Project?</h3>
-              <p className="text-sm text-gray-600">Post a task and get quotes from professional tilers in your area.</p>
+              <h3 className="font-semibold text-navy mb-2">ඔබගේ ව්‍යාපෘතිය ආරම්භ කිරීමට සූදානම්ද?</h3>
+              <p className="text-sm text-gray-600">කාර්යයක් පළ කර ඔබගේ ප්‍රදේශයේ වෘත්තීය කාර්යකරුවන්ගෙන් මිල ගණන් ලබාගන්න.</p>
             </div>
             <Link
               href="/post-task"
               className="bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-xl transition-colors whitespace-nowrap"
             >
-              Post a Task
+              කාර්යයක් පළ කරන්න
             </Link>
           </div>
         </div>

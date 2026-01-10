@@ -33,7 +33,7 @@ function pub(bucket: string, path?: string | null) {
 
 function StarRating({ rating, reviewCount }: { rating: number; reviewCount: number }) {
   return (
-    <div className="flex items-center gap-1" role="img" aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars, ${reviewCount} reviews`}>
+    <div className="flex items-center gap-1" role="img" aria-label={`ඇගයීම: 5 තරු වලින් ${rating.toFixed(1)}යි, සමාලෝචන ${reviewCount}ක්`}>
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
           key={star}
@@ -106,11 +106,11 @@ export default function PublicTilerProfilePage() {
 
   const locationLine = useMemo(() => {
     const parts = [tiler?.city, tiler?.district].filter(Boolean);
-    return parts.length ? parts.join(", ") : "Sri Lanka";
+    return parts.length ? parts.join(", ") : "ශ්‍රී ලංකාව";
   }, [tiler?.city, tiler?.district]);
 
   const displayName = useMemo(() => {
-    return tiler?.full_name || tiler?.display_name || "Professional Tiler";
+    return tiler?.full_name || tiler?.display_name || "වෘත්තීය කාර්යකරු";
   }, [tiler?.full_name, tiler?.display_name]);
 
   const initials = useMemo(() => {
@@ -143,7 +143,7 @@ export default function PublicTilerProfilePage() {
   const legacyPortfolioImages = useMemo(() => {
     return portfolio.map(item => ({
       url: pub("tiler-portfolio", item.image_path),
-      label: item.title || "Portfolio"
+      label: item.title || "පෝර්ට්ෆෝලියෝ"
     }));
   }, [portfolio]);
 
@@ -157,7 +157,7 @@ export default function PublicTilerProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading profile...</div>
+        <div className="text-gray-600">පැතිකඩ ලෝඩ් වෙමින්...</div>
       </div>
     );
   }
@@ -166,9 +166,9 @@ export default function PublicTilerProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-800 mb-2">Profile not found</h1>
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">පැතිකඩ හමු නොවීය</h1>
           <Link href="/tasks" className="text-primary hover:underline">
-            Browse available tasks
+            ලබාගත හැකි කාර්යයන් බලන්න
           </Link>
         </div>
       </div>
@@ -184,13 +184,13 @@ export default function PublicTilerProfilePage() {
               {avatarUrl ? (
                 <Image 
                   src={avatarUrl} 
-                  alt={`${displayName}'s profile photo`}
+                  alt={`${displayName}ගේ පැතිකඩ ඡායාරූපය`}
                   fill
                   className="object-cover"
                   sizes="96px"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-white text-3xl font-bold" role="img" aria-label={`${displayName}'s initials`}>
+                <div className="w-full h-full flex items-center justify-center text-white text-3xl font-bold" role="img" aria-label={`${displayName}ගේ ආරම්භක අකුරු`}>
                   {initials}
                 </div>
               )}
@@ -218,18 +218,18 @@ export default function PublicTilerProfilePage() {
             <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/>
             </svg>
-            Request Quote
+            මිල ගණන් ඉල්ලන්න
           </Link>
 
-          <p className="text-center text-gray-500 text-sm mt-3">Professional Tiler</p>
+          <p className="text-center text-gray-500 text-sm mt-3">වෘත්තීය කාර්යකරු</p>
         </div>
 
         <div className="border-t border-gray-100 mt-5" />
 
         <div className="px-5 py-5">
-          <h2 className="text-lg font-bold text-gray-900 mb-3">About Me</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-3">මගේ ගැන</h2>
           <p className="text-gray-700 leading-relaxed">
-            {tiler.bio || `Experienced tiler specializing in quality tiling work. Contact me for your tiling needs.`}
+            {tiler.bio || "ගුණාත්මක ටයිල් කාර්යයන් සඳහා විශේෂීකරණය වූ පළපුරුදු කාර්යකරුවෙක්. ඔබගේ ටයිල් අවශ්‍යතා සඳහා මට සම්බන්ධ වන්න."}
           </p>
 
           <div className="mt-5 space-y-3">
@@ -257,7 +257,7 @@ export default function PublicTilerProfilePage() {
         {servicesWithRates.length > 0 && (
           <>
             <div className="px-5 py-5">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Services & Rates</h2>
+              <h2 className="text-lg font-bold text-gray-900 mb-4">සේවා සහ ගාස්තු</h2>
               <div className="space-y-3">
                 {servicesWithRates.map((service) => (
                   <div key={service.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
@@ -284,20 +284,20 @@ export default function PublicTilerProfilePage() {
         {allPortfolioImages.length > 0 && (
           <>
             <div className="px-5 py-5">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Portfolio</h2>
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide" role="list" aria-label="Portfolio gallery">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">පෝර්ට්ෆෝලියෝ</h2>
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-5 px-5 scrollbar-hide" role="list" aria-label="පෝර්ට්ෆෝලියෝ ගැලරිය">
                 {allPortfolioImages.map((item, idx) => (
                   <button
                     key={idx}
                     type="button"
                     className="flex-shrink-0 w-36 cursor-pointer hover:opacity-90 transition-opacity focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-xl"
                     onClick={() => setSelectedImage(item.url)}
-                    aria-label={`View ${item.label} portfolio image`}
+                    aria-label={`${item.label} පෝර්ට්ෆෝලියෝ රූපය බලන්න`}
                   >
                     <div className="w-36 h-28 rounded-xl overflow-hidden relative">
                       <Image
                         src={item.url || ""}
-                        alt={`${item.label} - tiling work sample`}
+                        alt={`${item.label} - ටයිල් කාර්ය සාම්පලය`}
                         fill
                         className="object-cover"
                         sizes="144px"
@@ -315,8 +315,8 @@ export default function PublicTilerProfilePage() {
         {certifications.length > 0 && (
           <>
             <div className="px-5 py-5">
-              <h2 className="text-lg font-bold text-gray-900 mb-4">Certifications</h2>
-              <div className="space-y-3" role="list" aria-label="Professional certifications">
+              <h2 className="text-lg font-bold text-gray-900 mb-4">සහතික</h2>
+              <div className="space-y-3" role="list" aria-label="වෘත්තීය සහතික">
                 {certifications.map((cert) => {
                   const certImgUrl = pub("certifications", cert.image_path);
                   return (
@@ -326,9 +326,9 @@ export default function PublicTilerProfilePage() {
                           type="button"
                           className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 relative"
                           onClick={() => setSelectedImage(certImgUrl)}
-                          aria-label={`View ${cert.title} certificate`}
+                          aria-label={`${cert.title} සහතිකය බලන්න`}
                         >
-                          <Image src={certImgUrl} alt={`${cert.title} certificate from ${cert.issuer}`} fill className="object-cover" sizes="48px" />
+                          <Image src={certImgUrl} alt={`${cert.issuer} විසින් නිකුත් කළ ${cert.title} සහතිකය`} fill className="object-cover" sizes="48px" />
                         </button>
                       )}
                       <div className="flex-1 min-w-0">
@@ -350,11 +350,11 @@ export default function PublicTilerProfilePage() {
         <div className="px-5 py-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-gray-900">
-              Reviews {reviewCount > 0 && <span className="font-normal text-gray-500">({reviewCount})</span>}
+              සමාලෝචන {reviewCount > 0 && <span className="font-normal text-gray-500">({reviewCount})</span>}
             </h2>
             {reviewCount > 0 && (
               <button className="text-primary text-sm font-medium hover:underline">
-                View All ({reviewCount})
+                සියල්ල බලන්න ({reviewCount})
               </button>
             )}
           </div>
@@ -364,7 +364,7 @@ export default function PublicTilerProfilePage() {
               <svg className="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              <p>No reviews yet</p>
+              <p>තවම සමාලෝචන නැත</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -408,14 +408,14 @@ export default function PublicTilerProfilePage() {
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span>{tiler.years_experience}+ years experience</span>
+                  <span>{tiler.years_experience}+ වසර අත්දැකීම</span>
                 </div>
                 {(tiler.completed_jobs ?? 0) > 0 && (
                   <div className="flex items-center gap-2">
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span>{tiler.completed_jobs} jobs completed</span>
+                    <span>{tiler.completed_jobs} කාර්යයන් සම්පූර්ණ කළා</span>
                   </div>
                 )}
               </div>
@@ -430,13 +430,13 @@ export default function PublicTilerProfilePage() {
           onClick={() => setSelectedImage(null)}
           role="dialog"
           aria-modal="true"
-          aria-label="Image lightbox"
+          aria-label="රූප විශාල දර්ශනය"
         >
           <button
             type="button"
             className="absolute top-4 right-4 text-white p-2 hover:bg-white/10 rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
             onClick={() => setSelectedImage(null)}
-            aria-label="Close image viewer"
+            aria-label="රූප දසුන වසා දමන්න"
           >
             <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -444,7 +444,7 @@ export default function PublicTilerProfilePage() {
           </button>
           <img
             src={selectedImage}
-            alt="Enlarged portfolio image"
+            alt="විශාල කළ පෝර්ට්ෆෝලියෝ රූපය"
             className="max-w-full max-h-[90vh] object-contain rounded-lg"
             onClick={(e) => e.stopPropagation()}
           />

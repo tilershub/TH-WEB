@@ -112,22 +112,22 @@ export default function BottomNav() {
   const postTaskActive = isActive(pathname, "/post-task");
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50" aria-label="Main navigation">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50" aria-label="ප්‍රධාන නාවිගේෂන්">
       <div className="bg-white/95 backdrop-blur-lg border-t border-gray-100 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
         <div className="mx-auto max-w-lg">
           <div className="relative flex items-center justify-around h-16 px-2">
-            <NavItem href="/home" label="Home" active={homeActive}>
+            <NavItem href="/home" label="මුල් පිටුව" active={homeActive}>
               <HomeIcon active={homeActive} />
             </NavItem>
 
-            <NavItem href="/messages" label="Messages" active={messagesActive}>
+            <NavItem href="/messages" label="පණිවිඩ" active={messagesActive}>
               <MessagesIcon active={messagesActive} />
             </NavItem>
 
             <div className="flex flex-col items-center justify-center min-w-[72px]">
               <Link
                 href="/post-task"
-                aria-label="Post a new task"
+                aria-label="අලුත් කාර්යයක් පළ කරන්න"
                 aria-current={postTaskActive ? "page" : undefined}
                 className="relative -mt-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-full"
               >
@@ -144,15 +144,15 @@ export default function BottomNav() {
               <span className={`text-[10px] mt-1 font-medium ${
                 postTaskActive ? "text-primary" : "text-gray-400"
               }`} aria-hidden="true">
-                Post
+                පළ කරන්න
               </span>
             </div>
 
-            <NavItem href="/my-tasks" label="Tasks" active={tasksActive}>
+            <NavItem href="/my-tasks" label="කාර්යයන්" active={tasksActive}>
               <TasksIcon active={tasksActive} />
             </NavItem>
 
-            <NavItem href="/profile" label="Profile" active={profileActive}>
+            <NavItem href="/profile" label="පැතිකඩ" active={profileActive}>
               <ProfileIcon active={profileActive} />
             </NavItem>
           </div>

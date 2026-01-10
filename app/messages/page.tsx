@@ -38,11 +38,11 @@ function pub(path?: string | null) {
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
-  if (m < 1) return "now";
-  if (m < 60) return `${m}m`;
+  if (m < 1) return "දැන්";
+  if (m < 60) return `${m} මිනි`;
   const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h`;
-  return `${Math.floor(h / 24)}d`;
+  if (h < 24) return `${h} පැය`;
+  return `${Math.floor(h / 24)} දින`;
 }
 
 export default function MessagesInboxPage() {
@@ -61,7 +61,7 @@ export default function MessagesInboxPage() {
     const user = s.session?.user;
 
     if (!user) {
-      setMsg("Please login to view messages.");
+      setMsg("පණිවිඩ බලීමට කරුණාකර පිවිසෙන්න.");
       setLoading(false);
       return;
     }
@@ -146,21 +146,21 @@ export default function MessagesInboxPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </Link>
-          <h1 className="text-2xl font-bold text-navy">Messages</h1>
+          <h1 className="text-2xl font-bold text-navy">පණිවිඩ</h1>
         </div>
 
         {msg && <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-sm text-red-800">{msg}</div>}
-        {loading && <div className="text-sm text-gray-600">Loading...</div>}
+        {loading && <div className="text-sm text-gray-600">ලෝඩ් වෙමින්...</div>}
 
         <div className="space-y-3">
           {convs.map((c) => {
             const last = lastByConv[c.id];
             const otherId = meId === c.homeowner_id ? c.tiler_id : c.homeowner_id;
             const otherProfile = profiles[otherId];
-            const otherName = otherProfile?.full_name || otherProfile?.display_name || (meId === c.homeowner_id ? "Tiler" : "Homeowner");
+            const otherName = otherProfile?.full_name || otherProfile?.display_name || (meId === c.homeowner_id ? "කාර්යකරු" : "නිවාස හිමියා");
             const avatarUrl = pub(otherProfile?.avatar_path);
-            const title = c.task_id ? (c.tasks?.[0]?.title ?? "Task") : "Direct Message";
-            const preview = last?.text ?? (last?.attachment_path ? "Attachment" : "No messages yet");
+            const title = c.task_id ? (c.tasks?.[0]?.title ?? "කාර්යය") : "සෘජු පණිවිඩය";
+            const preview = last?.text ?? (last?.attachment_path ? "ඇමුණුම" : "තවම පණිවිඩ නැත");
 
             return (
               <Link
@@ -198,7 +198,7 @@ export default function MessagesInboxPage() {
 
           {!loading && convs.length === 0 && (
             <div className="card p-8 text-center">
-              <p className="text-gray-600">No conversations yet.</p>
+              <p className="text-gray-600">තවම සංවාද නැත.</p>
             </div>
           )}
         </div>

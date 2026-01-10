@@ -21,7 +21,7 @@ export default function SearchBar() {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for tilers or services..."
+          placeholder="කාර්යකරුවන් හෝ සේවා සොයන්න..."
           className="w-full px-4 py-3 pl-11 pr-12 rounded-xl border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-sm"
         />
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">

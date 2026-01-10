@@ -250,6 +250,17 @@ type BlogContent = {
   isFromDb?: boolean;
 };
 
+function getCategoryLabel(category: string) {
+  const labels: Record<string, string> = {
+    Tips: "උපදෙස්",
+    Trends: "ප්‍රවණතා",
+    Pricing: "මිල ගණන්",
+    Guides: "මාර්ගෝපදේශ",
+    "For Tilers": "කාර්යකරුවන් සඳහා",
+  };
+  return labels[category] || category;
+}
+
 async function getDbPost(slug: string): Promise<BlogContent | null> {
   const { data } = await supabase
     .from("blog_posts")
@@ -292,11 +303,11 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Blog
+            බ්ලොග් වෙත ආපසු
           </Link>
           {dbPost?.id && (
             <AdminEditLink href={`/admin/blog/${dbPost.id}`} className="text-sm">
-              Edit Post
+              ලිපිය සංස්කරණය
             </AdminEditLink>
           )}
         </div>
@@ -304,7 +315,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         <article className="card p-6 md:p-8">
           <div className="flex items-center gap-3 mb-4">
             <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
-              {post.category}
+              {getCategoryLabel(post.category)}
             </span>
             <span className="text-sm text-gray-500">{post.readTime}</span>
           </div>
@@ -313,7 +324,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
           <div className="flex items-center gap-4 text-sm text-gray-600 mb-8 pb-6 border-b border-gray-100">
             <span>{post.date}</span>
-            <span>By Tilers Hub Team</span>
+            <span>Tilers Hub කණ්ඩායම විසින්</span>
           </div>
 
           <div className="prose prose-gray max-w-none">
@@ -361,19 +372,19 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
           </div>
 
           <div className="mt-10 pt-6 border-t border-gray-100">
-            <h3 className="font-semibold text-navy mb-4">Need Help With Your Tiling Project?</h3>
+            <h3 className="font-semibold text-navy mb-4">ඔබගේ ටයිල් ව්‍යාපෘතිය සඳහා උදව් අවශ්‍යද?</h3>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/post-task"
                 className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-xl transition-colors"
               >
-                Post a Task
+                කාර්යයක් පළ කරන්න
               </Link>
               <Link
                 href="/tilers"
                 className="inline-flex items-center justify-center gap-2 border border-primary text-primary font-medium py-3 px-6 rounded-xl hover:bg-primary/5 transition-colors"
               >
-                Find a Tiler
+                කාර්යකරුවෙක් සොයන්න
               </Link>
             </div>
           </div>

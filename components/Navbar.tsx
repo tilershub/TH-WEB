@@ -6,12 +6,12 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 const links = [
-  { href: "/home", label: "Home" },
-  { href: "/tasks", label: "Tasks" },
-  { href: "/post-task", label: "Post Task" },
-  { href: "/messages", label: "Messages" },
-  { href: "/my-tasks", label: "My Tasks" },
-  { href: "/profile", label: "Profile" },
+  { href: "/home", label: "මුල් පිටුව" },
+  { href: "/tasks", label: "කාර්යයන්" },
+  { href: "/post-task", label: "කාර්යය පළ කරන්න" },
+  { href: "/messages", label: "පණිවිඩ" },
+  { href: "/my-tasks", label: "මගේ කාර්යයන්" },
+  { href: "/profile", label: "පැතිකඩ" },
 ];
 
 function NotificationIcon() {
@@ -67,7 +67,7 @@ export default function Navbar() {
             <Link
               href="/notifications"
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Notifications"
+              aria-label="දැනුම්දීම්"
             >
               <NotificationIcon />
             </Link>
@@ -101,7 +101,7 @@ export default function Navbar() {
                 onClick={logout}
                 className="border px-3 py-1.5 rounded-md text-sm hover:bg-neutral-50"
               >
-                Logout
+                ඉවත් වන්න
               </button>
             </nav>
           </div>
@@ -128,7 +128,7 @@ export default function Navbar() {
                 onClick={logout}
                 className="w-full border px-3 py-2 rounded-lg text-sm hover:bg-neutral-100"
               >
-                Logout
+                ඉවත් වන්න
               </button>
             </div>
           </div>

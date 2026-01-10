@@ -32,7 +32,7 @@ export default function AuthPage() {
       // ✅ login success
       window.location.href = "/profile";
     } catch (e: any) {
-      setMsg(e?.message ?? "Something went wrong");
+      setMsg(e?.message ?? "දෝෂයක් සිදු විය");
     } finally {
       setBusy(false);
     }
@@ -57,10 +57,10 @@ export default function AuthPage() {
       if (error) throw error;
 
       const user = data.user;
-      if (!user) throw new Error("Signup succeeded but user was not returned.");
+      if (!user) throw new Error("ලියාපදිංචිය සාර්ථක වූ නමුත් පරිශීලකයා ලබා දී නැත.");
 
       if (!data.session) {
-        setMsg("Signup successful! Please confirm your email, then log in.");
+        setMsg("ලියාපදිංචිය සාර්ථකයි! කරුණාකර ඔබගේ ඊමේල් තහවුරු කර පසුව පිවිසෙන්න.");
         setMode("login");
         setStep("credentials");
         setRole(null);
@@ -84,7 +84,7 @@ export default function AuthPage() {
       if (upsertRes.error) throw new Error(upsertRes.error.message);
 
       // 3) show success + switch to login
-      setMsg("Signup successful! You can now login.");
+      setMsg("ලියාපදිංචිය සාර්ථකයි! දැන් පිවිසිය හැක.");
       setMode("login");
       setStep("credentials");
       setRole(null);
@@ -92,7 +92,7 @@ export default function AuthPage() {
       // optional: keep the email filled and clear password
       setPassword("");
     } catch (e: any) {
-      setMsg(e?.message ?? "Something went wrong");
+      setMsg(e?.message ?? "දෝෂයක් සිදු විය");
     } finally {
       setBusy(false);
     }
@@ -132,15 +132,15 @@ export default function AuthPage() {
 
             <h1 className="text-2xl font-bold text-navy mb-2">
               {mode === "login"
-                ? "Login to TASK HUB"
+                ? "TASK HUB වෙත පිවිසන්න"
                 : step === "role"
-                ? "Choose Your Role"
-                : "Sign Up to TASK HUB"}
+                ? "ඔබගේ භූමිකාව තෝරන්න"
+                : "TASK HUB සඳහා ලියාපදිංචි වන්න"}
             </h1>
             <p className="text-gray-600 text-center text-sm">
               {step === "role"
-                ? "Are you here to hire help or offer services?"
-                : "Join Task Hub to post or find tasks nearby"}
+                ? "ඔබ මෙතන සේවා ලබාගැනීමටද හෝ සේවා ලබාදීමටද?"
+                : "ලඟා කාර්යයන් පළ කිරීමට හෝ සොයා ගැනීමට Task Hub එකට එක්වන්න"}
             </p>
           </div>
 
@@ -171,8 +171,8 @@ export default function AuthPage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-navy">I need a Tasker</h3>
-                    <p className="text-sm text-gray-500">Post tasks and find trusted professionals</p>
+                    <h3 className="font-semibold text-navy">මට කාර්යකරු අවශ්‍යයි</h3>
+                    <p className="text-sm text-gray-500">කාර්යයන් පළ කර විශ්වාසදායක වෘත්තියවේදීන් සොයාගන්න</p>
                   </div>
                 </div>
               </button>
@@ -202,8 +202,8 @@ export default function AuthPage() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-navy">I am a Tasker</h3>
-                    <p className="text-sm text-gray-500">Find tasks and grow your business</p>
+                    <h3 className="font-semibold text-navy">මම කාර්යකරුවෙක්</h3>
+                    <p className="text-sm text-gray-500">කාර්යයන් සොයා ඔබගේ ව්‍යාපාරය වර්ධනය කරන්න</p>
                   </div>
                 </div>
               </button>
@@ -216,17 +216,17 @@ export default function AuthPage() {
 
               <div className="flex gap-3 pt-2">
                 <Button onClick={() => setStep("credentials")} variant="secondary" className="flex-1">
-                  Back
+                  පසුට
                 </Button>
                 <Button onClick={handleSignup} disabled={busy || !role} className="flex-1">
-                  {busy ? "Creating..." : "Create Account"}
+                  {busy ? "නිර්මාණය වෙමින්..." : "ගිණුම සාදන්න"}
                 </Button>
               </div>
             </div>
           ) : (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">ඊමේල්</label>
                 <Input
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -236,7 +236,7 @@ export default function AuthPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">මුරපදය</label>
                 <Input
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -258,22 +258,22 @@ export default function AuthPage() {
               )}
 
               <Button onClick={handleCredentialsSubmit} disabled={busy || !email || !password} className="w-full">
-                {busy ? "Please wait..." : mode === "login" ? "Login" : "Continue"}
+                {busy ? "කරුණාකර රැඳී සිටින්න..." : mode === "login" ? "පිවිසන්න" : "දිගටම"}
               </Button>
 
               <p className="text-center text-sm text-gray-600">
                 {mode === "login" ? (
                   <>
-                    Don&apos;t have an account?{" "}
+                    ගිණුමක් නැද්ද?{" "}
                     <button onClick={resetToSignup} className="text-primary font-medium hover:underline">
-                      Sign Up
+                      ලියාපදිංචි වන්න
                     </button>
                   </>
                 ) : (
                   <>
-                    Already have an account?{" "}
+                    දැනටමත් ගිණුමක්ද?{" "}
                     <button onClick={resetToLogin} className="text-primary font-medium hover:underline">
-                      Login
+                      පිවිසන්න
                     </button>
                   </>
                 )}

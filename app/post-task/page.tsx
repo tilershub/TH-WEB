@@ -34,13 +34,13 @@ export default function PostTaskPage() {
 
   // Define the list of available service categories.
   const serviceOptions: ServiceOption[] = [
-    { id: "floor_tiling", name: "Floor Tiling" },
-    { id: "bathroom_renovation", name: "Bathroom Renovation" },
-    { id: "plumbing", name: "Plumbing" },
-    { id: "electrical", name: "Electrical" },
-    { id: "cleaning", name: "Cleaning" },
-    { id: "moving", name: "Moving" },
-    { id: "other", name: "Other" },
+    { id: "floor_tiling", name: "බිම් ටයිල් කිරීම" },
+    { id: "bathroom_renovation", name: "නානකාමර නවීකරණය" },
+    { id: "plumbing", name: "ජල සැපයුම්" },
+    { id: "electrical", name: "විදුලි වැඩ" },
+    { id: "cleaning", name: "පිරිසිදු කිරීම" },
+    { id: "moving", name: "ස්ථානාන්ත කිරීම" },
+    { id: "other", name: "වෙනත්" },
   ];
 
   // Compute a suggested title when services or city change.
@@ -62,15 +62,15 @@ export default function PostTaskPage() {
   const publish = async () => {
     setMsg(null);
     if (!city.trim()) {
-      setMsg("Please enter the city where the task is located.");
+      setMsg("කරුණාකර කාර්යය සිදු වන නගරය ඇතුළත් කරන්න.");
       return;
     }
     if (startType === "date" && !startDate) {
-      setMsg("Please choose a start date or select ASAP.");
+      setMsg("කරුණාකර ආරම්භ දිනයක් තෝරන්න හෝ ඉක්මනින්ම තෝරන්න.");
       return;
     }
     if (services.length === 0) {
-      setMsg("Please select at least one service.");
+      setMsg("කරුණාකර අවම වශයෙන් එක් සේවාවක් තෝරන්න.");
       return;
     }
     setSaving(true);
@@ -78,16 +78,16 @@ export default function PostTaskPage() {
       const { data: s } = await supabase.auth.getSession();
       const user = s.session?.user;
       if (!user) {
-        setMsg("Please login before posting a task.");
+        setMsg("කාර්යයක් පළ කිරීමට පෙර කරුණාකර පිවිසෙන්න.");
         setSaving(false);
         return;
       }
 
-      const finalTitle = title.trim() || suggestion || "Task";
+      const finalTitle = title.trim() || suggestion || "කාර්යය";
       let desc = "";
-      desc += `City: ${city}\n`;
-      desc += `Start: ${startType === "asap" ? "ASAP" : startDate}\n`;
-      desc += `Services: ${services
+      desc += `නගරය: ${city}\n`;
+      desc += `ආරම්භය: ${startType === "asap" ? "ඉක්මනින්ම" : startDate}\n`;
+      desc += `සේවා: ${services
         .map((id) => serviceOptions.find((o) => o.id === id)?.name)
         .filter(Boolean)
         .join(", ")}\n\n`;
@@ -123,7 +123,7 @@ export default function PostTaskPage() {
       }
       window.location.href = `/task/${taskId}`;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : "Failed to publish task.";
+      const message = error instanceof Error ? error.message : "කාර්යය පළ කිරීමට අසමත් විය.";
       setMsg(message);
     } finally {
       setSaving(false);
@@ -133,31 +133,31 @@ export default function PostTaskPage() {
   return (
     <RequireAuth>
       <Page
-        title="Post a task"
-        description="Share the basics and let taskers bid. You can edit your task later."
+        title="කාර්යයක් පළ කරන්න"
+        description="මූලික තොරතුරු බෙදාගෙන කාර්යකරුවන්ට බිඩ් කිරීමට ඉඩ දෙන්න. පසුව ඔබට කාර්යය සංස්කරණය කළ හැක."
       >
         <div className="mx-auto max-w-3xl space-y-4">
           {msg && <div className="rounded-xl bg-red-50 text-red-700 p-3 text-sm">{msg}</div>}
 
           <div className="card p-4 md:p-6 space-y-4">
-            <FormField label="City" hint="Where is the job?" required>
+            <FormField label="නගරය" hint="කාර්යය කෙතැනද?" required>
               <Input
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                placeholder="e.g., Colombo"
+                placeholder="උදා: කොළඹ"
                 autoComplete="address-level2"
               />
             </FormField>
 
-            <FormField label="Start" hint="When do you want to start?" required>
+            <FormField label="ආරම්භය" hint="කවදා ආරම්භ කරන්නද?" required>
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <select
                   className="input-field"
                   value={startType}
                   onChange={(e) => setStartType(e.target.value as any)}
                 >
-                  <option value="asap">ASAP</option>
-                  <option value="date">Choose a date</option>
+                  <option value="asap">ඉක්මනින්ම</option>
+                  <option value="date">දිනයක් තෝරන්න</option>
                 </select>
                 {startType === "date" && (
                   <input
@@ -170,31 +170,31 @@ export default function PostTaskPage() {
               </div>
             </FormField>
 
-            <FormField label="Services" hint="Pick one or more" required>
+            <FormField label="සේවා" hint="එකක් හෝ වැඩි ගණනක් තෝරන්න" required>
               <ServiceMultiSelect services={serviceOptions} selected={services} setSelected={setServices} />
             </FormField>
 
-            <FormField label="Title" hint="Optional">
+            <FormField label="ශීර්ෂය" hint="විකල්පයි">
               <Input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder={suggestion || "Task title"}
+                placeholder={suggestion || "කාර්ය ශීර්ෂය"}
               />
               {suggestion && !title ? (
-                <div className="text-xs text-neutral-500 mt-1">Suggestion: {suggestion}</div>
+                <div className="text-xs text-neutral-500 mt-1">යෝජනා: {suggestion}</div>
               ) : null}
             </FormField>
 
-            <FormField label="Description" hint="What should we know?" required>
+            <FormField label="විස්තරය" hint="අපි දැනගත යුතු දේ මොනවාද?" required>
               <Textarea
                 rows={6}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Tell taskers what you want done, measurements, materials, access details, etc."
+                placeholder="කාර්යකරුවන්ට කරවීමට අවශ්‍ය දේ, මිනුම්, ද්‍රව්‍ය, ප්‍රවේශ විස්තර ආදිය කියන්න."
               />
             </FormField>
 
-            <FormField label="Photos" hint="Up to 5">
+            <FormField label="ඡායාරූප" hint="උපරිම 5">
               <PhotoPicker files={files} setFiles={setFiles} max={5} />
             </FormField>
           </div>
@@ -202,10 +202,10 @@ export default function PostTaskPage() {
           <div className="sticky bottom-0 left-0 right-0 bg-[rgb(var(--bg))] pb-4 pt-3">
             <div className="mx-auto max-w-3xl">
               <Button onClick={publish} loading={saving} fullWidth size="lg">
-                Publish task
+                කාර්යය පළ කරන්න
               </Button>
               <p className="mt-2 text-xs text-gray-500 text-center">
-                By publishing you agree to share your task details with taskers.
+                පළ කිරීමෙන් ඔබගේ කාර්ය විස්තර කාර්යකරුවන් සමඟ බෙදාගැනීමට එකඟ වේ.
               </p>
             </div>
           </div>
