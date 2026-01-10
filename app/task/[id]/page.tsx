@@ -136,22 +136,22 @@ export default function TaskDetailsPage() {
   const placeBid = async () => {
     setMsg(null);
     if (!me?.userId) {
-      setMsg("Login to place a bid.");
+      setMsg("බිඩ් එකක් දමන්න පිවිසෙන්න.");
       return;
     }
     if (me.profile?.role !== "tasker") {
-      setMsg("Only taskers can place bids. Change role in Profile.");
+      setMsg("බිඩ් දමන්න හැක්කේ කාර්යකරුවන්ට පමණි. පැතිකඩේ භූමිකාව වෙනස් කරන්න.");
       return;
     }
     if (!bidAmount) {
-      setMsg("Enter amount.");
+      setMsg("මුදල ඇතුළත් කරන්න.");
       return;
     }
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
-        setMsg("Please login again.");
+        setMsg("කරුණාකර නැවත පිවිසෙන්න.");
         return;
       }
 
@@ -164,7 +164,7 @@ export default function TaskDetailsPage() {
       });
 
       if (response.error) {
-        setMsg(response.error.message || "Failed to place bid");
+        setMsg(response.error.message || "බිඩ් දමීමට අසමත් විය");
         return;
       }
 
@@ -180,7 +180,7 @@ export default function TaskDetailsPage() {
       const b = await supabase.from("bids").select("*").eq("task_id", id).order("created_at", { ascending: false });
       if (!b.error) setBids((b.data ?? []) as Bid[]);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to place bid";
+      const errorMessage = error instanceof Error ? error.message : "බිඩ් දමීමට අසමත් විය";
       setMsg(errorMessage);
     }
   };
@@ -229,21 +229,21 @@ export default function TaskDetailsPage() {
   };
 
   return (
-    <Page title="Task details">
+    <Page title="කාර්ය විස්තර">
       {msg && <div className="mb-3 rounded-xl bg-neutral-50 p-3 text-sm text-neutral-800">{msg}</div>}
 
       {!task ? (
-        <div className="text-sm text-neutral-600">Loading…</div>
+        <div className="text-sm text-neutral-600">ලෝඩ් වෙමින්…</div>
       ) : (
         <div className="grid gap-6">
           <div className="card p-4 md:p-6">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-2xl font-semibold text-gray-900">{task.title}</div>
-                <div className="mt-1 text-sm text-gray-600">{task.location_text ?? "Sri Lanka"}</div>
+                <div className="mt-1 text-sm text-gray-600">{task.location_text ?? "ශ්‍රී ලංකාව"}</div>
                 <div className="mt-2 text-sm whitespace-pre-wrap">{task.description}</div>
               </div>
-              <div className="text-xs text-neutral-500">Status: {task.status}</div>
+              <div className="text-xs text-neutral-500">තත්ත්වය: {task.status}</div>
             </div>
 
             {/* ✅ images from cover_image, task_photos and old sections (unique set) */}
@@ -253,7 +253,7 @@ export default function TaskDetailsPage() {
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={selectedImage ?? allImageUrls[0]}
-                    alt="Task photo"
+                    alt="කාර්ය ඡායාරූපය"
                     className="w-full aspect-video object-cover"
                   />
                 </div>
@@ -271,7 +271,7 @@ export default function TaskDetailsPage() {
                       }
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={u} alt="Thumbnail" className="h-20 w-24 object-cover" />
+                      <img src={u} alt="කුඩා රූපය" className="h-20 w-24 object-cover" />
                     </button>
                   ))}
                   <a
@@ -280,7 +280,7 @@ export default function TaskDetailsPage() {
                     rel="noreferrer"
                     className="shrink-0 inline-flex items-center rounded-xl border border-gray-200 px-3 text-sm text-gray-700 hover:bg-gray-50"
                   >
-                    Open
+                    විවෘත
                   </a>
                 </div>
               </div>
@@ -290,7 +290,7 @@ export default function TaskDetailsPage() {
           {/* ✅ show sections (and their images) */}
           {sections.length > 0 && (
             <div className="card p-4 md:p-6">
-              <div className="font-semibold text-gray-900">Service sections</div>
+              <div className="font-semibold text-gray-900">සේවා කොටස්</div>
               <div className="mt-3 grid gap-3">
                 {sections.map((sec) => (
                   <div key={sec.id} className="rounded-xl border border-gray-200 p-3">
@@ -301,7 +301,7 @@ export default function TaskDetailsPage() {
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={sec.data.imagePath}
-                        alt="section"
+                        alt="කොටස"
                         className="mt-3 h-40 w-full max-w-md rounded-xl object-cover border"
                       />
                     )}
@@ -313,32 +313,32 @@ export default function TaskDetailsPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="card p-4 md:p-6">
-              <div className="font-semibold text-gray-900">Place a bid</div>
-              <div className="mt-1 text-sm text-gray-600">Taskers can bid with an amount and a short note.</div>
+              <div className="font-semibold text-gray-900">බිඩ් දමන්න</div>
+              <div className="mt-1 text-sm text-gray-600">කාර්යකරුවන්ට මුදලක් සහ කෙටි සටහනක් සමඟ බිඩ් දිය හැක.</div>
 
               <div className="mt-4 space-y-4">
-                <FormField label="Amount (LKR)" required>
-                  <Input value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} placeholder="e.g., 180000" inputMode="numeric" />
+                <FormField label="මුදල (LKR)" required>
+                  <Input value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} placeholder="උදා: 180000" inputMode="numeric" />
                 </FormField>
 
-                <FormField label="Message" hint="Optional">
+                <FormField label="පණිවිඩය" hint="විකල්පයි">
                   <Textarea
                     rows={4}
                     value={bidMessage}
                     onChange={(e) => setBidMessage(e.target.value)}
-                    placeholder="Timeline, experience, materials included, etc."
+                    placeholder="කාලසටහන්, අත්දැකීම්, ඇතුළත් ද්‍රව්‍ය ආදිය."
                   />
                 </FormField>
 
                 <Button onClick={placeBid} fullWidth size="lg">
-                  Submit bid
+                  බිඩ් යවන්න
                 </Button>
               </div>
             </div>
 
             <div className="card p-4 md:p-6">
-              <div className="font-semibold text-gray-900">Bids</div>
-              <div className="mt-1 text-sm text-gray-600">Accept a bid to start a chat.</div>
+              <div className="font-semibold text-gray-900">බිඩ්</div>
+              <div className="mt-1 text-sm text-gray-600">චැට් ආරම්භ කිරීමට බිඩ් එකක් පිළිගන්න.</div>
 
               <div className="mt-4 grid gap-2">
                 {bids.map((b) => (
@@ -348,18 +348,18 @@ export default function TaskDetailsPage() {
                       <div className="text-xs text-neutral-500">{b.status}</div>
                     </div>
                     {b.message && <div className="mt-2 text-sm text-neutral-700">{b.message}</div>}
-                    <div className="mt-2 text-xs text-neutral-500">Tasker ID: {b.tiler_id}</div>
+                    <div className="mt-2 text-xs text-neutral-500">කාර්යකරු හැඳුනුම්පත: {b.tiler_id}</div>
 
                     {isOwner && task.status !== "closed" && (
                       <div className="mt-3">
                         <Button onClick={() => acceptBid(b)} disabled={b.status === "accepted"} fullWidth>
-                          {b.status === "accepted" ? "Accepted" : "Accept bid & Chat"}
+                          {b.status === "accepted" ? "පිළිගැනුණු" : "බිඩ් පිළිගන්න & චැට්"}
                         </Button>
                       </div>
                     )}
                   </div>
                 ))}
-                {bids.length === 0 && <div className="text-sm text-neutral-600">No bids yet.</div>}
+                {bids.length === 0 && <div className="text-sm text-neutral-600">තවම බිඩ් නැත.</div>}
               </div>
             </div>
           </div>

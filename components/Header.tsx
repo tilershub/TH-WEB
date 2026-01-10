@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const navLinks = [
-  { href: "/home", label: "Home" },
-  { href: "/tasks", label: "Tasks" },
-  { href: "/post-task", label: "Post Task" },
-  { href: "/messages", label: "Messages" },
-  { href: "/my-tasks", label: "My Tasks" },
-  { href: "/profile", label: "Profile" },
+  { href: "/home", label: "මුල් පිටුව" },
+  { href: "/tasks", label: "කාර්යයන්" },
+  { href: "/post-task", label: "කාර්යය පළ කරන්න" },
+  { href: "/messages", label: "පණිවිඩ" },
+  { href: "/my-tasks", label: "මගේ කාර්යයන්" },
+  { href: "/profile", label: "පැතිකඩ" },
 ];
 
 function cx(...classes: Array<string | false | undefined>) {
@@ -63,7 +63,7 @@ export default function Header() {
             <Link
               href="/notifications"
               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="Notifications"
+              aria-label="දැනුම්දීම්"
             >
               <NotificationIcon />
             </Link>
@@ -71,7 +71,7 @@ export default function Header() {
             <button
               onClick={() => setOpen((v) => !v)}
               className="md:hidden h-10 w-10 grid place-items-center rounded-lg border hover:bg-neutral-50"
-              aria-label="Open menu"
+              aria-label="මෙනු විවෘත කරන්න"
             >
               <div className="space-y-1">
                 <div className="h-0.5 w-5 bg-black" />

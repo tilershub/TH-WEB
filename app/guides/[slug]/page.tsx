@@ -449,11 +449,11 @@ export default async function GuidePage({ params }: { params: { slug: string } }
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            Back to Guides
+            මාර්ගෝපදේශ වෙත ආපසු
           </Link>
           {dbGuide?.id && (
             <AdminEditLink href={`/admin/guides/${dbGuide.id}`} className="text-sm">
-              Edit Guide
+              මාර්ගෝපදේශය සංස්කරණය
             </AdminEditLink>
           )}
         </div>
@@ -461,7 +461,7 @@ export default async function GuidePage({ params }: { params: { slug: string } }
         <div className="card p-6 md:p-8">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
-              {guide.steps.length} Steps
+              {guide.steps.length} පියවර
             </span>
           </div>
 
@@ -492,19 +492,19 @@ export default async function GuidePage({ params }: { params: { slug: string } }
           </div>
 
           <div className="mt-10 pt-6 border-t border-gray-100">
-            <h3 className="font-semibold text-navy mb-4">Ready to Get Started?</h3>
+            <h3 className="font-semibold text-navy mb-4">ආරම්භ කිරීමට සූදානම්ද?</h3>
             <div className="flex flex-col sm:flex-row gap-3">
               <Link
                 href="/post-task"
                 className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-xl transition-colors"
               >
-                Post a Task
+                කාර්යයක් පළ කරන්න
               </Link>
               <Link
                 href="/tilers"
                 className="inline-flex items-center justify-center gap-2 border border-primary text-primary font-medium py-3 px-6 rounded-xl hover:bg-primary/5 transition-colors"
               >
-                Browse Tilers
+                කාර්යකරුවන් සොයන්න
               </Link>
             </div>
           </div>

@@ -10,23 +10,23 @@ import { SkeletonCard } from "@/components/Skeleton";
 
 const BLOG_POSTS = [
   {
-    title: "How to Win More Bids",
+    title: "වැඩි බිඩ් ජය ගන්නේ කෙසේද",
     excerpt:
-      "Tips and strategies to stand out from other tilers and win more projects.",
-    category: "Business",
+      "අනෙක් කාර්යකරුවන් අතරින් කැපී පෙනීමට සහ වැඩි ව්‍යාපෘති ජය ගැනීමට උපදෙස් සහ ක්‍රම.",
+    category: "ව්‍යාපාර",
     href: "/blog/essential-tiling-tools",
   },
   {
-    title: "Pricing Your Services Right",
+    title: "ඔබගේ සේවාවන්ට නිවැරදි මිල නියම කිරීම",
     excerpt:
-      "Learn how to calculate fair rates that attract clients and grow your business.",
-    category: "Pricing",
+      "ගැලපෙන මිල ගණන් ගණනය කර ගනුදෙනුකරුවන් ආකර්ෂණය කර ව්‍යාපාරය වර්ධනය කරගන්න.",
+    category: "මිල ගණන්",
     href: "/blog/tiling-cost-guide",
   },
   {
-    title: "Building Your Portfolio",
-    excerpt: "Showcase your best work to attract more homeowners.",
-    category: "Growth",
+    title: "ඔබගේ පෝර්ට්ෆෝලියෝ ගොඩනගා ගන්න",
+    excerpt: "වැඩි නිවාස හිමියන් ආකර්ෂණය කිරීමට ඔබගේ හොඳම වැඩ පෙන්වන්න.",
+    category: "වර්ධනය",
     href: "/blog/floor-preparation",
   },
 ];
@@ -109,9 +109,9 @@ export default function TilerHome() {
     <div className="pb-8">
       <section className="px-4 pt-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold text-navy">Available Tasks</h2>
+          <h2 className="text-lg font-bold text-navy">ලැබෙන කාර්යයන්</h2>
           <Link href="/tasks" className="text-sm text-primary font-medium">
-            See All
+            සියල්ල බලන්න
           </Link>
         </div>
 
@@ -140,10 +140,10 @@ export default function TilerHome() {
                 />
               </svg>
               <p className="text-gray-500 text-sm">
-                No open tasks at the moment
+                දැනට විවෘත කාර්යයන් නොමැත
               </p>
               <p className="text-gray-400 text-xs mt-1">
-                Check back later for new opportunities
+                අලුත් අවස්ථා සඳහා පසුව නැවත බලන්න
               </p>
             </div>
           )}
@@ -157,9 +157,9 @@ export default function TilerHome() {
 
       <section className="mt-6">
         <div className="flex items-center justify-between px-4 mb-3">
-          <h2 className="text-lg font-bold text-navy">Blog for Tilers</h2>
+          <h2 className="text-lg font-bold text-navy">කාර්යකරුවන් සඳහා බ්ලොග්</h2>
           <Link href="/blog" className="text-sm text-primary font-medium">
-            See All
+            සියල්ල බලන්න
           </Link>
         </div>
 

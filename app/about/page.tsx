@@ -2,54 +2,54 @@ import { Page } from "@/components/Page";
 
 export default function AboutPage() {
   return (
-    <Page title="About Tilers Hub">
+    <Page title="Tilers Hub ගැන">
       <div className="max-w-3xl mx-auto space-y-6">
         <section className="rounded-2xl border bg-white p-6">
-          <h2 className="text-xl font-bold mb-3">Our Mission</h2>
+          <h2 className="text-xl font-bold mb-3">අපගේ මෙහෙවර</h2>
           <p className="text-neutral-700 leading-relaxed">
-            Tilers Hub connects homeowners with skilled tiling professionals across Sri Lanka.
-            We make it easy to find qualified tilers, compare quotes, and get your tiling projects completed with confidence.
+            Tilers Hub ශ්‍රී ලංකා පුරා ඇති දක්ෂ ටයිල් වෘත්තියවේදීන් හා නිවාස හිමියන් සම්බන්ධ කරයි.
+            සුදුසු කාර්යකරුවන් සොයාගැනීම, මිල ගණන් සසඳීම සහ විශ්වාසයෙන් ඔබගේ ටයිල් ව්‍යාපෘති ඉටු කිරීම අපි පහසු කරමු.
           </p>
         </section>
 
         <section className="rounded-2xl border bg-white p-6">
-          <h2 className="text-xl font-bold mb-3">How It Works</h2>
+          <h2 className="text-xl font-bold mb-3">එය කෙසේ ක්‍රියා කරන්නේද</h2>
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold mb-1">For Homeowners</h3>
+              <h3 className="font-semibold mb-1">නිවාස හිමියන් සඳහා</h3>
               <p className="text-neutral-700 text-sm">
-                Post your tiling project with photos and details. Receive bids from qualified tilers in your area.
-                Review their profiles, rates, and portfolio before choosing the right professional for your job.
+                ඡායාරූප සහ විස්තර සමඟ ඔබගේ ටයිල් ව්‍යාපෘතිය පළ කරන්න. ඔබගේ ප්‍රදේශයේ සුදුසු කාර්යකරුවන්ගෙන් බිඩ් ලබාගන්න.
+                ඔබගේ කාර්යය සඳහා නිවැරදි වෘත්තියවේදියාව තෝරා ගැනීමට පෙර ඔවුන්ගේ පැතිකඩ, ගාස්තු, සහ පෝර්ට්ෆෝලියෝ සමාලෝචනය කරන්න.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-1">For Tilers</h3>
+              <h3 className="font-semibold mb-1">කාර්යකරුවන් සඳහා</h3>
               <p className="text-neutral-700 text-sm">
-                Create a profile showcasing your skills, rates, and previous work. Browse available projects
-                in your area and submit competitive bids. Connect directly with homeowners and grow your business.
+                ඔබගේ හැකියාවන්, ගාස්තු සහ පෙර කාර්යයන් පෙන්වන පැතිකඩක් සාදන්න. ඔබගේ ප්‍රදේශයේ ලබාගත හැකි ව්‍යාපෘති
+                සොයා තරඟකාරී බිඩ් ඉදිරිපත් කරන්න. නිවාස හිමියන් සමඟ සෘජුව සම්බන්ධ වී ඔබගේ ව්‍යාපාරය වර්ධනය කරන්න.
               </p>
             </div>
           </div>
         </section>
 
         <section className="rounded-2xl border bg-white p-6">
-          <h2 className="text-xl font-bold mb-3">Why Choose Tilers Hub</h2>
+          <h2 className="text-xl font-bold mb-3">Tilers Hub තෝරන්නේ ඇයි</h2>
           <ul className="space-y-2 text-neutral-700">
             <li className="flex items-start gap-2">
               <span className="text-green-600 font-bold">✓</span>
-              <span className="text-sm">Verified tiling professionals with portfolios</span>
+              <span className="text-sm">පෝර්ට්ෆෝලියෝ සහිත සත්‍යාපිත ටයිල් වෘත්තියවේදීන්</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-green-600 font-bold">✓</span>
-              <span className="text-sm">Transparent pricing and competitive bidding</span>
+              <span className="text-sm">පැහැදිලි මිල ගණන් සහ තරඟකාරී බිඩ්</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-green-600 font-bold">✓</span>
-              <span className="text-sm">Direct communication between homeowners and tilers</span>
+              <span className="text-sm">නිවාස හිමියන් හා කාර්යකරුවන් අතර සෘජු සන්නිවේදනය</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-green-600 font-bold">✓</span>
-              <span className="text-sm">Easy project management and tracking</span>
+              <span className="text-sm">සහජ ව්‍යාපෘති කළමනාකරණය සහ අනුගමනය</span>
             </li>
           </ul>
         </section>

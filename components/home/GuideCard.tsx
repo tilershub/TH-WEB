@@ -25,7 +25,7 @@ export default function GuideCard({ title, steps, duration, href, icon }: GuideC
       <div className="flex-1 min-w-0">
         <h3 className="font-medium text-sm text-navy truncate">{title}</h3>
         <div className="flex items-center gap-2 text-xs text-gray-500 mt-0.5">
-          <span>{steps} steps</span>
+          <span>{steps} පියවර</span>
           <span>•</span>
           <span>{duration}</span>
         </div>

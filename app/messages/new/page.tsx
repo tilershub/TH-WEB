@@ -42,7 +42,7 @@ function NewConversationContent() {
       setCurrentUser({ id: session.session.user.id });
 
       if (!taskerId) {
-        setError("No tasker specified");
+        setError("කාර්යකරු සඳහන් කර නැත");
         setLoading(false);
         return;
       }
@@ -60,7 +60,7 @@ function NewConversationContent() {
       }
 
       if (!taskerData) {
-        setError("Tasker not found");
+        setError("කාර්යකරු හමු නොවීය");
         setLoading(false);
         return;
       }
@@ -74,7 +74,7 @@ function NewConversationContent() {
 
   const handleSend = async () => {
     if (!message.trim()) {
-      setError("Please enter a message");
+      setError("කරුණාකර පණිවිඩයක් ඇතුළත් කරන්න");
       return;
     }
 
@@ -124,7 +124,7 @@ function NewConversationContent() {
       router.push(`/messages/${conversationId}`);
     } catch (err: unknown) {
       console.error("Message send error:", err);
-      let errorMessage = "Failed to send message";
+      let errorMessage = "පණිවිඩය යැවීමට අසමත් විය";
       if (err && typeof err === "object" && "message" in err) {
         errorMessage = String((err as { message: unknown }).message);
       }
@@ -137,12 +137,12 @@ function NewConversationContent() {
   // obsolete tiler-based avatar reference so there is only one
   // declaration here.
   const avatarUrl = pub("profile-avatars", tasker?.avatar_path);
-  const displayName = tasker?.full_name || tasker?.display_name || "Professional Tasker";
+  const displayName = tasker?.full_name || tasker?.display_name || "වෘත්තීය කාර්යකරු";
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-gray-600">ලෝඩ් වෙමින්...</div>
       </div>
     );
   }
@@ -153,7 +153,7 @@ function NewConversationContent() {
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
           <Link href="/tilers" className="text-primary hover:underline">
-            Browse taskers
+            කාර්යකරුවන් සොයන්න
           </Link>
         </div>
       </div>
@@ -172,7 +172,7 @@ function NewConversationContent() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-xl font-bold text-gray-900">Request Quote</h1>
+          <h1 className="text-xl font-bold text-gray-900">මිල ගණන් ඉල්ලන්න</h1>
         </div>
 
         {tasker && (
@@ -196,7 +196,7 @@ function NewConversationContent() {
               <div>
                 <h2 className="font-semibold text-gray-900">{displayName}</h2>
                 <p className="text-sm text-gray-500">
-                  {[tasker.city, tasker.district].filter(Boolean).join(", ") || "Sri Lanka"}
+                  {[tasker.city, tasker.district].filter(Boolean).join(", ") || "ශ්‍රී ලංකාව"}
                 </p>
               </div>
             </div>
@@ -205,13 +205,13 @@ function NewConversationContent() {
 
         <div className="bg-white rounded-2xl shadow-sm p-4">
           <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-            Your Message
+            ඔබගේ පණිවිඩය
           </label>
           <textarea
             id="message"
             rows={5}
             className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-            placeholder="Hi, I'm interested in getting a quote for my tiling project. Can you please provide more details about your services and availability?"
+            placeholder="ආයුබෝවන්, මට මගේ ටයිල් ව්‍යාපෘතිය සඳහා මිල ගණන් ලබා ගැනීමට අවශ්‍යයි. ඔබගේ සේවාවන් සහ ලබාගත හැකි කාලය පිළිබඳ වැඩි විස්තර ලබාදිය හැකිද?"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
@@ -231,21 +231,21 @@ function NewConversationContent() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Sending...
+                යැවෙමින්...
               </>
             ) : (
               <>
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
-                Send Message
+                පණිවිඩය යවන්න
               </>
             )}
           </button>
         </div>
 
         <p className="mt-4 text-center text-sm text-gray-500">
-          The tasker will receive your message and can respond in the app.
+          කාර්යකරු ඔබගේ පණිවිඩය ලබාගෙන යෙදුමේ ප්‍රතිචාර ලබා දේ.
         </p>
       </div>
     </div>
@@ -256,7 +256,7 @@ export default function NewConversationPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
+        <div className="text-gray-600">ලෝඩ් වෙමින්...</div>
       </div>
     }>
       <NewConversationContent />

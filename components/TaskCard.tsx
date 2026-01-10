@@ -17,12 +17,12 @@ type Task = {
 function timeAgo(date: string) {
   const diff = Date.now() - new Date(date).getTime();
   const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 1) return "මේ දැන්";
+  if (minutes < 60) return `${minutes} මිනිත්තු පෙර`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
+  if (hours < 24) return `${hours} පැය පෙර`;
   const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return `${days} දින පෙර`;
 }
 
 export default function TaskCard({ task }: { task: Task }) {
@@ -42,6 +42,9 @@ export default function TaskCard({ task }: { task: Task }) {
     return getPublicUrl("task-images", path) ?? null;
   }, [task.cover_image]);
 
+  const statusLabel =
+    task.status === "open" ? "විවෘත" : task.status === "awarded" ? "ජයගත්" : "වසා ඇත";
+
   return (
     <Link
       href={`/task/${task.id}`}
@@ -53,7 +56,7 @@ export default function TaskCard({ task }: { task: Task }) {
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={thumbnailUrl}
-              alt="Task thumbnail"
+              alt="කාර්ය පෙරදසුන"
               className="w-full h-full object-cover"
               loading="lazy"
             />
@@ -96,11 +99,11 @@ export default function TaskCard({ task }: { task: Task }) {
                 ${task.budget_min} - ${task.budget_max}
               </div>
             ) : (
-              <div className="text-sm text-gray-600">Budget not specified</div>
+              <div className="text-sm text-gray-600">අයවැය සඳහන් කර නැත</div>
             )}
 
             <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-              {task.status === "open" ? "Open" : task.status}
+              {statusLabel}
             </span>
           </div>
         </div>

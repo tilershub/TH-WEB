@@ -55,14 +55,14 @@ function HeroAdCarousel({ ads }: { ads: Ad[] }) {
   return (
     <div className="rounded-2xl border bg-white p-3">
       <div className="flex items-center justify-between">
-        <div className="text-sm font-semibold">Sponsored</div>
+        <div className="text-sm font-semibold">ප්‍රචාරණය කරන ලද</div>
         <div className="flex gap-1">
           {ads.map((_, i) => (
             <button
               key={i}
               className={`h-2 w-2 rounded-full ${i === index ? "bg-black" : "bg-neutral-300"}`}
               onClick={() => setIndex(i)}
-              aria-label={`Go to ad ${i + 1}`}
+              aria-label={`දැන්වීම ${i + 1} වෙත යන්න`}
             />
           ))}
         </div>
@@ -88,11 +88,11 @@ function HeroAdCarousel({ ads }: { ads: Ad[] }) {
                   href={ad.href}
                   className="inline-flex items-center rounded-xl bg-white text-black px-4 py-2 text-sm font-semibold"
                 >
-                  {ad.cta ?? "Learn more"}
+                  {ad.cta ?? "තවත් දැනගන්න"}
                 </Link>
               ) : (
                 <span className="inline-flex items-center rounded-xl bg-white/10 px-4 py-2 text-sm">
-                  {ad.cta ?? "Your ad here"}
+                  {ad.cta ?? "ඔබගේ දැන්වීම මෙහි"}
                 </span>
               )}
             </div>
@@ -100,7 +100,7 @@ function HeroAdCarousel({ ads }: { ads: Ad[] }) {
         ))}
       </div>
 
-      <div className="mt-2 text-xs text-neutral-500">Auto-sliding ads • Swipe to browse</div>
+      <div className="mt-2 text-xs text-neutral-500">ස්වයංක්‍රීයව වෙනස් වන දැන්වීම් • බැලීමට ස්වයිප් කරන්න</div>
     </div>
   );
 }
@@ -199,10 +199,10 @@ export default function TasksHomePage() {
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-navy">
-            Welcome{fullName ? `, ${fullName}` : ""}
+            සාදරයෙන් පිළිගනිමු{fullName ? `, ${fullName}` : ""}
           </h1>
 
-          <button className="p-2 hover:bg-gray-100 rounded-full" aria-label="Profile">
+          <button className="p-2 hover:bg-gray-100 rounded-full" aria-label="පැතිකඩ">
             <svg className="w-6 h-6 text-navy" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -226,7 +226,7 @@ export default function TasksHomePage() {
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search tiling jobs..."
+            placeholder="ටයිල් කාර්යයන් සොයන්න..."
             className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
@@ -238,7 +238,7 @@ export default function TasksHomePage() {
               activeTab === "all" ? "text-navy" : "text-gray-500"
             }`}
           >
-            All Tasks
+            සියලු කාර්යයන්
             {activeTab === "all" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
             )}
@@ -249,7 +249,7 @@ export default function TasksHomePage() {
               activeTab === "myarea" ? "text-navy" : "text-gray-500"
             }`}
           >
-            My Area
+            මගේ ප්‍රදේශය
             {activeTab === "myarea" && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
             )}
@@ -257,13 +257,13 @@ export default function TasksHomePage() {
         </div>
 
         <div>
-          <h2 className="text-lg font-bold text-navy mb-4">Recent Tiling Jobs</h2>
+          <h2 className="text-lg font-bold text-navy mb-4">අලුත්ම ටයිල් කාර්යයන්</h2>
 
           {msg && <div className="text-sm text-red-600 mb-4">{msg}</div>}
-          {loading && <div className="text-sm text-gray-600">Loading tasks...</div>}
+          {loading && <div className="text-sm text-gray-600">කාර්යයන් ලෝඩ් වෙමින්...</div>}
 
           {!loading && filteredTasks.length === 0 && (
-            <div className="card p-6 text-center text-gray-600">No tasks found.</div>
+            <div className="card p-6 text-center text-gray-600">කාර්යයන් හමු නොවීය.</div>
           )}
 
           {!loading && filteredTasks.length > 0 && (
@@ -277,8 +277,8 @@ export default function TasksHomePage() {
 
         <Link href="/post-task" className="block">
           <div className="bg-primary hover:bg-primary-dark transition-colors rounded-2xl p-6 text-white shadow-lg">
-            <h3 className="text-lg font-bold mb-2">Start Your Project: Post a Task</h3>
-            <p className="text-sm text-white/90">to Get Quotes to Professional Tilers</p>
+            <h3 className="text-lg font-bold mb-2">ඔබගේ ව්‍යාපෘතිය ආරම්භ කරන්න: කාර්යයක් පළ කරන්න</h3>
+            <p className="text-sm text-white/90">වෘත්තීය කාර්යකරුවන්ගෙන් මිල ගණන් ලබා ගැනීමට</p>
           </div>
         </Link>
       </div>

@@ -14,11 +14,22 @@ function getCategoryColor(category: string) {
   return colors[category] || "bg-gray-100 text-gray-700";
 }
 
+function getCategoryLabel(category: string) {
+  const labels: Record<string, string> = {
+    Tips: "උපදෙස්",
+    Trends: "ප්‍රවණතා",
+    Pricing: "මිල ගණන්",
+    Guides: "මාර්ගෝපදේශ",
+    "For Tilers": "කාර්යකරුවන් සඳහා",
+  };
+  return labels[category] || category;
+}
+
 export default async function BlogPage() {
   const posts = await getBlogPosts();
 
   return (
-    <Page title="Blog">
+    <Page title="බ්ලොග්">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         <div className="flex items-center gap-3">
           <Link href="/home" className="p-2 hover:bg-gray-100 rounded-full">
@@ -27,26 +38,26 @@ export default async function BlogPage() {
             </svg>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-navy">Blog</h1>
-            <p className="text-gray-600 text-sm">Tips, guides, and trends for homeowners and tilers</p>
+            <h1 className="text-2xl font-bold text-navy">බ්ලොග්</h1>
+            <p className="text-gray-600 text-sm">නිවාස හිමියන් සහ කාර්යකරුවන් සඳහා උපදෙස්, මාර්ගෝපදේශ සහ ප්‍රවණතා</p>
           </div>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           <button className="px-4 py-2 rounded-full bg-navy text-white text-sm font-medium whitespace-nowrap">
-            All Posts
+            සියලු ලිපි
           </button>
           <button className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-medium whitespace-nowrap hover:bg-gray-200">
-            Tips
+            උපදෙස්
           </button>
           <button className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-medium whitespace-nowrap hover:bg-gray-200">
-            Trends
+            ප්‍රවණතා
           </button>
           <button className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-medium whitespace-nowrap hover:bg-gray-200">
-            Guides
+            මාර්ගෝපදේශ
           </button>
           <button className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 text-sm font-medium whitespace-nowrap hover:bg-gray-200">
-            For Tilers
+            කාර්යකරුවන් සඳහා
           </button>
         </div>
 
@@ -62,7 +73,7 @@ export default async function BlogPage() {
                 <div className="p-4 pb-3">
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`text-xs font-medium px-2 py-1 rounded-full ${getCategoryColor(post.category)}`}>
-                      {post.category}
+                      {getCategoryLabel(post.category)}
                     </span>
                     <span className="text-xs text-gray-500">{post.readTime}</span>
                   </div>
@@ -74,11 +85,11 @@ export default async function BlogPage() {
                 <span className="text-xs text-gray-500">{post.date}</span>
                 <div className="flex items-center gap-3">
                   <Link href={`/blog/${post.slug}`} className="text-primary text-sm font-medium">
-                    Read More
+                    තවත් කියවන්න
                   </Link>
                   {post.isFromDb && (
                     <AdminEditLink href={`/admin/blog/${post.id}`}>
-                      Edit
+                      සංස්කරණය
                     </AdminEditLink>
                   )}
                 </div>
@@ -90,14 +101,14 @@ export default async function BlogPage() {
         <div className="card p-6 bg-gradient-to-br from-primary/5 to-primary/10">
           <div className="flex flex-col md:flex-row items-center gap-4">
             <div className="flex-1">
-              <h3 className="font-semibold text-navy mb-2">Need Step-by-Step Guidance?</h3>
-              <p className="text-sm text-gray-600">Check out our how-to guides for detailed instructions.</p>
+              <h3 className="font-semibold text-navy mb-2">පියවරෙන් පියවර මාර්ගෝපදේශය අවශ්‍යද?</h3>
+              <p className="text-sm text-gray-600">විස්තරාත්මක උපදෙස් සඳහා අපගේ කෙසේ කරන්න මාර්ගෝපදේශ බලන්න.</p>
             </div>
             <Link
               href="/guides"
               className="bg-primary hover:bg-primary-dark text-white font-medium py-3 px-6 rounded-xl transition-colors whitespace-nowrap"
             >
-              View Guides
+              මාර්ගෝපදේශ බලන්න
             </Link>
           </div>
         </div>

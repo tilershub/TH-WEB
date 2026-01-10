@@ -10,88 +10,88 @@ import { SkeletonCard } from "@/components/Skeleton";
 
 const SERVICE_INFO: Record<string, { title: string; description: string; icon: string }> = {
   floor_tiling: {
-    title: "Floor Tiling",
-    description: "Find expert floor tilers for your home or commercial space",
+    title: "බිම් ටයිල් කිරීම",
+    description: "ඔබගේ නිවස හෝ වාණිජ අවකාශය සඳහා දක්ෂ බිම් ටයිල් කරුවන් සොයන්න",
     icon: "floor",
   },
   wall_tiling: {
-    title: "Wall Tiling",
-    description: "Professional wall tiling services for any room",
+    title: "බිත්ති ටයිල් කිරීම",
+    description: "ඕනෑම කාමරයකට වෘත්තීය බිත්ති ටයිල් සේවා",
     icon: "wall",
   },
   bathroom_tiling: {
-    title: "Bathroom Tiling",
-    description: "Specialized bathroom tiling with waterproofing expertise",
+    title: "නානකාමර ටයිල් කිරීම",
+    description: "ජලරෝධන විශේෂ දැනුම සමඟ නානකාමර ටයිල් කිරීම",
     icon: "bathroom",
   },
   staircase_tiling: {
-    title: "Staircase Tiling",
-    description: "Expert staircase tiling with attention to safety and aesthetics",
+    title: "පඩිපෙළ ටයිල් කිරීම",
+    description: "ආරක්ෂාව හා අලංකාරය සඳහා අවධානය දෙන පඩිපෙළ ටයිල් කිරීම",
     icon: "staircase",
   },
   pantry_backsplash: {
-    title: "Pantry & Backsplash",
-    description: "Beautiful backsplash and pantry tiling solutions",
+    title: "පෑන්ට්‍රි සහ බැක්ස්ප්ලෑෂ්",
+    description: "ලස්සන බැක්ස්ප්ලෑෂ් සහ පෑන්ට්‍රි ටයිල් විසඳුම්",
     icon: "pantry",
   },
   waterproofing: {
-    title: "Waterproofing",
-    description: "Professional waterproofing services for wet areas",
+    title: "ජලරෝධනය",
+    description: "තෙත් ප්‍රදේශ සඳහා වෘත්තීය ජලරෝධන සේවා",
     icon: "water",
   },
 };
 
 const SERVICE_BLOGS: Record<string, { title: string; excerpt: string; category: string; href: string }[]> = {
   floor_tiling: [
-    { title: "How to Choose the Right Tiles", excerpt: "A complete guide to selecting tiles for floors.", category: "Tips", href: "/blog/how-to-choose-tiles" },
-    { title: "Floor Preparation Guide", excerpt: "Proper preparation for long-lasting installations.", category: "Tips", href: "/blog/floor-preparation" },
+    { title: "නිවැරදි ටයිල් තෝරාගන්නේ කෙසේද", excerpt: "බිම් සඳහා ටයිල් තේරීම පිළිබඳ සම්පූර්ණ මාර්ගෝපදේශයක්.", category: "උපදෙස්", href: "/blog/how-to-choose-tiles" },
+    { title: "බිම් සූදානම් කිරීමේ මාර්ගෝපදේශය", excerpt: "දිගුකාලීන ස්ථාපන සඳහා නිසි සූදානම.", category: "උපදෙස්", href: "/blog/floor-preparation" },
   ],
   wall_tiling: [
-    { title: "Understanding Tile Sizes", excerpt: "How tile sizes affect your wall's appearance.", category: "Guides", href: "/blog/tile-sizes-patterns" },
-    { title: "Top 5 Tile Trends for 2025", excerpt: "Latest wall tile design trends.", category: "Trends", href: "/blog/tile-trends-2025" },
+    { title: "ටයිල් ප්‍රමාණ තේරුම්ගැනීම", excerpt: "ටයිල් ප්‍රමාණ ඔබගේ බිත්ති පෙනුමට බලපාන ආකාරය.", category: "මාර්ගෝපදේශ", href: "/blog/tile-sizes-patterns" },
+    { title: "2025 සඳහා ඉහළම ටයිල් ප්‍රවණතා 5", excerpt: "නවතම බිත්ති ටයිල් නිර්මාණ ප්‍රවණතා.", category: "ප්‍රවණතා", href: "/blog/tile-trends-2025" },
   ],
   bathroom_tiling: [
-    { title: "Bathroom Waterproofing Guide", excerpt: "Protect your bathroom from water damage.", category: "Tips", href: "/blog/bathroom-waterproofing" },
-    { title: "How to Choose the Right Tiles", excerpt: "Selecting tiles for wet areas.", category: "Tips", href: "/blog/how-to-choose-tiles" },
+    { title: "නානකාමර ජලරෝධන මාර්ගෝපදේශය", excerpt: "ඔබගේ නානකාමරය ජල හානි වලින් ආරක්ෂා කරන්න.", category: "උපදෙස්", href: "/blog/bathroom-waterproofing" },
+    { title: "නිවැරදි ටයිල් තෝරාගන්නේ කෙසේද", excerpt: "තෙත් ප්‍රදේශ සඳහා ටයිල් තේරීම.", category: "උපදෙස්", href: "/blog/how-to-choose-tiles" },
   ],
   staircase_tiling: [
-    { title: "Cost of Tiling in Sri Lanka", excerpt: "Complete pricing guide for staircase work.", category: "Pricing", href: "/blog/tiling-cost-guide" },
-    { title: "DIY vs Professional Tiling", excerpt: "When to hire a professional.", category: "Guides", href: "/blog/diy-vs-professional" },
+    { title: "ශ්‍රී ලංකාවේ ටයිල් කිරීමේ පිරිවැය", excerpt: "පඩිපෙළ කාර්ය සඳහා සම්පූර්ණ මිල මාර්ගෝපදේශය.", category: "මිල ගණන්", href: "/blog/tiling-cost-guide" },
+    { title: "DIY හා වෘත්තීය ටයිල් කිරීම", excerpt: "වෘත්තීය සේවාවක් ලබාගත යුත්තේ කවදාද.", category: "මාර්ගෝපදේශ", href: "/blog/diy-vs-professional" },
   ],
   pantry_backsplash: [
-    { title: "Top 5 Tile Trends for 2025", excerpt: "Modern backsplash design ideas.", category: "Trends", href: "/blog/tile-trends-2025" },
-    { title: "Understanding Tile Sizes", excerpt: "Best sizes for backsplash areas.", category: "Guides", href: "/blog/tile-sizes-patterns" },
+    { title: "2025 සඳහා ඉහළම ටයිල් ප්‍රවණතා 5", excerpt: "නවීන බැක්ස්ප්ලෑෂ් නිර්මාණ අදහස්.", category: "ප්‍රවණතා", href: "/blog/tile-trends-2025" },
+    { title: "ටයිල් ප්‍රමාණ තේරුම්ගැනීම", excerpt: "බැක්ස්ප්ලෑෂ් ප්‍රදේශ සඳහා හොඳම ප්‍රමාණ.", category: "මාර්ගෝපදේශ", href: "/blog/tile-sizes-patterns" },
   ],
   waterproofing: [
-    { title: "Bathroom Waterproofing Guide", excerpt: "Complete waterproofing techniques.", category: "Tips", href: "/blog/bathroom-waterproofing" },
-    { title: "Floor Preparation Guide", excerpt: "Preparing surfaces before waterproofing.", category: "Tips", href: "/blog/floor-preparation" },
+    { title: "නානකාමර ජලරෝධන මාර්ගෝපදේශය", excerpt: "සම්පූර්ණ ජලරෝධන ක්‍රම.", category: "උපදෙස්", href: "/blog/bathroom-waterproofing" },
+    { title: "බිම් සූදානම් කිරීමේ මාර්ගෝපදේශය", excerpt: "ජලරෝධනයට පෙර මතුපිට සූදානම් කිරීම.", category: "උපදෙස්", href: "/blog/floor-preparation" },
   ],
 };
 
 const SERVICE_GUIDES: Record<string, { title: string; steps: number; duration: string; href: string }[]> = {
   floor_tiling: [
-    { title: "How to Prepare Your Home for Tiling", steps: 5, duration: "3 min", href: "/guides/prepare-for-tiling" },
-    { title: "How to Choose the Right Tiler", steps: 6, duration: "4 min", href: "/guides/choose-right-tiler" },
+    { title: "ටයිල් කිරීමට ඔබගේ නිවස සූදානම් කරන්නේ කෙසේද", steps: 5, duration: "3 මිනිත්තු", href: "/guides/prepare-for-tiling" },
+    { title: "නිවැරදි කාර්යකරුවා තෝරාගැනීම", steps: 6, duration: "4 මිනිත්තු", href: "/guides/choose-right-tiler" },
   ],
   wall_tiling: [
-    { title: "How to Choose the Right Tiler", steps: 6, duration: "4 min", href: "/guides/choose-right-tiler" },
-    { title: "How to Compare Tiler Quotes", steps: 5, duration: "3 min", href: "/guides/compare-quotes" },
+    { title: "නිවැරදි කාර්යකරුවා තෝරාගැනීම", steps: 6, duration: "4 මිනිත්තු", href: "/guides/choose-right-tiler" },
+    { title: "කාර්යකරු මිල ගණන් සසඳන්නේ කෙසේද", steps: 5, duration: "3 මිනිත්තු", href: "/guides/compare-quotes" },
   ],
   bathroom_tiling: [
-    { title: "Bathroom Tiling: Complete Guide", steps: 8, duration: "6 min", href: "/guides/bathroom-renovation" },
-    { title: "How to Choose the Right Tiler", steps: 6, duration: "4 min", href: "/guides/choose-right-tiler" },
+    { title: "නානකාමර ටයිල් කිරීම: සම්පූර්ණ මාර්ගෝපදේශය", steps: 8, duration: "6 මිනිත්තු", href: "/guides/bathroom-renovation" },
+    { title: "නිවැරදි කාර්යකරුවා තෝරාගැනීම", steps: 6, duration: "4 මිනිත්තු", href: "/guides/choose-right-tiler" },
   ],
   staircase_tiling: [
-    { title: "How to Prepare Your Home for Tiling", steps: 5, duration: "3 min", href: "/guides/prepare-for-tiling" },
-    { title: "How to Compare Tiler Quotes", steps: 5, duration: "3 min", href: "/guides/compare-quotes" },
+    { title: "ටයිල් කිරීමට ඔබගේ නිවස සූදානම් කරන්නේ කෙසේද", steps: 5, duration: "3 මිනිත්තු", href: "/guides/prepare-for-tiling" },
+    { title: "කාර්යකරු මිල ගණන් සසඳන්නේ කෙසේද", steps: 5, duration: "3 මිනිත්තු", href: "/guides/compare-quotes" },
   ],
   pantry_backsplash: [
-    { title: "Kitchen Tiling: Floor & Backsplash", steps: 6, duration: "5 min", href: "/guides/kitchen-tiling" },
-    { title: "How to Choose the Right Tiler", steps: 6, duration: "4 min", href: "/guides/choose-right-tiler" },
+    { title: "මුළුතැන්ගෙයි ටයිල්: බිම සහ බැක්ස්ප්ලෑෂ්", steps: 6, duration: "5 මිනිත්තු", href: "/guides/kitchen-tiling" },
+    { title: "නිවැරදි කාර්යකරුවා තෝරාගැනීම", steps: 6, duration: "4 මිනිත්තු", href: "/guides/choose-right-tiler" },
   ],
   waterproofing: [
-    { title: "Bathroom Tiling: Complete Guide", steps: 8, duration: "6 min", href: "/guides/bathroom-renovation" },
-    { title: "How to Prepare Your Home for Tiling", steps: 5, duration: "3 min", href: "/guides/prepare-for-tiling" },
+    { title: "නානකාමර ටයිල් කිරීම: සම්පූර්ණ මාර්ගෝපදේශය", steps: 8, duration: "6 මිනිත්තු", href: "/guides/bathroom-renovation" },
+    { title: "ටයිල් කිරීමට ඔබගේ නිවස සූදානම් කරන්නේ කෙසේද", steps: 5, duration: "3 මිනිත්තු", href: "/guides/prepare-for-tiling" },
   ],
 };
 
@@ -99,8 +99,8 @@ function TilerCard({ tiler }: { tiler: Profile }) {
   const avatarUrl = tiler.avatar_path
     ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/profile-avatars/${tiler.avatar_path}`
     : null;
-  const location = [tiler.city, tiler.district].filter(Boolean).join(", ") || "Sri Lanka";
-  const displayName = tiler.full_name || tiler.display_name || "Professional Tiler";
+  const location = [tiler.city, tiler.district].filter(Boolean).join(", ") || "ශ්‍රී ලංකාව";
+  const displayName = tiler.full_name || tiler.display_name || "වෘත්තීය කාර්යකරු";
 
   return (
     <Link href={`/tilers/${tiler.id}`} className="card hover:shadow-card-hover transition-shadow">
@@ -168,7 +168,7 @@ function GuideCard({ title, steps, duration, href }: { title: string; steps: num
       </div>
       <div className="flex-1 min-w-0">
         <h3 className="font-medium text-sm text-navy truncate">{title}</h3>
-        <p className="text-xs text-gray-500">{steps} steps · {duration}</p>
+        <p className="text-xs text-gray-500">{steps} පියවර · {duration}</p>
       </div>
       <svg className="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -188,7 +188,7 @@ export default function ServicePage() {
   // If the service isn’t found in the map, fall back to a generic entry.  Note
   // that we refer to "taskers" instead of "tilers" here to align with the
   // Task Hub rebranding.
-  const info = SERVICE_INFO[service] || { title: "Service", description: "Find professional taskers", icon: "floor" };
+  const info = SERVICE_INFO[service] || { title: "සේවාව", description: "වෘත්තීය කාර්යකරුවන් සොයන්න", icon: "floor" };
   const blogs = SERVICE_BLOGS[service] || [];
   const guides = SERVICE_GUIDES[service] || [];
 
@@ -243,7 +243,7 @@ export default function ServicePage() {
           href={`/post-task?service=${service}`}
           className="block w-full bg-primary hover:bg-primary-dark text-white text-center font-semibold py-4 rounded-xl transition-colors"
         >
-          Post a {info.title} Task
+          {info.title} කාර්යයක් පළ කරන්න
         </Link>
 
         <section>
@@ -251,8 +251,8 @@ export default function ServicePage() {
             {/* Update heading to reflect the new Task Hub terminology.  Although
                 the route remains `/tilers` for backward compatibility, we
                 display “Available Taskers” to users. */}
-            <h2 className="text-lg font-bold text-navy">Available Taskers</h2>
-            <Link href="/tilers" className="text-sm text-primary font-medium">See All</Link>
+            <h2 className="text-lg font-bold text-navy">ලබාගත හැකි කාර්යකරුවන්</h2>
+            <Link href="/tilers" className="text-sm text-primary font-medium">සියල්ල බලන්න</Link>
           </div>
           
           {loading ? (
@@ -268,8 +268,8 @@ export default function ServicePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">No Taskers Available</h3>
-              <p className="text-gray-600 text-sm">Post a task and taskers will reach out to you!</p>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">ලබාගත හැකි කාර්යකරුවන් නොමැත</h3>
+              <p className="text-gray-600 text-sm">කාර්යයක් පළ කරන්න, කාර්යකරුවන් ඔබ වෙත සම්බන්ධ වේ!</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -283,8 +283,8 @@ export default function ServicePage() {
         {blogs.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-bold text-navy">Related Articles</h2>
-              <Link href="/blog" className="text-sm text-primary font-medium">See All</Link>
+              <h2 className="text-lg font-bold text-navy">සම්බන්ධ ලිපි</h2>
+              <Link href="/blog" className="text-sm text-primary font-medium">සියල්ල බලන්න</Link>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {blogs.map((blog) => (
@@ -296,7 +296,7 @@ export default function ServicePage() {
 
         {tilers.length > 3 && (
           <section>
-            <h2 className="text-lg font-bold text-navy mb-3">More Taskers</h2>
+            <h2 className="text-lg font-bold text-navy mb-3">තවත් කාර්යකරුවන්</h2>
             <div className="space-y-3">
               {tilers.slice(3, 6).map((tiler) => (
                 <MemoizedTilerCard key={tiler.id} tiler={tiler} />
@@ -308,8 +308,8 @@ export default function ServicePage() {
         {guides.length > 0 && (
           <section>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-bold text-navy">How-To Guides</h2>
-              <Link href="/guides" className="text-sm text-primary font-medium">See All</Link>
+              <h2 className="text-lg font-bold text-navy">කෙසේ කරන්න මාර්ගෝපදේශ</h2>
+              <Link href="/guides" className="text-sm text-primary font-medium">සියල්ල බලන්න</Link>
             </div>
             <div className="space-y-2">
               {guides.map((guide) => (
@@ -321,7 +321,7 @@ export default function ServicePage() {
 
         {tilers.length > 6 && (
           <section>
-            <h2 className="text-lg font-bold text-navy mb-3">Even More Taskers</h2>
+            <h2 className="text-lg font-bold text-navy mb-3">ඉතිරි තවත් කාර්යකරුවන්</h2>
             <div className="space-y-3">
               {tilers.slice(6).map((tiler) => (
                 <MemoizedTilerCard key={tiler.id} tiler={tiler} />
