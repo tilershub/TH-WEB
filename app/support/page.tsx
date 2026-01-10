@@ -13,14 +13,14 @@ export default function SupportPage() {
               <h3 className="font-semibold mb-1">How do I post a task?</h3>
               <p className="text-neutral-700 text-sm">
                 Click on the "Post Task" button from the navigation menu. Fill in your project details,
-                add photos if available, and set your budget range. Your task will be visible to tilers immediately.
+                add photos if available, and set your budget range. Your task will be visible to taskers immediately.
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-1">How do I become a verified tiler?</h3>
+              <h3 className="font-semibold mb-1">How do I become a verified tasker?</h3>
               <p className="text-neutral-700 text-sm">
-                Sign up for an account, select "Tiler" as your role, and complete your profile setup.
+                Sign up for an account, select "Tasker" as your role, and complete your profile setup.
                 Add your rates, portfolio photos, and contact information to start receiving project notifications.
               </p>
             </div>
@@ -28,13 +28,13 @@ export default function SupportPage() {
             <div>
               <h3 className="font-semibold mb-1">What are the fees?</h3>
               <p className="text-neutral-700 text-sm">
-                Posting tasks and browsing tilers is completely free for homeowners. Tilers can create profiles
+                Posting tasks and browsing taskers is completely free for homeowners. Taskers can create profiles
                 and bid on projects at no cost. We believe in transparent pricing with no hidden fees.
               </p>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-1">How do I communicate with tilers/homeowners?</h3>
+              <h3 className="font-semibold mb-1">How do I communicate with taskers/homeowners?</h3>
               <p className="text-neutral-700 text-sm">
                 Once a bid is placed, you can use our built-in messaging system to discuss project details,
                 negotiate pricing, and coordinate schedules. Access your conversations from the Messages tab.
@@ -44,7 +44,7 @@ export default function SupportPage() {
             <div>
               <h3 className="font-semibold mb-1">How do payments work?</h3>
               <p className="text-neutral-700 text-sm">
-                Payment terms are arranged directly between homeowners and tilers. We recommend discussing
+                Payment terms are arranged directly between homeowners and taskers. We recommend discussing
                 and agreeing on payment schedules and milestones before starting any project.
               </p>
             </div>
