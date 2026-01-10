@@ -20,6 +20,8 @@ export type ServiceKey =
   | "nosing"
   | "construction"
   | "plumbing"
+  | "glass_work"
+  | "ceiling"
   | "electrical"
   | "painting"
   | "carpentry"
@@ -30,10 +32,20 @@ export type ServiceKey =
 
 export type RateUnit = "LKR/sqft" | "LKR/ft" | "LKR/job" | "LKR/step";
 
+export type ServiceDetail = {
+  title: string | null;
+  level: string | null;
+  tile_size: string | null;
+  sqft: number | null;
+  rate: number | null;
+  photo_path: string | null;
+};
+
 export type ServiceRateItem = {
   rate: number | null;
   unit: RateUnit;
   photo_path: string | null;
+  details?: ServiceDetail[];
 };
 
 export type ServiceRates = Partial<Record<ServiceKey, ServiceRateItem>>;

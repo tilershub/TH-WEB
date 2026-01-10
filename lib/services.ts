@@ -10,6 +10,8 @@ export type ServiceKey =
   | "nosing"
   | "construction"
   | "plumbing"
+  | "glass_work"
+  | "ceiling"
   | "electrical"
   | "painting"
   | "carpentry"
@@ -91,6 +93,18 @@ export const SERVICES: {
     label: "ප්ලම්බින්", 
     description: "ජල හා නාලිකා වැඩ",
     unit: "LKR/job" 
+  },
+  { 
+    key: "glass_work", 
+    label: "ග්ලාස් වැඩ", 
+    description: "කච්චේරු හා ග්ලාස් සවි කිරීමේ සේවා",
+    unit: "LKR/sqft" 
+  },
+  { 
+    key: "ceiling", 
+    label: "සීලින් වැඩ", 
+    description: "ෆෝල්ස් සීලින් සහ තට්ටු සීලින් සේවා",
+    unit: "LKR/sqft" 
   },
   { 
     key: "electrical", 

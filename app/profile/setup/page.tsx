@@ -45,6 +45,16 @@ type ServiceRate = {
   photo_path?: string | null;
 };
 
+type ServiceDetail = {
+  id: string;
+  title: string;
+  level: string;
+  tileSize: string;
+  sqft: string;
+  rate: string;
+  photo_path?: string | null;
+};
+
 export default function TaskerProfileSetup() {
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -72,6 +82,7 @@ export default function TaskerProfileSetup() {
   const [serviceMode, setServiceMode] = useState<"single" | "multiple">("single");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [serviceRates, setServiceRates] = useState<Record<string, ServiceRate>>({});
+  const [serviceDetails, setServiceDetails] = useState<Record<string, ServiceDetail[]>>({});
   const [workingDistricts, setWorkingDistricts] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
@@ -80,7 +91,9 @@ export default function TaskerProfileSetup() {
   const [newCertIssuer, setNewCertIssuer] = useState("");
   const [newCertFile, setNewCertFile] = useState<File | null>(null);
   const [uploadingServiceImage, setUploadingServiceImage] = useState<string | null>(null);
+  const [uploadingDetailImage, setUploadingDetailImage] = useState<{ serviceKey: string; detailId: string } | null>(null);
   const serviceImageRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const serviceDetailImageRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     loadProfile();
@@ -135,6 +148,22 @@ export default function TaskerProfileSetup() {
         const serviceKeys = Object.keys(p.service_rates);
         setSelectedServices(serviceKeys);
         setServiceRates(p.service_rates as Record<string, ServiceRate>);
+        const detailsByService: Record<string, ServiceDetail[]> = {};
+        serviceKeys.forEach(key => {
+          const details = (p.service_rates as Record<string, any>)[key]?.details;
+          if (Array.isArray(details)) {
+            detailsByService[key] = details.map((detail: Record<string, any>) => ({
+              id: detail.id ?? crypto.randomUUID(),
+              title: detail.title ?? "",
+              level: detail.level ?? "",
+              tileSize: detail.tile_size ?? "",
+              sqft: detail.sqft !== undefined && detail.sqft !== null ? String(detail.sqft) : "",
+              rate: detail.rate !== undefined && detail.rate !== null ? String(detail.rate) : "",
+              photo_path: detail.photo_path ?? null,
+            }));
+          }
+        });
+        setServiceDetails(detailsByService);
         setServiceMode(serviceKeys.length > 1 ? "multiple" : "single");
       }
 
@@ -297,6 +326,76 @@ export default function TaskerProfileSetup() {
     }
   };
 
+  const addServiceDetail = (serviceKey: string) => {
+    setServiceDetails(prev => ({
+      ...prev,
+      [serviceKey]: [
+        ...(prev[serviceKey] || []),
+        {
+          id: crypto.randomUUID(),
+          title: "",
+          level: "",
+          tileSize: "",
+          sqft: "",
+          rate: "",
+          photo_path: null,
+        },
+      ],
+    }));
+  };
+
+  const updateServiceDetail = (
+    serviceKey: string,
+    detailId: string,
+    field: keyof Omit<ServiceDetail, "id">,
+    value: string
+  ) => {
+    setServiceDetails(prev => ({
+      ...prev,
+      [serviceKey]: (prev[serviceKey] || []).map(detail =>
+        detail.id === detailId ? { ...detail, [field]: value } : detail
+      ),
+    }));
+  };
+
+  const removeServiceDetail = (serviceKey: string, detailId: string) => {
+    setServiceDetails(prev => ({
+      ...prev,
+      [serviceKey]: (prev[serviceKey] || []).filter(detail => detail.id !== detailId),
+    }));
+  };
+
+  const handleServiceDetailImageUpload = async (
+    serviceKey: string,
+    detailId: string,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+
+    setUploadingDetailImage({ serviceKey, detailId });
+    setError(null);
+
+    try {
+      const path = generateFilePath(profile.id, `services/${serviceKey}/${detailId}`, file);
+      await uploadFile("portfolio", path, file);
+
+      setServiceDetails(prev => ({
+        ...prev,
+        [serviceKey]: (prev[serviceKey] || []).map(detail =>
+          detail.id === detailId ? { ...detail, photo_path: path } : detail
+        ),
+      }));
+
+      setSuccess("සේවා විස්තර ඡායාරූපය උඩුගත විය!");
+      setTimeout(() => setSuccess(null), 2000);
+    } catch (err: any) {
+      setError(err?.message || "සේවා විස්තර ඡායාරූපය උඩුගත කිරීමට අසමත් විය");
+    } finally {
+      setUploadingDetailImage(null);
+    }
+  };
+
   const handleSave = async () => {
     if (!profile) return;
 
@@ -310,10 +409,22 @@ export default function TaskerProfileSetup() {
         const svc = SERVICES.find(s => s.key === key);
         if (svc) {
           const existing = serviceRates[key];
+          const details = (serviceDetails[key] || [])
+            .filter(detail => detail.title.trim())
+            .map(detail => ({
+              id: detail.id,
+              title: detail.title.trim() || null,
+              level: detail.level.trim() || null,
+              tile_size: detail.tileSize.trim() || null,
+              sqft: detail.sqft ? parseFloat(detail.sqft) : null,
+              rate: detail.rate ? parseFloat(detail.rate) : null,
+              photo_path: detail.photo_path ?? null,
+            }));
           finalServiceRates[key] = { 
             rate: existing?.rate ?? null, 
             unit: svc.unit,
             photo_path: existing?.photo_path ?? null,
+            details: details.length > 0 ? details : null,
           };
         }
       });
@@ -355,8 +466,10 @@ export default function TaskerProfileSetup() {
     if (mode === "single" && selectedServices.length > 1) {
       const [firstKey] = selectedServices;
       const firstRate = serviceRates[firstKey];
+      const firstDetails = serviceDetails[firstKey];
       setSelectedServices(firstKey ? [firstKey] : []);
       setServiceRates(firstKey ? { [firstKey]: firstRate } : {});
+      setServiceDetails(firstKey ? { [firstKey]: firstDetails || [] } : {});
     }
   };
 
@@ -366,12 +479,16 @@ export default function TaskerProfileSetup() {
         const newRates = { ...serviceRates };
         delete newRates[key];
         setServiceRates(newRates);
+        const newDetails = { ...serviceDetails };
+        delete newDetails[key];
+        setServiceDetails(newDetails);
         return prev.filter(k => k !== key);
       }
       const svc = SERVICES.find(s => s.key === key);
       if (svc) {
         if (serviceMode === "single") {
           setServiceRates({ [key]: { rate: null, unit: svc.unit } });
+          setServiceDetails(prev => ({ [key]: prev[key] || [] }));
           return [key];
         }
         setServiceRates(r => ({ ...r, [key]: { rate: null, unit: svc.unit } }));
@@ -685,6 +802,134 @@ export default function TaskerProfileSetup() {
                           className="w-24 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-primary focus:border-primary"
                         />
                         <span className="text-xs text-gray-500">{service.unit}</span>
+                      </div>
+
+                      <div className="ml-8 rounded-lg border border-dashed border-gray-200 p-3 bg-white">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-xs font-semibold text-gray-700">සේවා විස්තර (උදා: Floor Tiling, Bathroom plumbing)</p>
+                            <p className="text-[11px] text-gray-500">අදාළ තොරතුරු එක් කරන්න - Floor level, tile size, sq.ft, rate වැනි දේ.</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => addServiceDetail(service.key)}
+                            className="text-xs font-medium text-primary hover:text-primary/80"
+                          >
+                            + සේවාවක් එක් කරන්න
+                          </button>
+                        </div>
+                        <div className="mt-3 space-y-3">
+                          {(serviceDetails[service.key] || []).map(detail => {
+                            const isUploadingDetail =
+                              uploadingDetailImage?.serviceKey === service.key &&
+                              uploadingDetailImage.detailId === detail.id;
+                            const imageKey = `${service.key}:${detail.id}`;
+
+                            return (
+                              <div key={detail.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-semibold text-gray-700">සේවා විස්තරය</p>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeServiceDetail(service.key, detail.id)}
+                                    className="text-[11px] text-red-600 hover:text-red-500"
+                                  >
+                                    ඉවත් කරන්න
+                                  </button>
+                                </div>
+                                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                                  <div>
+                                    <label className="text-[11px] text-gray-500">සේවා නම</label>
+                                    <Input
+                                      className="mt-1"
+                                      value={detail.title}
+                                      onChange={(e) => updateServiceDetail(service.key, detail.id, "title", e.target.value)}
+                                      placeholder="Floor Tiling"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-[11px] text-gray-500">Floor level / Type</label>
+                                    <Input
+                                      className="mt-1"
+                                      value={detail.level}
+                                      onChange={(e) => updateServiceDetail(service.key, detail.id, "level", e.target.value)}
+                                      placeholder="Ground floor / Basic"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-[11px] text-gray-500">Tile size</label>
+                                    <Input
+                                      className="mt-1"
+                                      value={detail.tileSize}
+                                      onChange={(e) => updateServiceDetail(service.key, detail.id, "tileSize", e.target.value)}
+                                      placeholder="600×600"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-[11px] text-gray-500">Sq.ft</label>
+                                    <Input
+                                      className="mt-1"
+                                      value={detail.sqft}
+                                      onChange={(e) => updateServiceDetail(service.key, detail.id, "sqft", e.target.value)}
+                                      placeholder="120"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="text-[11px] text-gray-500">Rate</label>
+                                    <Input
+                                      className="mt-1"
+                                      value={detail.rate}
+                                      onChange={(e) => updateServiceDetail(service.key, detail.id, "rate", e.target.value)}
+                                      placeholder="2500"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  {detail.photo_path ? (
+                                    <img
+                                      src={getPublicUrl("portfolio", detail.photo_path) || ""}
+                                      alt={`${detail.title || service.label} detail`}
+                                      className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                                    />
+                                  ) : (
+                                    <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-white">
+                                      <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      </svg>
+                                    </div>
+                                  )}
+                                  <button
+                                    type="button"
+                                    onClick={() => serviceDetailImageRefs.current[imageKey]?.click()}
+                                    disabled={isUploadingDetail}
+                                    className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-1"
+                                  >
+                                    {isUploadingDetail ? (
+                                      <>
+                                        <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
+                                        උඩුගත වෙමින්...
+                                      </>
+                                    ) : (
+                                      <>
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                        </svg>
+                                        {detail.photo_path ? "වෙනස් කරන්න" : "උඩුගත කරන්න"}
+                                      </>
+                                    )}
+                                  </button>
+                                  <input
+                                    ref={(el) => { serviceDetailImageRefs.current[imageKey] = el; }}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleServiceDetailImageUpload(service.key, detail.id, e)}
+                                    className="hidden"
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
 
                       <div className="ml-8">
