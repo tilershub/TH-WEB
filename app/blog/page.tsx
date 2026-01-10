@@ -1,72 +1,7 @@
 import Link from "next/link";
 import { Page } from "@/components/Page";
-
-const BLOG_POSTS = [
-  {
-    id: "how-to-choose-tiles",
-    title: "How to Choose the Right Tiles for Your Home",
-    excerpt: "A comprehensive guide to selecting the perfect tiles for different areas of your home, from kitchens to bathrooms.",
-    category: "Tips",
-    date: "Dec 28, 2024",
-    readTime: "5 min read",
-  },
-  {
-    id: "tile-trends-2025",
-    title: "Top 5 Tile Trends for 2025",
-    excerpt: "Discover the hottest tile designs and patterns that will dominate home interiors this year.",
-    category: "Trends",
-    date: "Dec 25, 2024",
-    readTime: "4 min read",
-  },
-  {
-    id: "tiling-cost-guide",
-    title: "Cost of Tiling in Sri Lanka: Complete Price Guide",
-    excerpt: "Everything you need to know about tiling costs, labor rates, and material prices in Sri Lanka.",
-    category: "Pricing",
-    date: "Dec 22, 2024",
-    readTime: "7 min read",
-  },
-  {
-    id: "diy-vs-professional",
-    title: "DIY vs Professional Tiling: What You Should Know",
-    excerpt: "When should you tackle a tiling project yourself vs hiring a professional? We break it down.",
-    category: "Guides",
-    date: "Dec 18, 2024",
-    readTime: "6 min read",
-  },
-  {
-    id: "essential-tiling-tools",
-    title: "Essential Tools Every Tiler Needs",
-    excerpt: "A complete list of professional tiling tools and equipment for quality installations.",
-    category: "For Tilers",
-    date: "Dec 15, 2024",
-    readTime: "5 min read",
-  },
-  {
-    id: "floor-preparation",
-    title: "How to Prepare Your Floors Before Tiling",
-    excerpt: "Proper floor preparation is crucial for a long-lasting tile installation. Learn the best practices.",
-    category: "Tips",
-    date: "Dec 12, 2024",
-    readTime: "4 min read",
-  },
-  {
-    id: "tile-sizes-patterns",
-    title: "Understanding Tile Sizes and Patterns",
-    excerpt: "From subway tiles to large format slabs, learn how different sizes affect the look of your space.",
-    category: "Guides",
-    date: "Dec 8, 2024",
-    readTime: "5 min read",
-  },
-  {
-    id: "bathroom-waterproofing",
-    title: "Bathroom Waterproofing: A Complete Guide",
-    excerpt: "Protect your bathroom from water damage with proper waterproofing techniques.",
-    category: "Tips",
-    date: "Dec 5, 2024",
-    readTime: "6 min read",
-  },
-];
+import AdminEditLink from "@/components/AdminEditLink";
+import { getBlogPosts } from "@/lib/content";
 
 function getCategoryColor(category: string) {
   const colors: Record<string, string> = {
@@ -79,7 +14,9 @@ function getCategoryColor(category: string) {
   return colors[category] || "bg-gray-100 text-gray-700";
 }
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const posts = await getBlogPosts();
+
   return (
     <Page title="Blog">
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
@@ -114,15 +51,15 @@ export default function BlogPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
-          {BLOG_POSTS.map((post) => (
-            <Link key={post.id} href={`/blog/${post.id}`}>
-              <article className="card hover:shadow-card-hover transition-shadow h-full">
+          {posts.map((post) => (
+            <article key={post.id} className="card hover:shadow-card-hover transition-shadow h-full">
+              <Link href={`/blog/${post.slug}`} className="block">
                 <div className="h-40 bg-gradient-to-br from-gray-100 to-gray-200 rounded-t-2xl flex items-center justify-center">
                   <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                   </svg>
                 </div>
-                <div className="p-4">
+                <div className="p-4 pb-3">
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`text-xs font-medium px-2 py-1 rounded-full ${getCategoryColor(post.category)}`}>
                       {post.category}
@@ -130,16 +67,23 @@ export default function BlogPage() {
                     <span className="text-xs text-gray-500">{post.readTime}</span>
                   </div>
                   <h2 className="font-semibold text-navy mb-2 line-clamp-2">{post.title}</h2>
-                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">{post.excerpt}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{post.date}</span>
-                    <span className="text-primary text-sm font-medium">
-                      Read More
-                    </span>
-                  </div>
+                  <p className="text-sm text-gray-600 line-clamp-2">{post.excerpt}</p>
                 </div>
-              </article>
-            </Link>
+              </Link>
+              <div className="flex items-center justify-between px-4 pb-4">
+                <span className="text-xs text-gray-500">{post.date}</span>
+                <div className="flex items-center gap-3">
+                  <Link href={`/blog/${post.slug}`} className="text-primary text-sm font-medium">
+                    Read More
+                  </Link>
+                  {post.isFromDb && (
+                    <AdminEditLink href={`/admin/blog/${post.id}`}>
+                      Edit
+                    </AdminEditLink>
+                  )}
+                </div>
+              </div>
+            </article>
           ))}
         </div>
 

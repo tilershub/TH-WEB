@@ -62,6 +62,7 @@ export type Profile = {
 
   /* Verification & Experience */
   is_verified?: boolean;
+  is_admin?: boolean;
   years_experience?: number | null;
   completed_jobs?: number;
 
