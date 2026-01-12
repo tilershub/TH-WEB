@@ -21,7 +21,18 @@ export async function POST(req: Request) {
     .select("id")
     .maybeSingle();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (error) {
+    if (error.message.includes("is_verified") || error.code === "42703") {
+      return NextResponse.json(
+        {
+          error:
+            "Verification is unavailable because the profiles table is missing the is_verified column. Apply the database migration and refresh the schema cache.",
+        },
+        { status: 409 }
+      );
+    }
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
   if (!data) return NextResponse.json({ error: "User profile not found" }, { status: 404 });
 
   return NextResponse.json({ success: true });

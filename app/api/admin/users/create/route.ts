@@ -62,7 +62,27 @@ export async function POST(req: Request) {
     );
 
   if (profileError) {
-    return NextResponse.json({ error: profileError.message }, { status: 400 });
+    if (profileError.message.includes("is_verified") || profileError.code === "42703") {
+      const { error: fallbackError } = await supabaseAdmin
+        .from("profiles")
+        .upsert(
+          {
+            id: userData.user.id,
+            role: "tasker",
+            full_name: fullName,
+            display_name: body?.displayName?.trim() || fullName,
+            email,
+            city: toOptionalValue(body?.city),
+            district: toOptionalValue(body?.district),
+          },
+          { onConflict: "id" }
+        );
+      if (fallbackError) {
+        return NextResponse.json({ error: fallbackError.message }, { status: 400 });
+      }
+    } else {
+      return NextResponse.json({ error: profileError.message }, { status: 400 });
+    }
   }
 
   return NextResponse.json({ success: true, userId: userData.user.id });
