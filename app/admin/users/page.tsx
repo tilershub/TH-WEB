@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
-import { getAllProfiles, updateProfileVerification } from "@/lib/admin";
+import { createTaskerProfile, deleteProfile, getAllProfiles, updateProfileVerification } from "@/lib/admin";
 import type { Profile } from "@/lib/types";
 
 export default function AdminUsersPage() {
@@ -14,6 +14,18 @@ export default function AdminUsersPage() {
   const [verifiedFilter, setVerifiedFilter] = useState(searchParams.get("verified") || "");
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createForm, setCreateForm] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    displayName: "",
+    city: "",
+    district: "",
+    isVerified: false,
+  });
 
   const loadProfiles = async () => {
     setLoading(true);
@@ -52,6 +64,50 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleDelete = async (profileId: string) => {
+    const confirmed = window.confirm("Delete this tasker profile? This action cannot be undone.");
+    if (!confirmed) return;
+    const { error } = await deleteProfile(profileId);
+    if (!error) {
+      setProfiles((prev) => prev.filter((p) => p.id !== profileId));
+      setTotalCount((prev) => Math.max(0, prev - 1));
+    }
+  };
+
+  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setCreateError(null);
+    setCreating(true);
+
+    const { error } = await createTaskerProfile({
+      fullName: createForm.fullName,
+      email: createForm.email,
+      password: createForm.password,
+      displayName: createForm.displayName || undefined,
+      city: createForm.city || undefined,
+      district: createForm.district || undefined,
+      isVerified: createForm.isVerified,
+    });
+
+    if (error) {
+      setCreateError(error);
+    } else {
+      setCreateForm({
+        fullName: "",
+        email: "",
+        password: "",
+        displayName: "",
+        city: "",
+        district: "",
+        isVerified: false,
+      });
+      setShowCreateForm(false);
+      loadProfiles();
+    }
+
+    setCreating(false);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -59,7 +115,104 @@ export default function AdminUsersPage() {
           <h1 className="text-2xl font-bold text-navy">Users</h1>
           <p className="text-gray-600">Manage user profiles and verifications</p>
         </div>
+        <button
+          type="button"
+          onClick={() => setShowCreateForm((prev) => !prev)}
+          className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark"
+        >
+          {showCreateForm ? "Close create form" : "Create tasker"}
+        </button>
       </div>
+
+      {showCreateForm && (
+        <form onSubmit={handleCreate} className="bg-white rounded-xl shadow-sm p-4 space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Full name</label>
+              <input
+                type="text"
+                required
+                value={createForm.fullName}
+                onChange={(event) => setCreateForm((prev) => ({ ...prev, fullName: event.target.value }))}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Display name</label>
+              <input
+                type="text"
+                value={createForm.displayName}
+                onChange={(event) => setCreateForm((prev) => ({ ...prev, displayName: event.target.value }))}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Email</label>
+              <input
+                type="email"
+                required
+                value={createForm.email}
+                onChange={(event) => setCreateForm((prev) => ({ ...prev, email: event.target.value }))}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Temporary password</label>
+              <input
+                type="password"
+                required
+                value={createForm.password}
+                onChange={(event) => setCreateForm((prev) => ({ ...prev, password: event.target.value }))}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">City</label>
+              <input
+                type="text"
+                value={createForm.city}
+                onChange={(event) => setCreateForm((prev) => ({ ...prev, city: event.target.value }))}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">District</label>
+              <input
+                type="text"
+                value={createForm.district}
+                onChange={(event) => setCreateForm((prev) => ({ ...prev, district: event.target.value }))}
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+          </div>
+          <label className="flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={createForm.isVerified}
+              onChange={(event) => setCreateForm((prev) => ({ ...prev, isVerified: event.target.checked }))}
+              className="rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            Mark as verified
+          </label>
+          {createError && <p className="text-sm text-red-600">{createError}</p>}
+          <div className="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => setShowCreateForm(false)}
+              className="px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={creating}
+              className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-dark disabled:opacity-60"
+            >
+              {creating ? "Creating..." : "Create tasker"}
+            </button>
+          </div>
+        </form>
+      )}
 
       <div className="bg-white rounded-xl shadow-sm">
         <div className="p-4 border-b flex flex-col sm:flex-row gap-4">
@@ -166,17 +319,27 @@ export default function AdminUsersPage() {
                       {new Date(profile.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
-                      {profile.role === "tasker" && (
-                        <button
-                          onClick={() => handleVerify(profile.id, !profile.is_verified)}
-                          className={`text-sm font-medium ${
-                            profile.is_verified
-                              ? "text-gray-600 hover:text-red-600"
-                              : "text-primary hover:text-primary-dark"
-                          }`}
-                        >
-                          {profile.is_verified ? "Revoke" : "Verify"}
-                        </button>
+                      {profile.role === "tasker" ? (
+                        <div className="flex flex-col items-start gap-2">
+                          <button
+                            onClick={() => handleVerify(profile.id, !profile.is_verified)}
+                            className={`text-sm font-medium ${
+                              profile.is_verified
+                                ? "text-gray-600 hover:text-red-600"
+                                : "text-primary hover:text-primary-dark"
+                            }`}
+                          >
+                            {profile.is_verified ? "Revoke" : "Verify"}
+                          </button>
+                          <button
+                            onClick={() => handleDelete(profile.id)}
+                            className="text-sm font-medium text-red-600 hover:text-red-700"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
                       )}
                     </td>
                   </tr>
