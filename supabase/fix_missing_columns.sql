@@ -14,6 +14,15 @@ ADD COLUMN IF NOT EXISTS availability_status TEXT DEFAULT 'available',
 ADD COLUMN IF NOT EXISTS verified BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
 
+-- Add approval workflow columns to profiles and tasks if missing
+ALTER TABLE profiles
+ADD COLUMN IF NOT EXISTS approval_status TEXT DEFAULT 'approved' CHECK (approval_status IN ('pending', 'approved', 'declined')),
+ADD COLUMN IF NOT EXISTS approval_note TEXT;
+
+ALTER TABLE tasks
+ADD COLUMN IF NOT EXISTS approval_status TEXT DEFAULT 'pending' CHECK (approval_status IN ('pending', 'approved', 'declined')),
+ADD COLUMN IF NOT EXISTS approval_note TEXT;
+
 -- Add tiler_portfolio table if missing
 CREATE TABLE IF NOT EXISTS tiler_portfolio (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -64,5 +73,8 @@ CREATE POLICY "tiler_services read" ON tiler_services FOR SELECT TO authenticate
 CREATE POLICY "tiler_services insert" ON tiler_services FOR INSERT TO authenticated WITH CHECK (tiler_id = auth.uid());
 CREATE POLICY "tiler_services update" ON tiler_services FOR UPDATE TO authenticated USING (tiler_id = auth.uid());
 CREATE POLICY "tiler_services delete" ON tiler_services FOR DELETE TO authenticated USING (tiler_id = auth.uid());
+
+-- Refresh PostgREST schema cache so new columns are visible immediately
+SELECT pg_notify('pgrst', 'reload schema');
 
 -- Done! You should see "Success. No rows returned" message
