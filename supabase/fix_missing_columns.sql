@@ -74,4 +74,7 @@ CREATE POLICY "tiler_services insert" ON tiler_services FOR INSERT TO authentica
 CREATE POLICY "tiler_services update" ON tiler_services FOR UPDATE TO authenticated USING (tiler_id = auth.uid());
 CREATE POLICY "tiler_services delete" ON tiler_services FOR DELETE TO authenticated USING (tiler_id = auth.uid());
 
+-- Refresh PostgREST schema cache so new columns are visible immediately
+SELECT pg_notify('pgrst', 'reload schema');
+
 -- Done! You should see "Success. No rows returned" message
