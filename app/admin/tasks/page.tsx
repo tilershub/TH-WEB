@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { getAllTasks, updateTaskStatus, deleteTask } from "@/lib/admin";
+import { getAllTasks, updateTaskApproval, updateTaskStatus, deleteTask } from "@/lib/admin";
 
 type TaskWithOwner = {
   id: string;
@@ -12,6 +12,8 @@ type TaskWithOwner = {
   budget_min: number | null;
   budget_max: number | null;
   status: string;
+  approval_status?: "pending" | "approved" | "declined";
+  approval_note?: string | null;
   created_at: string;
   profiles: {
     display_name: string | null;
@@ -25,6 +27,8 @@ export default function AdminTasksPage() {
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [statusFilter, setStatusFilter] = useState("");
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const loadTasks = async () => {
     setLoading(true);
@@ -47,6 +51,41 @@ export default function AdminTasksPage() {
         prev.map((t) => (t.id === taskId ? { ...t, status } : t))
       );
     }
+  };
+
+  const handleApprovalChange = async (
+    taskId: string,
+    status: "pending" | "approved" | "declined"
+  ) => {
+    setActionError(null);
+    setActionLoadingId(taskId);
+    let note: string | undefined;
+
+    if (status === "declined") {
+      const response = window.prompt(
+        "Add a note for the task owner (shown to the user):",
+        "Your task does not meet the requirements."
+      );
+      if (response === null) {
+        setActionLoadingId(null);
+        return;
+      }
+      note = response.trim() || "Your task does not meet the requirements.";
+    }
+
+    const { error } = await updateTaskApproval(taskId, status, note);
+    if (!error) {
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? { ...t, approval_status: status, approval_note: status === "declined" ? note : null }
+            : t
+        )
+      );
+    } else {
+      setActionError(error.message ?? "Failed to update approval status");
+    }
+    setActionLoadingId(null);
   };
 
   const handleDelete = async (taskId: string) => {
@@ -100,6 +139,11 @@ export default function AdminTasksPage() {
             <option value="closed">Closed</option>
           </select>
         </div>
+        {actionError && (
+          <div className="px-4 py-3 text-sm border-b text-red-600 border-red-100 bg-red-50">
+            {actionError}
+          </div>
+        )}
 
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -108,6 +152,7 @@ export default function AdminTasksPage() {
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Task</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Owner</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Budget</th>
+                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Approval</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Status</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Created</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Actions</th>
@@ -116,13 +161,13 @@ export default function AdminTasksPage() {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                     Loading...
                   </td>
                 </tr>
               ) : tasks.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
                     No tasks found
                   </td>
                 </tr>
@@ -142,6 +187,28 @@ export default function AdminTasksPage() {
                       {formatBudget(task.budget_min, task.budget_max)}
                     </td>
                     <td className="px-4 py-3">
+                      <div className="space-y-1">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            task.approval_status === "approved"
+                              ? "bg-green-100 text-green-800"
+                              : task.approval_status === "declined"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-amber-100 text-amber-800"
+                          }`}
+                        >
+                          {task.approval_status === "approved"
+                            ? "Approved"
+                            : task.approval_status === "declined"
+                              ? "Declined"
+                              : "Pending"}
+                        </span>
+                        {task.approval_status === "declined" && task.approval_note && (
+                          <div className="text-xs text-red-600 line-clamp-2">{task.approval_note}</div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
                       <select
                         value={task.status}
                         onChange={(e) => handleStatusChange(task.id, e.target.value)}
@@ -156,7 +223,23 @@ export default function AdminTasksPage() {
                       {new Date(task.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col items-start gap-2">
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            onClick={() => handleApprovalChange(task.id, "approved")}
+                            disabled={actionLoadingId === task.id}
+                            className="text-sm font-medium text-green-700 hover:text-green-800 disabled:opacity-60"
+                          >
+                            {actionLoadingId === task.id ? "Updating..." : "Approve"}
+                          </button>
+                          <button
+                            onClick={() => handleApprovalChange(task.id, "declined")}
+                            disabled={actionLoadingId === task.id}
+                            className="text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-60"
+                          >
+                            {actionLoadingId === task.id ? "Updating..." : "Decline"}
+                          </button>
+                        </div>
                         <Link
                           href={`/task/${task.id}`}
                           target="_blank"

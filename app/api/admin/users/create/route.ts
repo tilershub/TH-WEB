@@ -10,6 +10,8 @@ type CreateTaskerPayload = {
   city?: string;
   district?: string;
   isVerified?: boolean;
+  approvalStatus?: "pending" | "approved" | "declined";
+  approvalNote?: string;
 };
 
 const toOptionalValue = (value?: string) => {
@@ -45,6 +47,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: userError?.message || "Unable to create user" }, { status: 400 });
   }
 
+  const approvalStatus = body?.approvalStatus ?? "pending";
+  const approvalNote =
+    approvalStatus === "declined"
+      ? body?.approvalNote?.trim() || "Your tasker profile does not meet the requirements."
+      : null;
+
   const { error: profileError } = await supabaseAdmin
     .from("profiles")
     .upsert(
@@ -57,12 +65,19 @@ export async function POST(req: Request) {
         city: toOptionalValue(body?.city),
         district: toOptionalValue(body?.district),
         is_verified: body?.isVerified ?? false,
+        approval_status: approvalStatus,
+        approval_note: approvalNote,
       },
       { onConflict: "id" }
     );
 
   if (profileError) {
-    if (profileError.message.includes("is_verified") || profileError.code === "42703") {
+    if (
+      profileError.message.includes("is_verified") ||
+      profileError.message.includes("approval_status") ||
+      profileError.message.includes("approval_note") ||
+      profileError.code === "42703"
+    ) {
       const { error: fallbackError } = await supabaseAdmin
         .from("profiles")
         .upsert(

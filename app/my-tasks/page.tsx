@@ -97,6 +97,17 @@ export default function MyTasksPage() {
                     }`}>
                       {t.status === "open" ? "Active" : "Closed"}
                     </span>
+                    {t.approval_status && t.approval_status !== "approved" && (
+                      <span
+                        className={`ml-2 inline-block text-xs px-2 py-1 rounded ${
+                          t.approval_status === "pending"
+                            ? "bg-amber-100 text-amber-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {t.approval_status === "pending" ? "Pending approval" : "Declined"}
+                      </span>
+                    )}
                   </div>
                 </div>
               </Link>

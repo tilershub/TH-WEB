@@ -63,6 +63,7 @@ export default function TilerHome() {
             "id,title,description,location_text,status,created_at,budget_min,budget_max,cover_image"
           )
           .eq("status", "open")
+          .eq("approval_status", "approved")
           .order("created_at", { ascending: false })
           .limit(10);
 

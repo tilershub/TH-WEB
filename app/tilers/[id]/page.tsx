@@ -175,6 +175,21 @@ export default function PublicTilerProfilePage() {
     );
   }
 
+  if (tiler.approval_status && tiler.approval_status !== "approved") {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center max-w-md px-6">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">මෙම පැතිකඩ දැනට ලබාගත නොහැක</h1>
+          <p className="text-gray-600 text-sm">
+            {tiler.approval_status === "pending"
+              ? "මෙම කාර්යකරුගේ පැතිකඩ තවමත් අනුමැතිය සඳහා බලාපොරොත්තු වේ."
+              : tiler.approval_note || "මෙම කාර්යකරුගේ පැතිකඩ අවශ්‍යතා සපුරාලීමේ ගැටලුවක් හේතුවෙන් ප්‍රතික්ෂේප කර ඇත."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100 pb-28">
       <div className="max-w-lg mx-auto bg-white min-h-screen shadow-lg">

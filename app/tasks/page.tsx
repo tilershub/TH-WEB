@@ -148,6 +148,7 @@ export default function TasksHomePage() {
     const { data: taskData, error: taskError } = await supabase
       .from("tasks")
       .select("id,title,description,location_text,status,created_at,budget_min,budget_max,cover_image")
+      .eq("approval_status", "approved")
       .order("created_at", { ascending: false });
 
     if (taskError) {

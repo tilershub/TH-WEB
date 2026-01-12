@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
 
     const { data: profile, error: profileError } = await supabaseClient
       .from("profiles")
-      .select("role")
+      .select("role, approval_status")
       .eq("id", user.id)
       .single();
 
@@ -43,9 +43,16 @@ Deno.serve(async (req) => {
       );
     }
 
-    if (profile.role !== "tiler") {
+    if (profile.role !== "tasker" && profile.role !== "tiler") {
       return new Response(
-        JSON.stringify({ error: "Only tilers can place bids" }),
+        JSON.stringify({ error: "Only taskers can place bids" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (profile.approval_status && profile.approval_status !== "approved") {
+      return new Response(
+        JSON.stringify({ error: "Your profile is pending approval" }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -70,7 +77,7 @@ Deno.serve(async (req) => {
 
     const { data: task, error: taskError } = await supabaseClient
       .from("tasks")
-      .select("id, status, owner_id")
+      .select("id, status, owner_id, approval_status")
       .eq("id", task_id)
       .single();
 
@@ -84,6 +91,13 @@ Deno.serve(async (req) => {
     if (task.status !== "open") {
       return new Response(
         JSON.stringify({ error: "Task is not open for bids" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (task.approval_status && task.approval_status !== "approved") {
+      return new Response(
+        JSON.stringify({ error: "Task is pending approval" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

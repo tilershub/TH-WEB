@@ -262,6 +262,27 @@ export default function ProfilePage() {
                 <StarRating rating={4.9} />
               </div>
 
+              {profile?.approval_status && profile.approval_status !== "approved" && (
+                <div
+                  className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
+                    profile.approval_status === "pending"
+                      ? "border-amber-200 bg-amber-50 text-amber-800"
+                      : "border-red-200 bg-red-50 text-red-700"
+                  }`}
+                >
+                  <p className="font-semibold">
+                    {profile.approval_status === "pending"
+                      ? "ඔබගේ පැතිකඩ අනුමැතිය සඳහා බලාපොරොත්තු වේ."
+                      : "ඔබගේ පැතිකඩ ප්‍රතික්ෂේප කර ඇත."}
+                  </p>
+                  <p className="mt-1">
+                    {profile.approval_status === "pending"
+                      ? "අනුමැතිය ලැබුණු පසු ඔබගේ පැතිකඩ පළ වේ."
+                      : profile.approval_note || "පැතිකඩ අවශ්‍යතා සපුරාලීමේ ගැටලුවක් හේතුවෙන් ප්‍රතික්ෂේප කර ඇත."}
+                  </p>
+                </div>
+              )}
+
               {hasCompletedTaskerProfile ? (
                 <Link
                   href="/profile/setup"

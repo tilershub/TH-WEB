@@ -162,6 +162,10 @@ export default function TaskDetailsPage() {
       setMsg("මුදල ඇතුළත් කරන්න.");
       return;
     }
+    if (task?.approval_status && task.approval_status !== "approved") {
+      setMsg("මෙම කාර්යය තවමත් අනුමැතිය සඳහා බලාපොරොත්තු වේ.");
+      return;
+    }
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -213,6 +217,10 @@ export default function TaskDetailsPage() {
     }
     if (hasPendingVisitRequest) {
       setMsg("ඔබේ ස්ථාන පරීක්ෂා ඉල්ලීම තවම පවතී.");
+      return;
+    }
+    if (task?.approval_status && task.approval_status !== "approved") {
+      setMsg("මෙම කාර්යය තවමත් අනුමැතිය සඳහා බලාපොරොත්තු වේ.");
       return;
     }
 
@@ -329,6 +337,26 @@ export default function TaskDetailsPage() {
                 <div className="text-2xl font-semibold text-gray-900">{task.title}</div>
                 <div className="mt-1 text-sm text-gray-600">{task.location_text ?? "ශ්‍රී ලංකාව"}</div>
                 <div className="mt-2 text-sm whitespace-pre-wrap">{task.description}</div>
+                {isOwner && task.approval_status && task.approval_status !== "approved" && (
+                  <div
+                    className={`mt-3 rounded-xl border px-3 py-2 text-xs ${
+                      task.approval_status === "pending"
+                        ? "border-amber-200 bg-amber-50 text-amber-800"
+                        : "border-red-200 bg-red-50 text-red-700"
+                    }`}
+                  >
+                    <div className="font-semibold">
+                      {task.approval_status === "pending"
+                        ? "මෙම කාර්යය අනුමැතිය සඳහා බලාපොරොත්තු වේ."
+                        : "මෙම කාර්යය ප්‍රතික්ෂේප කර ඇත."}
+                    </div>
+                    <div className="mt-1">
+                      {task.approval_status === "pending"
+                        ? "අනුමැතිය ලැබුණු පසු මෙය Task Hub එකේ දෘශ්‍ය වනු ඇත."
+                        : task.approval_note || "කාර්යය අවශ්‍යතා සපුරාලීමේ ගැටලුවක් හේතුවෙන් ප්‍රතික්ෂේප කර ඇත."}
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="text-xs text-neutral-500">තත්ත්වය: {task.status}</div>
             </div>

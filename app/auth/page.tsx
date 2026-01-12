@@ -77,6 +77,8 @@ export default function AuthPage() {
           district: null,
           city: null,
           profile_completed: false,
+          approval_status: role === "tasker" ? "pending" : "approved",
+          approval_note: null,
         },
         { onConflict: "id" }
       );
