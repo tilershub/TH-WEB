@@ -11,6 +11,12 @@ import {
 } from "@/lib/admin";
 import type { Profile } from "@/lib/types";
 
+const approvalStatusOptions = ["pending", "approved", "declined"] as const;
+type ApprovalStatus = (typeof approvalStatusOptions)[number];
+
+const isApprovalStatus = (value: string): value is ApprovalStatus =>
+  approvalStatusOptions.includes(value as ApprovalStatus);
+
 export default function AdminUsersPage() {
   const searchParams = useSearchParams();
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -34,7 +40,7 @@ export default function AdminUsersPage() {
     city: string;
     district: string;
     isVerified: boolean;
-    approvalStatus: "pending" | "approved" | "declined";
+    approvalStatus: ApprovalStatus;
     approvalNote: string;
   }>({
     fullName: "",
@@ -97,10 +103,7 @@ export default function AdminUsersPage() {
     setActionLoadingId(null);
   };
 
-  const handleApproval = async (
-    profileId: string,
-    status: "pending" | "approved" | "declined"
-  ) => {
+  const handleApproval = async (profileId: string, status: ApprovalStatus) => {
     setActionError(null);
     setActionLoadingId(profileId);
     let note: string | undefined;
@@ -266,14 +269,18 @@ export default function AdminUsersPage() {
               <select
                 value={createForm.approvalStatus}
                 onChange={(event) => {
-                  const status = event.target.value as "pending" | "approved" | "declined";
-                  setCreateForm((prev) => ({ ...prev, approvalStatus: status }));
+                  const { value } = event.target;
+                  if (isApprovalStatus(value)) {
+                    setCreateForm((prev) => ({ ...prev, approvalStatus: value }));
+                  }
                 }}
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
               >
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="declined">Declined</option>
+                {approvalStatusOptions.map((status) => (
+                  <option key={status} value={status}>
+                    {status.charAt(0).toUpperCase() + status.slice(1)}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
