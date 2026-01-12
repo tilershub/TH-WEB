@@ -265,9 +265,10 @@ export default function AdminUsersPage() {
               <label className="text-sm font-medium text-gray-700">Approval status</label>
               <select
                 value={createForm.approvalStatus}
-                onChange={(event) =>
-                  setCreateForm((prev) => ({ ...prev, approvalStatus: event.target.value }))
-                }
+                onChange={(event) => {
+                  const status = event.target.value as "pending" | "approved" | "declined";
+                  setCreateForm((prev) => ({ ...prev, approvalStatus: status }));
+                }}
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
               >
                 <option value="pending">Pending</option>
