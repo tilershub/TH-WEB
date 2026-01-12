@@ -4,6 +4,8 @@
 
 export type Role = 'homeowner' | 'tasker';
 
+export type ApprovalStatus = "pending" | "approved" | "declined";
+
 /* =========================
    PROFILE (UPGRADED)
 ========================= */
@@ -84,6 +86,8 @@ export type Profile = {
   /* Verification & Experience */
   is_verified?: boolean;
   is_admin?: boolean;
+  approval_status?: ApprovalStatus;
+  approval_note?: string | null;
   years_experience?: number | null;
   completed_jobs?: number;
 
@@ -124,6 +128,8 @@ export type Task = {
   budget_min: number | null;
   budget_max: number | null;
   status: TaskStatus;
+  approval_status?: ApprovalStatus;
+  approval_note?: string | null;
   created_at: string;
   updated_at: string;
 

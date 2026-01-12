@@ -2,7 +2,13 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
-import { createTaskerProfile, deleteProfile, getAllProfiles, updateProfileVerification } from "@/lib/admin";
+import {
+  createTaskerProfile,
+  deleteProfile,
+  getAllProfiles,
+  updateProfileApproval,
+  updateProfileVerification,
+} from "@/lib/admin";
 import type { Profile } from "@/lib/types";
 
 export default function AdminUsersPage() {
@@ -28,6 +34,8 @@ export default function AdminUsersPage() {
     city: "",
     district: "",
     isVerified: false,
+    approvalStatus: "pending",
+    approvalNote: "",
   });
 
   const loadProfiles = async () => {
@@ -40,7 +48,13 @@ export default function AdminUsersPage() {
       isVerified: verifiedFilter === "true" ? true : verifiedFilter === "false" ? false : undefined,
     });
     if (data) {
-      setProfiles(data.map((profile) => ({ ...profile, is_verified: profile.is_verified ?? false })));
+      setProfiles(
+        data.map((profile) => ({
+          ...profile,
+          is_verified: profile.is_verified ?? false,
+          approval_status: profile.approval_status ?? "approved",
+        }))
+      );
       setTotalCount(count || 0);
     }
     setVerificationSupported(supportsVerification ?? true);
@@ -65,6 +79,41 @@ export default function AdminUsersPage() {
       setProfiles((prev) =>
         prev.map((p) =>
           p.id === profileId ? { ...p, is_verified: isVerified } : p
+        )
+      );
+    } else {
+      setActionError(error);
+    }
+    setActionLoadingId(null);
+  };
+
+  const handleApproval = async (
+    profileId: string,
+    status: "pending" | "approved" | "declined"
+  ) => {
+    setActionError(null);
+    setActionLoadingId(profileId);
+    let note: string | undefined;
+
+    if (status === "declined") {
+      const response = window.prompt(
+        "Add a note for the tasker (shown to the user):",
+        "Your tasker profile does not meet the requirements."
+      );
+      if (response === null) {
+        setActionLoadingId(null);
+        return;
+      }
+      note = response.trim() || "Your tasker profile does not meet the requirements.";
+    }
+
+    const { error } = await updateProfileApproval(profileId, status, note);
+    if (!error) {
+      setProfiles((prev) =>
+        prev.map((p) =>
+          p.id === profileId
+            ? { ...p, approval_status: status, approval_note: status === "declined" ? note : null }
+            : p
         )
       );
     } else {
@@ -101,6 +150,8 @@ export default function AdminUsersPage() {
       city: createForm.city || undefined,
       district: createForm.district || undefined,
       isVerified: createForm.isVerified,
+      approvalStatus: createForm.approvalStatus,
+      approvalNote: createForm.approvalNote || undefined,
     });
 
     if (error) {
@@ -114,6 +165,8 @@ export default function AdminUsersPage() {
         city: "",
         district: "",
         isVerified: false,
+        approvalStatus: "pending",
+        approvalNote: "",
       });
       setShowCreateForm(false);
       loadProfiles();
@@ -198,7 +251,33 @@ export default function AdminUsersPage() {
                 className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
               />
             </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Approval status</label>
+              <select
+                value={createForm.approvalStatus}
+                onChange={(event) =>
+                  setCreateForm((prev) => ({ ...prev, approvalStatus: event.target.value }))
+                }
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              >
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="declined">Declined</option>
+              </select>
+            </div>
           </div>
+          {createForm.approvalStatus === "declined" && (
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-700">Decline note</label>
+              <input
+                type="text"
+                value={createForm.approvalNote}
+                onChange={(event) => setCreateForm((prev) => ({ ...prev, approvalNote: event.target.value }))}
+                placeholder="Tasker profile does not meet requirements."
+                className="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-primary focus:ring-1 focus:ring-primary outline-none"
+              />
+            </div>
+          )}
           <label className="flex items-center gap-2 text-sm text-gray-700">
             <input
               type="checkbox"
@@ -269,7 +348,7 @@ export default function AdminUsersPage() {
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">User</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Role</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Location</th>
-                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Status</th>
+                <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Approval</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Joined</th>
                 <th className="text-left px-4 py-3 text-sm font-medium text-gray-600">Actions</th>
               </tr>
@@ -320,30 +399,54 @@ export default function AdminUsersPage() {
                         : profile.district || "-"}
                     </td>
                     <td className="px-4 py-3">
-                      {profile.role === "tasker" && verificationSupported && (
-                        <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            profile.is_verified
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-600"
-                          }`}
-                        >
-                          {profile.is_verified ? (
-                            <>
-                              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                              </svg>
-                              Verified
-                            </>
-                          ) : (
-                            "Unverified"
+                      {profile.role === "tasker" ? (
+                        <div className="space-y-1">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              profile.approval_status === "approved"
+                                ? "bg-green-100 text-green-800"
+                                : profile.approval_status === "declined"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-amber-100 text-amber-800"
+                            }`}
+                          >
+                            {profile.approval_status === "approved"
+                              ? "Approved"
+                              : profile.approval_status === "declined"
+                                ? "Declined"
+                                : "Pending"}
+                          </span>
+                          {profile.approval_status === "declined" && profile.approval_note && (
+                            <div className="text-xs text-red-600 line-clamp-2">{profile.approval_note}</div>
                           )}
-                        </span>
-                      )}
-                      {profile.role === "tasker" && !verificationSupported && (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
-                          Unavailable
-                        </span>
+                          {verificationSupported && (
+                            <span
+                              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                profile.is_verified
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-gray-100 text-gray-600"
+                              }`}
+                            >
+                              {profile.is_verified ? (
+                                <>
+                                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                  Verified
+                                </>
+                              ) : (
+                                "Unverified"
+                              )}
+                            </span>
+                          )}
+                          {!verificationSupported && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                              Verification unavailable
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
@@ -352,6 +455,22 @@ export default function AdminUsersPage() {
                     <td className="px-4 py-3">
                       {profile.role === "tasker" ? (
                         <div className="flex flex-col items-start gap-2">
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() => handleApproval(profile.id, "approved")}
+                              disabled={actionLoadingId === profile.id}
+                              className="text-sm font-medium text-green-700 hover:text-green-800 disabled:opacity-60"
+                            >
+                              {actionLoadingId === profile.id ? "Updating..." : "Approve"}
+                            </button>
+                            <button
+                              onClick={() => handleApproval(profile.id, "declined")}
+                              disabled={actionLoadingId === profile.id}
+                              className="text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-60"
+                            >
+                              {actionLoadingId === profile.id ? "Updating..." : "Decline"}
+                            </button>
+                          </div>
                           <button
                             onClick={() => handleVerify(profile.id, !profile.is_verified)}
                             disabled={actionLoadingId === profile.id || !verificationSupported}

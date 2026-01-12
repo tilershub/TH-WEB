@@ -95,14 +95,16 @@ export default function PostTaskPage() {
 
       const insertRes = await supabase
         .from("tasks")
-        .insert({
-          title: finalTitle,
-          description: desc,
-          location_text: city.trim(),
-          status: "open",
-          owner_id: user.id,
-          cover_image: null,
-        })
+          .insert({
+            title: finalTitle,
+            description: desc,
+            location_text: city.trim(),
+            status: "open",
+            approval_status: "pending",
+            approval_note: null,
+            owner_id: user.id,
+            cover_image: null,
+          })
         .select("*")
         .single();
       if (insertRes.error) throw new Error(insertRes.error.message);

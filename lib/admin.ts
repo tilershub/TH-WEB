@@ -180,6 +180,8 @@ type TaskerProfilePayload = {
   city?: string;
   district?: string;
   isVerified?: boolean;
+  approvalStatus?: "pending" | "approved" | "declined";
+  approvalNote?: string;
 };
 
 export async function createTaskerProfile(payload: TaskerProfilePayload) {
@@ -197,6 +199,30 @@ export async function createTaskerProfile(payload: TaskerProfilePayload) {
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));
     return { error: body?.error || "Failed to create tasker" };
+  }
+
+  return { error: null };
+}
+
+export async function updateProfileApproval(
+  profileId: string,
+  status: "pending" | "approved" | "declined",
+  note?: string
+) {
+  const { headers, error } = await buildAdminHeaders();
+  if (error) {
+    return { error };
+  }
+
+  const response = await fetch("/api/admin/users/approve", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ userId: profileId, status, note }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    return { error: body?.error || "Failed to update approval status" };
   }
 
   return { error: null };
@@ -343,6 +369,18 @@ export async function updateTaskStatus(taskId: string, status: string) {
   const { error } = await supabase
     .from("tasks")
     .update({ status })
+    .eq("id", taskId);
+  return { error };
+}
+
+export async function updateTaskApproval(
+  taskId: string,
+  status: "pending" | "approved" | "declined",
+  note?: string | null
+) {
+  const { error } = await supabase
+    .from("tasks")
+    .update({ approval_status: status, approval_note: note ?? null })
     .eq("id", taskId);
   return { error };
 }

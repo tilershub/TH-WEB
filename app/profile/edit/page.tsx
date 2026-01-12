@@ -263,7 +263,10 @@ export default function HomeownerEditPage() {
                     if (confirmed) {
                       const { data: { user } } = await supabase.auth.getUser();
                       if (user) {
-                        await supabase.from("profiles").update({ role: "tasker" }).eq("id", user.id);
+                        await supabase
+                          .from("profiles")
+                          .update({ role: "tasker", approval_status: "pending", approval_note: null })
+                          .eq("id", user.id);
                         router.push("/profile/setup");
                       }
                     }

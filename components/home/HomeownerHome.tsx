@@ -149,6 +149,7 @@ export default function HomeownerHome() {
           // We now query for taskers instead of tilers.  The underlying role
           // value in the database has been migrated from 'tiler' to 'tasker'.
           .eq("role", "tasker")
+          .eq("approval_status", "approved")
           .limit(6);
 
         if (!cancelled && !error && data) {

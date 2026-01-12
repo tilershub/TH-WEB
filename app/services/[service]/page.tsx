@@ -205,6 +205,7 @@ export default function ServicePage() {
           // use 'tasker'.  If you still use 'tiler' here, TypeScript will
           // complain because Role no longer includes 'tiler'.
           .eq("role", "tasker")
+          .eq("approval_status", "approved")
           .limit(20);
 
         if (!cancelled && !error && data) {

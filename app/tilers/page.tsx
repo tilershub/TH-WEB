@@ -94,6 +94,7 @@ export default function TilersPage() {
         .from("profiles")
         .select("id, display_name, full_name, avatar_path, city, district, years_experience, role")
         .eq("role", "tasker")
+        .eq("approval_status", "approved")
         .order("created_at", { ascending: false })
         .range(pageNum * TILERS_PER_PAGE, (pageNum + 1) * TILERS_PER_PAGE - 1);
 
