@@ -120,9 +120,14 @@ export async function getAllProfiles({
 }
 
 export async function updateProfileVerification(profileId: string, isVerified: boolean) {
+  const { headers, error } = await buildAdminHeaders();
+  if (error) {
+    return { error };
+  }
+
   const response = await fetch("/api/admin/users/verify", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify({ userId: profileId, verified: isVerified }),
   });
 
@@ -132,6 +137,76 @@ export async function updateProfileVerification(profileId: string, isVerified: b
   }
 
   return { error: null };
+}
+
+export async function deleteProfile(profileId: string) {
+  const { headers, error } = await buildAdminHeaders();
+  if (error) {
+    return { error };
+  }
+
+  const response = await fetch("/api/admin/users/delete", {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ userId: profileId }),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    return { error: body?.error || "Failed to delete user" };
+  }
+
+  return { error: null };
+}
+
+type TaskerProfilePayload = {
+  fullName: string;
+  email: string;
+  password: string;
+  displayName?: string;
+  city?: string;
+  district?: string;
+  isVerified?: boolean;
+};
+
+export async function createTaskerProfile(payload: TaskerProfilePayload) {
+  const { headers, error } = await buildAdminHeaders();
+  if (error) {
+    return { error };
+  }
+
+  const response = await fetch("/api/admin/users/create", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    return { error: body?.error || "Failed to create tasker" };
+  }
+
+  return { error: null };
+}
+
+async function buildAdminHeaders() {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    return { error: error.message, headers: {} as Record<string, string> };
+  }
+
+  const token = data.session?.access_token;
+  if (!token) {
+    return { error: "Missing auth token", headers: {} as Record<string, string> };
+  }
+
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    error: null,
+  };
 }
 
 export async function getAllBlogPosts(page = 1, limit = 20, includeUnpublished = true) {
