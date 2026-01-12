@@ -14,6 +14,15 @@ ADD COLUMN IF NOT EXISTS availability_status TEXT DEFAULT 'available',
 ADD COLUMN IF NOT EXISTS verified BOOLEAN DEFAULT false,
 ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
 
+-- Add approval workflow columns to profiles and tasks if missing
+ALTER TABLE profiles
+ADD COLUMN IF NOT EXISTS approval_status TEXT DEFAULT 'approved' CHECK (approval_status IN ('pending', 'approved', 'declined')),
+ADD COLUMN IF NOT EXISTS approval_note TEXT;
+
+ALTER TABLE tasks
+ADD COLUMN IF NOT EXISTS approval_status TEXT DEFAULT 'pending' CHECK (approval_status IN ('pending', 'approved', 'declined')),
+ADD COLUMN IF NOT EXISTS approval_note TEXT;
+
 -- Add tiler_portfolio table if missing
 CREATE TABLE IF NOT EXISTS tiler_portfolio (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
