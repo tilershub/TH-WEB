@@ -16,7 +16,6 @@ type SubServicesEditorProps = {
 };
 
 type SubServiceState = {
-  isActive: boolean;
   price: string;
   imagePath: string | null;
   previewUrl: string | null;
@@ -40,7 +39,6 @@ export default function SubServicesEditor({
     subServices.forEach((subService) => {
       const offer = offerMap.get(subService.id);
       initialState[subService.id] = {
-        isActive: offer?.is_active ?? false,
         price: String(offer?.price ?? subService.default_price ?? ""),
         imagePath: offer?.image_path ?? null,
         previewUrl: offer?.image_path ? signedUrlMap[offer.image_path] ?? null : null,
@@ -56,16 +54,6 @@ export default function SubServicesEditor({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const supabase = useMemo(() => createBrowserSupabase(), []);
-
-  const handleToggle = (subServiceId: string) => {
-    setFormState((prev) => ({
-      ...prev,
-      [subServiceId]: {
-        ...prev[subServiceId],
-        isActive: !prev[subServiceId].isActive,
-      },
-    }));
-  };
 
   const handlePriceChange = (subServiceId: string, value: string) => {
     setFormState((prev) => ({
@@ -134,18 +122,16 @@ export default function SubServicesEditor({
 
       return {
         subServiceId: subService.id,
-        isActive: state.isActive,
+        isActive: true,
         price: Number.isFinite(priceValue) ? priceValue : null,
         imagePath: state.imagePath,
       };
     });
 
-    const invalidActive = payload.find(
-      (item) => item.isActive && (item.price === null || item.price < 0)
-    );
+    const invalidPrice = payload.find((item) => item.price === null || item.price < 0);
 
-    if (invalidActive) {
-      setErrorMessage("Please enter a valid price for all active sub-services.");
+    if (invalidPrice) {
+      setErrorMessage("Please enter a valid price for all sub-services.");
       setIsSaving(false);
       return;
     }
@@ -173,6 +159,13 @@ export default function SubServicesEditor({
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-border bg-white p-4 shadow-sm">
+        <div className="hidden grid-cols-[minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 border-b border-border pb-2 text-xs font-semibold uppercase text-muted-foreground md:grid">
+          <div>Name</div>
+          <div>Description</div>
+          <div>UOM</div>
+          <div>Rate (LKR)</div>
+          <div>Image</div>
+        </div>
         <div className="grid gap-4">
           {subServices.map((subService) => {
             const state = formState[subService.id];
@@ -181,68 +174,60 @@ export default function SubServicesEditor({
             return (
               <div
                 key={subService.id}
-                className="rounded-lg border border-border bg-background p-4"
+                className="rounded-lg border border-border bg-background p-4 md:border-0 md:p-0 md:py-3 md:first:pt-4 md:last:pb-4"
               >
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="grid gap-4 md:grid-cols-[minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center">
                   <div>
                     <p className="text-sm font-semibold text-foreground">{subService.name}</p>
-                    <p className="text-xs text-muted-foreground">Unit: {subService.unit}</p>
+                    <p className="text-xs text-muted-foreground md:hidden">
+                      {subService.description || "No description"}
+                    </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleToggle(subService.id)}
-                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${
-                      state.isActive
-                        ? "bg-primary text-white"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {state.isActive ? "Active" : "Inactive"}
-                  </button>
-                </div>
 
-                <div className="mt-4 grid gap-4 sm:grid-cols-[160px_1fr_1fr] sm:items-center">
+                  <div className="hidden text-sm text-muted-foreground md:block">
+                    {subService.description || "No description"}
+                  </div>
+
+                  <div className="text-sm text-muted-foreground">{subService.unit}</div>
+
                   <div>
-                    <label className="text-xs text-muted-foreground">Price (LKR)</label>
+                    <label className="text-xs text-muted-foreground md:hidden">Rate (LKR)</label>
                     <input
                       type="number"
                       min="0"
                       step="0.01"
                       value={state.price}
                       onChange={(event) => handlePriceChange(subService.id, event.target.value)}
-                      className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm"
-                      disabled={!state.isActive}
+                      className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm md:mt-0"
                     />
                   </div>
 
-                  <div>
-                    <label className="text-xs text-muted-foreground">Image</label>
+                  <div className="space-y-2">
                     <input
                       type="file"
                       accept="image/*"
-                      className="mt-1 block w-full text-xs"
+                      className="block w-full text-xs"
                       onChange={(event) =>
                         handleFileChange(subService.id, event.target.files?.[0] ?? null)
                       }
                       disabled={state.isUploading}
                     />
                     {state.isUploading && (
-                      <p className="mt-1 text-xs text-muted-foreground">Uploading...</p>
+                      <p className="text-xs text-muted-foreground">Uploading...</p>
                     )}
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    {displayUrl ? (
-                      <img
-                        src={displayUrl}
-                        alt={`${subService.name} preview`}
-                        className="h-16 w-20 rounded-md border border-border object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-16 w-20 items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">
-                        No image
-                      </div>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {displayUrl ? (
+                        <img
+                          src={displayUrl}
+                          alt={`${subService.name} preview`}
+                          className="h-16 w-20 rounded-md border border-border object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-16 w-20 items-center justify-center rounded-md border border-dashed border-border text-xs text-muted-foreground">
+                          No image
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
