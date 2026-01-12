@@ -159,12 +159,14 @@ export default function SubServicesEditor({
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-border bg-white p-4 shadow-sm">
-        <div className="hidden grid-cols-[minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-4 border-b border-border pb-2 text-xs font-semibold uppercase text-muted-foreground md:grid">
-          <div>Name</div>
-          <div>Description</div>
-          <div>UOM</div>
+        <div className="hidden grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)_minmax(0,2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)] gap-4 border-b border-border pb-2 text-xs font-semibold uppercase text-muted-foreground md:grid">
+          <div>Category</div>
+          <div>Service</div>
+          <div>Scope/Location</div>
+          <div>Qty/UOM</div>
+          <div>Specs</div>
           <div>Rate (LKR)</div>
-          <div>Image</div>
+          <div>Media</div>
         </div>
         <div className="grid gap-4">
           {subServices.map((subService) => {
@@ -176,22 +178,46 @@ export default function SubServicesEditor({
                 key={subService.id}
                 className="rounded-lg border border-border bg-background p-4 md:border-0 md:p-0 md:py-3 md:first:pt-4 md:last:pb-4"
               >
-                <div className="grid gap-4 md:grid-cols-[minmax(0,1.5fr)_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center">
+                <div className="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1.4fr)_minmax(0,2fr)_minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1.2fr)] md:items-center">
                   <div>
-                    <p className="text-sm font-semibold text-foreground">{subService.name}</p>
-                    <p className="text-xs text-muted-foreground md:hidden">
-                      {subService.description || "No description"}
+                    <p className="text-xs font-semibold uppercase text-muted-foreground md:hidden">
+                      Category
                     </p>
+                    <p className="text-sm font-semibold text-foreground">{service.name}</p>
                   </div>
-
-                  <div className="hidden text-sm text-muted-foreground md:block">
-                    {subService.description || "No description"}
-                  </div>
-
-                  <div className="text-sm text-muted-foreground">{subService.unit}</div>
 
                   <div>
-                    <label className="text-xs text-muted-foreground md:hidden">Rate (LKR)</label>
+                    <p className="text-xs font-semibold uppercase text-muted-foreground md:hidden">
+                      Service
+                    </p>
+                    <p className="text-sm font-semibold text-foreground">{subService.name}</p>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground md:hidden">
+                      Scope/Location
+                    </p>
+                    <span>{subService.description || "No scope details"}</span>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground md:hidden">
+                      Qty/UOM
+                    </p>
+                    <span>{subService.unit}</span>
+                  </div>
+
+                  <div className="text-sm text-muted-foreground">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground md:hidden">
+                      Specs
+                    </p>
+                    <span>—</span>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground md:hidden">
+                      Rate (LKR)
+                    </label>
                     <input
                       type="number"
                       min="0"
@@ -203,6 +229,9 @@ export default function SubServicesEditor({
                   </div>
 
                   <div className="space-y-2">
+                    <p className="text-xs font-semibold uppercase text-muted-foreground md:hidden">
+                      Media
+                    </p>
                     <input
                       type="file"
                       accept="image/*"
@@ -215,6 +244,7 @@ export default function SubServicesEditor({
                     {state.isUploading && (
                       <p className="text-xs text-muted-foreground">Uploading...</p>
                     )}
+                    <p className="text-xs text-muted-foreground">Used in portfolio.</p>
                     <div className="flex items-center gap-3">
                       {displayUrl ? (
                         <img
