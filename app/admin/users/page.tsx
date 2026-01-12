@@ -26,7 +26,17 @@ export default function AdminUsersPage() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [verificationSupported, setVerificationSupported] = useState(true);
-  const [createForm, setCreateForm] = useState({
+  const [createForm, setCreateForm] = useState<{
+    fullName: string;
+    email: string;
+    password: string;
+    displayName: string;
+    city: string;
+    district: string;
+    isVerified: boolean;
+    approvalStatus: "pending" | "approved" | "declined";
+    approvalNote: string;
+  }>({
     fullName: "",
     email: "",
     password: "",
