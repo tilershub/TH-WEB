@@ -22,12 +22,13 @@ export async function POST(req: Request) {
   // Example:
   // await supabaseAdmin.from("tasks").delete().eq("user_id", userId);
 
-  // Delete profile row
-  await supabaseAdmin.from("profiles").delete().eq("id", userId);
+  // Delete auth user first (this cascades to profiles via FK)
+  const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+  if (authError) return NextResponse.json({ error: authError.message }, { status: 400 });
 
-  // Delete auth user (this removes login)
-  const { error } = await supabaseAdmin.auth.admin.deleteUser(userId);
-  if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  // Ensure profile row is removed (in case cascade is not configured)
+  const { error: profileError } = await supabaseAdmin.from("profiles").delete().eq("id", userId);
+  if (profileError) return NextResponse.json({ error: profileError.message }, { status: 400 });
 
   return NextResponse.json({ success: true });
 }
