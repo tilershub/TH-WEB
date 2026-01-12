@@ -20,11 +20,12 @@ export async function requireAdmin(req: Request) {
   // Check caller is admin in profiles table
   const { data: profile, error: pErr } = await supabaseAdmin
     .from("profiles")
-    .select("role")
+    .select("role, is_admin")
     .eq("id", callerId)
     .maybeSingle();
 
-  if (pErr || !profile || profile.role !== "admin") {
+  const isAdmin = profile?.is_admin === true || profile?.role === "admin";
+  if (pErr || !profile || !isAdmin) {
     return { ok: false as const, res: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
   }
 
