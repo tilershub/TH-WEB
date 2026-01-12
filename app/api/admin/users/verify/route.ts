@@ -14,12 +14,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing userId or verified" }, { status: 400 });
   }
 
-  const { error } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from("profiles")
     .update({ is_verified: verified })
-    .eq("id", userId);
+    .eq("id", userId)
+    .select("id")
+    .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+  if (!data) return NextResponse.json({ error: "User profile not found" }, { status: 404 });
 
   return NextResponse.json({ success: true });
 }

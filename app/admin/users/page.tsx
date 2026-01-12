@@ -17,6 +17,8 @@ export default function AdminUsersPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [createForm, setCreateForm] = useState({
     fullName: "",
     email: "",
@@ -54,6 +56,8 @@ export default function AdminUsersPage() {
   }, [searchParams]);
 
   const handleVerify = async (profileId: string, isVerified: boolean) => {
+    setActionError(null);
+    setActionLoadingId(profileId);
     const { error } = await updateProfileVerification(profileId, isVerified);
     if (!error) {
       setProfiles((prev) =>
@@ -61,17 +65,25 @@ export default function AdminUsersPage() {
           p.id === profileId ? { ...p, is_verified: isVerified } : p
         )
       );
+    } else {
+      setActionError(error);
     }
+    setActionLoadingId(null);
   };
 
   const handleDelete = async (profileId: string) => {
     const confirmed = window.confirm("Delete this tasker profile? This action cannot be undone.");
     if (!confirmed) return;
+    setActionError(null);
+    setActionLoadingId(profileId);
     const { error } = await deleteProfile(profileId);
     if (!error) {
       setProfiles((prev) => prev.filter((p) => p.id !== profileId));
       setTotalCount((prev) => Math.max(0, prev - 1));
+    } else {
+      setActionError(error);
     }
+    setActionLoadingId(null);
   };
 
   const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
@@ -235,6 +247,11 @@ export default function AdminUsersPage() {
             <option value="tasker">Taskers</option>
           </select>
         </div>
+        {actionError && (
+          <div className="px-4 py-3 text-sm text-red-600 border-b border-red-100 bg-red-50">
+            {actionError}
+          </div>
+        )}
 
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -323,19 +340,21 @@ export default function AdminUsersPage() {
                         <div className="flex flex-col items-start gap-2">
                           <button
                             onClick={() => handleVerify(profile.id, !profile.is_verified)}
+                            disabled={actionLoadingId === profile.id}
                             className={`text-sm font-medium ${
                               profile.is_verified
                                 ? "text-gray-600 hover:text-red-600"
                                 : "text-primary hover:text-primary-dark"
                             }`}
                           >
-                            {profile.is_verified ? "Revoke" : "Verify"}
+                            {actionLoadingId === profile.id ? "Updating..." : profile.is_verified ? "Revoke" : "Verify"}
                           </button>
                           <button
                             onClick={() => handleDelete(profile.id)}
-                            className="text-sm font-medium text-red-600 hover:text-red-700"
+                            disabled={actionLoadingId === profile.id}
+                            className="text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-60"
                           >
-                            Delete
+                            {actionLoadingId === profile.id ? "Deleting..." : "Delete"}
                           </button>
                         </div>
                       ) : (
