@@ -29,7 +29,11 @@ export async function POST(req: Request) {
     .maybeSingle();
 
   if (error) {
-    if (error.message.includes("approval_status") || error.code === "42703") {
+    if (
+      error.message.includes("approval_status") ||
+      error.message.includes("approval_note") ||
+      error.code === "42703"
+    ) {
       return NextResponse.json(
         {
           error:
