@@ -97,26 +97,39 @@ export async function getAllProfiles({
   role,
   isVerified,
 }: ProfileFilters = {}) {
-  let query = supabase
-    .from("profiles")
-    .select("*", { count: "exact" })
-    .order("created_at", { ascending: false })
-    .range((page - 1) * limit, page * limit - 1);
+  const buildQuery = (includeVerificationFilter: boolean) => {
+    let query = supabase
+      .from("profiles")
+      .select("*", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range((page - 1) * limit, page * limit - 1);
 
-  if (search) {
-    query = query.or(`display_name.ilike.%${search}%,full_name.ilike.%${search}%,email.ilike.%${search}%`);
+    if (search) {
+      query = query.or(`display_name.ilike.%${search}%,full_name.ilike.%${search}%,email.ilike.%${search}%`);
+    }
+
+    if (role) {
+      query = query.eq("role", role);
+    }
+
+    if (includeVerificationFilter && typeof isVerified === "boolean") {
+      query = query.eq("is_verified", isVerified);
+    }
+
+    return query;
+  };
+
+  const { data, error, count } = await buildQuery(true);
+  if (error && (error.message.includes("is_verified") || error.code === "42703")) {
+    const fallbackResult = await buildQuery(false);
+    return {
+      data: fallbackResult.data,
+      error: fallbackResult.error,
+      count: fallbackResult.count,
+      verificationSupported: false,
+    };
   }
-
-  if (role) {
-    query = query.eq("role", role);
-  }
-
-  if (typeof isVerified === "boolean") {
-    query = query.eq("is_verified", isVerified);
-  }
-
-  const { data, error, count } = await query;
-  return { data, error, count };
+  return { data, error, count, verificationSupported: true };
 }
 
 export async function updateProfileVerification(profileId: string, isVerified: boolean) {

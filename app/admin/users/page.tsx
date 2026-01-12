@@ -19,6 +19,7 @@ export default function AdminUsersPage() {
   const [createError, setCreateError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [verificationSupported, setVerificationSupported] = useState(true);
   const [createForm, setCreateForm] = useState({
     fullName: "",
     email: "",
@@ -31,7 +32,7 @@ export default function AdminUsersPage() {
 
   const loadProfiles = async () => {
     setLoading(true);
-    const { data, count } = await getAllProfiles({
+    const { data, count, verificationSupported: supportsVerification } = await getAllProfiles({
       page,
       limit: 20,
       search,
@@ -39,9 +40,10 @@ export default function AdminUsersPage() {
       isVerified: verifiedFilter === "true" ? true : verifiedFilter === "false" ? false : undefined,
     });
     if (data) {
-      setProfiles(data);
+      setProfiles(data.map((profile) => ({ ...profile, is_verified: profile.is_verified ?? false })));
       setTotalCount(count || 0);
     }
+    setVerificationSupported(supportsVerification ?? true);
     setLoading(false);
   };
 
@@ -247,9 +249,16 @@ export default function AdminUsersPage() {
             <option value="tasker">Taskers</option>
           </select>
         </div>
-        {actionError && (
-          <div className="px-4 py-3 text-sm text-red-600 border-b border-red-100 bg-red-50">
-            {actionError}
+        {(actionError || !verificationSupported) && (
+          <div
+            className={`px-4 py-3 text-sm border-b ${
+              actionError
+                ? "text-red-600 border-red-100 bg-red-50"
+                : "text-amber-700 border-amber-100 bg-amber-50"
+            }`}
+          >
+            {actionError ||
+              "Verification is unavailable because the profiles table is missing the is_verified column. Apply the database migration and refresh the schema cache."}
           </div>
         )}
 
@@ -311,7 +320,7 @@ export default function AdminUsersPage() {
                         : profile.district || "-"}
                     </td>
                     <td className="px-4 py-3">
-                      {profile.role === "tasker" && (
+                      {profile.role === "tasker" && verificationSupported && (
                         <span
                           className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             profile.is_verified
@@ -331,6 +340,11 @@ export default function AdminUsersPage() {
                           )}
                         </span>
                       )}
+                      {profile.role === "tasker" && !verificationSupported && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                          Unavailable
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-600">
                       {new Date(profile.created_at).toLocaleDateString()}
@@ -340,14 +354,20 @@ export default function AdminUsersPage() {
                         <div className="flex flex-col items-start gap-2">
                           <button
                             onClick={() => handleVerify(profile.id, !profile.is_verified)}
-                            disabled={actionLoadingId === profile.id}
+                            disabled={actionLoadingId === profile.id || !verificationSupported}
                             className={`text-sm font-medium ${
                               profile.is_verified
                                 ? "text-gray-600 hover:text-red-600"
                                 : "text-primary hover:text-primary-dark"
-                            }`}
+                            } ${!verificationSupported ? "opacity-60 cursor-not-allowed" : ""}`}
                           >
-                            {actionLoadingId === profile.id ? "Updating..." : profile.is_verified ? "Revoke" : "Verify"}
+                            {!verificationSupported
+                              ? "Verify (unavailable)"
+                              : actionLoadingId === profile.id
+                                ? "Updating..."
+                                : profile.is_verified
+                                  ? "Revoke"
+                                  : "Verify"}
                           </button>
                           <button
                             onClick={() => handleDelete(profile.id)}
