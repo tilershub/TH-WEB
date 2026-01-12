@@ -195,6 +195,23 @@ export type Bid = {
 };
 
 /* =========================
+   SITE VISIT REQUESTS
+========================= */
+
+export type SiteVisitRequestStatus = "pending" | "approved" | "declined" | "withdrawn";
+
+export type SiteVisitRequest = {
+  id: string;
+  task_id: string;
+  tasker_id: string;
+  homeowner_id: string;
+  message: string | null;
+  status: SiteVisitRequestStatus;
+  created_at: string;
+  updated_at?: string;
+};
+
+/* =========================
    CONVERSATIONS
 ========================= */
 

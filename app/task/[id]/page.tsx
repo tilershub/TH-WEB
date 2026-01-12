@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { Page } from "@/components/Page";
 import { supabase } from "@/lib/supabaseClient";
-import type { Bid, Profile, Task, TaskPhoto } from "@/lib/types";
+import type { Bid, Profile, SiteVisitRequest, Task, TaskPhoto } from "@/lib/types";
 import { Button } from "@/components/Button";
 import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
@@ -27,6 +27,7 @@ export default function TaskDetailsPage() {
   const [task, setTask] = useState<Task | null>(null);
   const [sections, setSections] = useState<TaskSectionRow[]>([]);
   const [bids, setBids] = useState<Bid[]>([]);
+  const [visitRequests, setVisitRequests] = useState<SiteVisitRequest[]>([]);
   const [me, setMe] = useState<{ userId: string; profile: Profile | null } | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -37,10 +38,16 @@ export default function TaskDetailsPage() {
 
   const [bidAmount, setBidAmount] = useState("");
   const [bidMessage, setBidMessage] = useState("");
+  const [visitMessage, setVisitMessage] = useState("");
 
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const isOwner = useMemo(() => !!me?.userId && task?.owner_id === me.userId, [me, task]);
+  const myLatestVisitRequest = useMemo(
+    () => (me?.userId ? visitRequests.find((request) => request.tasker_id === me.userId) : undefined),
+    [me?.userId, visitRequests],
+  );
+  const hasPendingVisitRequest = myLatestVisitRequest?.status === "pending";
 
   useEffect(() => {
     const load = async () => {
@@ -84,6 +91,14 @@ export default function TaskDetailsPage() {
         .order("created_at", { ascending: false });
 
       if (!b.error) setBids((b.data ?? []) as Bid[]);
+
+      const r = await supabase
+        .from("site_visit_requests")
+        .select("*")
+        .eq("task_id", id)
+        .order("created_at", { ascending: false });
+
+      if (!r.error) setVisitRequests((r.data ?? []) as SiteVisitRequest[]);
     };
 
     load();
@@ -183,6 +198,78 @@ export default function TaskDetailsPage() {
       const errorMessage = error instanceof Error ? error.message : "බිඩ් දමීමට අසමත් විය";
       setMsg(errorMessage);
     }
+  };
+
+  const requestSiteVisit = async () => {
+    if (!task) return;
+    setMsg(null);
+    if (!me?.userId) {
+      setMsg("ඉල්ලීමක් යවන්න පිවිසෙන්න.");
+      return;
+    }
+    if (me.profile?.role !== "tasker") {
+      setMsg("ස්ථාන පරීක්ෂා ඉල්ලීම් යවන්න හැක්කේ කාර්යකරුවන්ට පමණි.");
+      return;
+    }
+    if (hasPendingVisitRequest) {
+      setMsg("ඔබේ ස්ථාන පරීක්ෂා ඉල්ලීම තවම පවතී.");
+      return;
+    }
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        setMsg("කරුණාකර නැවත පිවිසෙන්න.");
+        return;
+      }
+
+      const response = await supabase
+        .from("site_visit_requests")
+        .insert({
+          task_id: task.id,
+          tasker_id: me.userId,
+          homeowner_id: task.owner_id,
+          message: visitMessage || null,
+        })
+        .select("*");
+
+      if (response.error) {
+        setMsg(response.error.message || "ඉල්ලීම යැවීමට අසමත් විය");
+        return;
+      }
+
+      setVisitMessage("");
+
+      const r = await supabase
+        .from("site_visit_requests")
+        .select("*")
+        .eq("task_id", task.id)
+        .order("created_at", { ascending: false });
+
+      if (!r.error) setVisitRequests((r.data ?? []) as SiteVisitRequest[]);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "ඉල්ලීම යැවීමට අසමත් විය";
+      setMsg(errorMessage);
+    }
+  };
+
+  const updateVisitRequestStatus = async (requestId: string, status: SiteVisitRequest["status"]) => {
+    if (!task) return;
+    setMsg(null);
+
+    const u1 = await supabase.from("site_visit_requests").update({ status }).eq("id", requestId);
+    if (u1.error) {
+      setMsg(u1.error.message);
+      return;
+    }
+
+    const r = await supabase
+      .from("site_visit_requests")
+      .select("*")
+      .eq("task_id", task.id)
+      .order("created_at", { ascending: false });
+
+    if (!r.error) setVisitRequests((r.data ?? []) as SiteVisitRequest[]);
   };
 
   const acceptBid = async (bid: Bid) => {
@@ -317,6 +404,32 @@ export default function TaskDetailsPage() {
               <div className="mt-1 text-sm text-gray-600">කාර්යකරුවන්ට මුදලක් සහ කෙටි සටහනක් සමඟ බිඩ් දිය හැක.</div>
 
               <div className="mt-4 space-y-4">
+                <div className="rounded-xl border border-gray-200 p-3">
+                  <div className="text-sm font-semibold text-gray-900">ස්ථාන පරීක්ෂාව ඉල්ලන්න</div>
+                  <div className="mt-1 text-sm text-gray-600">
+                    බිඩ් දීමට පෙර ස්ථානය නිරීක්ෂණය කිරීමට ඉල්ලීමක් යවන්න.
+                  </div>
+                  {myLatestVisitRequest && (
+                    <div className="mt-3 text-sm text-neutral-700">
+                      ඔබගේ ඉල්ලීමේ තත්ත්වය: <span className="font-semibold">{myLatestVisitRequest.status}</span>
+                    </div>
+                  )}
+                  {!hasPendingVisitRequest && (
+                    <div className="mt-3 space-y-3">
+                      <FormField label="පණිවිඩය" hint="විකල්පයි">
+                        <Textarea
+                          rows={3}
+                          value={visitMessage}
+                          onChange={(e) => setVisitMessage(e.target.value)}
+                          placeholder="කාලසටහන, ගමනේ වෙලාවන් වැනි විස්තර."
+                        />
+                      </FormField>
+                      <Button onClick={requestSiteVisit} fullWidth>
+                        ස්ථාන පරීක්ෂාව ඉල්ලන්න
+                      </Button>
+                    </div>
+                  )}
+                </div>
                 <FormField label="මුදල (LKR)" required>
                   <Input value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} placeholder="උදා: 180000" inputMode="numeric" />
                 </FormField>
@@ -341,6 +454,36 @@ export default function TaskDetailsPage() {
               <div className="mt-1 text-sm text-gray-600">චැට් ආරම්භ කිරීමට බිඩ් එකක් පිළිගන්න.</div>
 
               <div className="mt-4 grid gap-2">
+                {visitRequests.length > 0 && (
+                  <div className="rounded-xl border border-gray-200 p-3">
+                    <div className="text-sm font-semibold text-gray-900">ස්ථාන පරීක්ෂාව ඉල්ලීම්</div>
+                    <div className="mt-3 grid gap-3">
+                      {visitRequests.map((request) => (
+                        <div key={request.id} className="rounded-lg border border-neutral-200 p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm font-medium">තත්ත්වය: {request.status}</div>
+                            <div className="text-xs text-neutral-500">Tasker: {request.tasker_id}</div>
+                          </div>
+                          {request.message && <div className="mt-2 text-sm text-neutral-700">{request.message}</div>}
+                          {isOwner && request.status === "pending" && (
+                            <div className="mt-3 flex gap-2">
+                              <Button onClick={() => updateVisitRequestStatus(request.id, "approved")} fullWidth>
+                                පිළිගන්න
+                              </Button>
+                              <Button
+                                onClick={() => updateVisitRequestStatus(request.id, "declined")}
+                                variant="secondary"
+                                fullWidth
+                              >
+                                ප්‍රතික්ෂේප කරන්න
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 {bids.map((b) => (
                   <div key={b.id} className="rounded-md border border-neutral-200 p-3">
                     <div className="flex items-center justify-between">
