@@ -8,7 +8,6 @@ import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
 import { Button } from "@/components/Button";
 import { LoadingPage } from "@/components/LoadingPage";
-import { SERVICES } from "@/lib/services";
 import { uploadFile, getPublicUrl, generateFilePath } from "@/lib/storage";
 import type { Certification } from "@/lib/types";
 
@@ -39,22 +38,6 @@ type Profile = {
   cover_path: string | null;
 };
 
-type ServiceRate = {
-  rate: number | null;
-  unit: string;
-  photo_path?: string | null;
-};
-
-type ServiceDetail = {
-  id: string;
-  title: string;
-  level: string;
-  tileSize: string;
-  sqft: string;
-  rate: string;
-  photo_path?: string | null;
-};
-
 export default function TaskerProfileSetup() {
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
@@ -77,20 +60,12 @@ export default function TaskerProfileSetup() {
   const [address, setAddress] = useState("");
   const [nicNo, setNicNo] = useState("");
   const [yearsExperience, setYearsExperience] = useState("");
-  const [serviceMode, setServiceMode] = useState<"single" | "multiple">("single");
-  const [selectedServices, setSelectedServices] = useState<string[]>([]);
-  const [serviceRates, setServiceRates] = useState<Record<string, ServiceRate>>({});
-  const [serviceDetails, setServiceDetails] = useState<ServiceDetail[]>([]);
   const [workingDistricts, setWorkingDistricts] = useState<string[]>([]);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
   const [newCertTitle, setNewCertTitle] = useState("");
   const [newCertIssuer, setNewCertIssuer] = useState("");
   const [newCertFile, setNewCertFile] = useState<File | null>(null);
-  const [uploadingServiceImage, setUploadingServiceImage] = useState<string | null>(null);
-  const [uploadingDetailImage, setUploadingDetailImage] = useState<string | null>(null);
-  const serviceImageRefs = useRef<Record<string, HTMLInputElement | null>>({});
-  const serviceDetailImageRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     loadProfile();
@@ -140,32 +115,6 @@ export default function TaskerProfileSetup() {
       setNicNo(p.nic_no || "");
       setYearsExperience(p.years_experience?.toString() || "");
       setWorkingDistricts(p.working_districts || []);
-      
-      if (p.service_rates && typeof p.service_rates === "object") {
-        const serviceKeys = Object.keys(p.service_rates);
-        setSelectedServices(serviceKeys);
-        setServiceRates(p.service_rates as Record<string, ServiceRate>);
-        const firstServiceWithDetails = serviceKeys.find(
-          key => Array.isArray((p.service_rates as Record<string, any>)[key]?.details)
-        );
-        if (firstServiceWithDetails) {
-          const details = (p.service_rates as Record<string, any>)[firstServiceWithDetails]?.details ?? [];
-          setServiceDetails(
-            details.map((detail: Record<string, any>) => ({
-              id: detail.id ?? crypto.randomUUID(),
-              title: detail.title ?? "",
-              level: detail.level ?? "",
-              tileSize: detail.tile_size ?? "",
-              sqft: detail.sqft !== undefined && detail.sqft !== null ? String(detail.sqft) : "",
-              rate: detail.rate !== undefined && detail.rate !== null ? String(detail.rate) : "",
-              photo_path: detail.photo_path ?? null,
-            }))
-          );
-        } else {
-          setServiceDetails([]);
-        }
-        setServiceMode(serviceKeys.length > 1 ? "multiple" : "single");
-      }
 
       setAvatarUrl(getPublicUrl("profile-avatars", p.avatar_path));
 
@@ -269,94 +218,6 @@ export default function TaskerProfileSetup() {
     }
   };
 
-  const handleServiceImageUpload = async (serviceKey: string, e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file || !profile) return;
-
-    setUploadingServiceImage(serviceKey);
-    setError(null);
-
-    try {
-      const path = generateFilePath(profile.id, `services/${serviceKey}`, file);
-      await uploadFile("portfolio", path, file);
-
-      setServiceRates(prev => ({
-        ...prev,
-        [serviceKey]: {
-          ...prev[serviceKey],
-          photo_path: path,
-        }
-      }));
-
-      setSuccess("සේවා ඡායාරූපය උඩුගත විය!");
-      setTimeout(() => setSuccess(null), 2000);
-    } catch (err: any) {
-      setError(err?.message || "සේවා ඡායාරූපය උඩුගත කිරීමට අසමත් විය");
-    } finally {
-      setUploadingServiceImage(null);
-    }
-  };
-
-  const addServiceDetail = () => {
-    setServiceDetails(prev => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        title: "",
-        level: "",
-        tileSize: "",
-        sqft: "",
-        rate: "",
-        photo_path: null,
-      },
-    ]);
-  };
-
-  const updateServiceDetail = (
-    detailId: string,
-    field: keyof Omit<ServiceDetail, "id">,
-    value: string
-  ) => {
-    setServiceDetails(prev =>
-      prev.map(detail =>
-        detail.id === detailId ? { ...detail, [field]: value } : detail
-      )
-    );
-  };
-
-  const removeServiceDetail = (detailId: string) => {
-    setServiceDetails(prev => prev.filter(detail => detail.id !== detailId));
-  };
-
-  const handleServiceDetailImageUpload = async (
-    detailId: string,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file || !profile) return;
-
-    setUploadingDetailImage(detailId);
-    setError(null);
-
-    try {
-      const path = generateFilePath(profile.id, `services/common/${detailId}`, file);
-      await uploadFile("portfolio", path, file);
-
-      setServiceDetails(prev =>
-        prev.map(detail =>
-          detail.id === detailId ? { ...detail, photo_path: path } : detail
-        )
-      );
-
-      setSuccess("සේවා විස්තර ඡායාරූපය උඩුගත විය!");
-      setTimeout(() => setSuccess(null), 2000);
-    } catch (err: any) {
-      setError(err?.message || "සේවා විස්තර ඡායාරූපය උඩුගත කිරීමට අසමත් විය");
-    } finally {
-      setUploadingDetailImage(null);
-    }
-  };
-
   const handleSave = async () => {
     if (!profile) return;
 
@@ -365,31 +226,6 @@ export default function TaskerProfileSetup() {
     setSuccess(null);
 
     try {
-      const finalServiceRates: Record<string, any> = {};
-      selectedServices.forEach(key => {
-        const svc = SERVICES.find(s => s.key === key);
-        if (svc) {
-          const existing = serviceRates[key];
-          const details = serviceDetails
-            .filter(detail => detail.title.trim())
-            .map(detail => ({
-              id: detail.id,
-              title: detail.title.trim() || null,
-              level: detail.level.trim() || null,
-              tile_size: detail.tileSize.trim() || null,
-              sqft: detail.sqft ? parseFloat(detail.sqft) : null,
-              rate: detail.rate ? parseFloat(detail.rate) : null,
-              photo_path: detail.photo_path ?? null,
-            }));
-          finalServiceRates[key] = { 
-            rate: existing?.rate ?? null, 
-            unit: svc.unit,
-            photo_path: existing?.photo_path ?? null,
-            details: details.length > 0 ? details : null,
-          };
-        }
-      });
-
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
@@ -402,7 +238,6 @@ export default function TaskerProfileSetup() {
           nic_no: nicNo.trim() || null,
           years_experience: yearsExperience ? parseInt(yearsExperience) : null,
           working_districts: workingDistricts.length > 0 ? workingDistricts : null,
-          service_rates: Object.keys(finalServiceRates).length > 0 ? finalServiceRates : null,
           profile_completed: true,
         })
         .eq("id", profile.id);
@@ -420,49 +255,6 @@ export default function TaskerProfileSetup() {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handleServiceModeChange = (mode: "single" | "multiple") => {
-    setServiceMode(mode);
-    if (mode === "single" && selectedServices.length > 1) {
-      const [firstKey] = selectedServices;
-      const firstRate = serviceRates[firstKey];
-      setSelectedServices(firstKey ? [firstKey] : []);
-      setServiceRates(firstKey ? { [firstKey]: firstRate } : {});
-    }
-  };
-
-  const toggleService = (key: string) => {
-    setSelectedServices(prev => {
-      if (prev.includes(key)) {
-        const newRates = { ...serviceRates };
-        delete newRates[key];
-        setServiceRates(newRates);
-        return prev.filter(k => k !== key);
-      }
-      const svc = SERVICES.find(s => s.key === key);
-      if (svc) {
-        if (serviceMode === "single") {
-          setServiceRates({ [key]: { rate: null, unit: svc.unit } });
-          return [key];
-        }
-        setServiceRates(r => ({ ...r, [key]: { rate: null, unit: svc.unit } }));
-      }
-      return serviceMode === "single" ? [key] : [...prev, key];
-    });
-  };
-
-  const updateServiceRate = (key: string, rate: string) => {
-    const numRate = rate ? parseFloat(rate) : null;
-    const svc = SERVICES.find(s => s.key === key);
-    setServiceRates(prev => ({
-      ...prev,
-      [key]: { 
-        ...prev[key],
-        rate: numRate, 
-        unit: svc?.unit || "LKR/sqft" 
-      }
-    }));
   };
 
   const toggleWorkingDistrict = (d: string) => {
@@ -625,288 +417,6 @@ export default function TaskerProfileSetup() {
                 min="0"
                 max="50"
               />
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-white rounded-2xl border border-gray-200 p-5">
-          <h2 className="text-lg font-semibold text-navy mb-2">සේවා සහ ගාස්තු</h2>
-          <p className="text-sm text-gray-500 mb-4">ඔබ ලබාදෙන සේවා තෝරා ගාස්තු සකසන්න</p>
-
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 mb-4">
-            <p className="text-sm font-medium text-gray-700 mb-3">ඔබේ සේවා හැඳින්වීම</p>
-            <div className="flex flex-col sm:flex-row gap-3">
-              <button
-                type="button"
-                onClick={() => handleServiceModeChange("single")}
-                className={`flex-1 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
-                  serviceMode === "single"
-                    ? "border-primary bg-white text-primary"
-                    : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span>එක සේවාවක් පමණයි</span>
-                  {serviceMode === "single" && (
-                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">තනි සේවාවක් පමණක් තෝරාගන්න.</p>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleServiceModeChange("multiple")}
-                className={`flex-1 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
-                  serviceMode === "multiple"
-                    ? "border-primary bg-white text-primary"
-                    : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span>බහු සේවාවන් (සමාගම්/කණ්ඩායම්)</span>
-                  {serviceMode === "multiple" && (
-                    <svg className="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                </div>
-                <p className="text-xs text-gray-500 mt-1">බහු සේවා සපයන්නේ නම් තෝරන්න.</p>
-              </button>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {SERVICES.map(service => {
-              const isSelected = selectedServices.includes(service.key);
-              const rate = serviceRates[service.key]?.rate;
-
-              return (
-                <div
-                  key={service.key}
-                  className={`rounded-xl border transition-all ${
-                    isSelected
-                      ? "border-primary bg-primary/5"
-                      : "border-gray-200"
-                  }`}
-                >
-                  <button
-                    type="button"
-                    onClick={() => toggleService(service.key)}
-                    className="w-full p-4 flex items-center justify-between"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        isSelected
-                          ? "border-primary bg-primary"
-                          : "border-gray-300"
-                      }`}>
-                        {isSelected && (
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </div>
-                      <div className="text-left">
-                        <span className="text-sm font-medium text-gray-900">{service.label}</span>
-                        <p className="text-xs text-gray-500">{service.unit}</p>
-                      </div>
-                    </div>
-                  </button>
-
-                  {isSelected && (
-                    <div className="px-4 pb-4 pt-0 space-y-3">
-                      <div className="flex items-center gap-2 ml-8">
-                        <span className="text-xs text-gray-500">ගාස්තු:</span>
-                        <input
-                          type="number"
-                          value={rate || ""}
-                          onChange={(e) => updateServiceRate(service.key, e.target.value)}
-                          placeholder="0"
-                          className="w-24 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-primary focus:border-primary"
-                        />
-                        <span className="text-xs text-gray-500">{service.unit}</span>
-                      </div>
-
-                      <div className="ml-8">
-                        <p className="text-xs text-gray-500 mb-2">මෙම සේවාව සඳහා උදාහරණ ඡායාරූපයක් එක් කරන්න (පෝර්ට්ෆෝලියෝවෙහි දිස්වේ)</p>
-                        <div className="flex items-center gap-3">
-                          {serviceRates[service.key]?.photo_path ? (
-                            <img
-                              src={getPublicUrl("portfolio", serviceRates[service.key].photo_path!) || ""}
-                              alt={`${service.label} sample`}
-                              className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                            />
-                          ) : (
-                            <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
-                              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => serviceImageRefs.current[service.key]?.click()}
-                            disabled={uploadingServiceImage === service.key}
-                            className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-1"
-                          >
-                            {uploadingServiceImage === service.key ? (
-                              <>
-                                <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
-                                උඩුගත වෙමින්...
-                              </>
-                            ) : (
-                              <>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                                </svg>
-                                {serviceRates[service.key]?.photo_path ? "වෙනස් කරන්න" : "උඩුගත කරන්න"}
-                              </>
-                            )}
-                          </button>
-                          <input
-                            ref={(el) => { serviceImageRefs.current[service.key] = el; }}
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleServiceImageUpload(service.key, e)}
-                            className="hidden"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-6 rounded-lg border border-dashed border-gray-200 p-4 bg-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-gray-700">සාමාන්‍ය සේවා විස්තර (සියලු සේවාවන් සඳහා)</p>
-                <p className="text-xs text-gray-500 mt-1">Floor level, tile size, sq.ft, rate වැනි සාමාන්‍ය තොරතුරු එක් කරන්න.</p>
-              </div>
-              <button
-                type="button"
-                onClick={addServiceDetail}
-                className="text-xs font-medium text-primary hover:text-primary/80"
-              >
-                + සේවාවක් එක් කරන්න
-              </button>
-            </div>
-            <div className="mt-3 space-y-3">
-              {serviceDetails.length === 0 && (
-                <p className="text-xs text-gray-400">තවම සේවා විස්තර එකතු කරලා නැහැ.</p>
-              )}
-              {serviceDetails.map(detail => {
-                const isUploadingDetail = uploadingDetailImage === detail.id;
-                const imageKey = `${detail.id}`;
-
-                return (
-                  <div key={detail.id} className="rounded-lg border border-gray-200 bg-gray-50 p-3 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold text-gray-700">සේවා විස්තරය</p>
-                      <button
-                        type="button"
-                        onClick={() => removeServiceDetail(detail.id)}
-                        className="text-[11px] text-red-600 hover:text-red-500"
-                      >
-                        ඉවත් කරන්න
-                      </button>
-                    </div>
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      <div>
-                        <label className="text-[11px] text-gray-500">සේවා නම</label>
-                        <Input
-                          className="mt-1"
-                          value={detail.title}
-                          onChange={(e) => updateServiceDetail(detail.id, "title", e.target.value)}
-                          placeholder="Floor Tiling"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[11px] text-gray-500">Floor level / Type</label>
-                        <Input
-                          className="mt-1"
-                          value={detail.level}
-                          onChange={(e) => updateServiceDetail(detail.id, "level", e.target.value)}
-                          placeholder="Ground floor / Basic"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[11px] text-gray-500">Tile size</label>
-                        <Input
-                          className="mt-1"
-                          value={detail.tileSize}
-                          onChange={(e) => updateServiceDetail(detail.id, "tileSize", e.target.value)}
-                          placeholder="600×600"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[11px] text-gray-500">Sq.ft</label>
-                        <Input
-                          className="mt-1"
-                          value={detail.sqft}
-                          onChange={(e) => updateServiceDetail(detail.id, "sqft", e.target.value)}
-                          placeholder="120"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[11px] text-gray-500">Rate</label>
-                        <Input
-                          className="mt-1"
-                          value={detail.rate}
-                          onChange={(e) => updateServiceDetail(detail.id, "rate", e.target.value)}
-                          placeholder="2500"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {detail.photo_path ? (
-                        <img
-                          src={getPublicUrl("portfolio", detail.photo_path) || ""}
-                          alt={`${detail.title || "Service"} detail`}
-                          className="w-16 h-16 rounded-lg object-cover border border-gray-200"
-                        />
-                      ) : (
-                        <div className="w-16 h-16 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-white">
-                          <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                      )}
-                      <button
-                        type="button"
-                        onClick={() => serviceDetailImageRefs.current[imageKey]?.click()}
-                        disabled={isUploadingDetail}
-                        className="px-3 py-1.5 text-xs font-medium bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors flex items-center gap-1"
-                      >
-                        {isUploadingDetail ? (
-                          <>
-                            <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
-                            උඩුගත වෙමින්...
-                          </>
-                        ) : (
-                          <>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                            </svg>
-                            {detail.photo_path ? "වෙනස් කරන්න" : "උඩුගත කරන්න"}
-                          </>
-                        )}
-                      </button>
-                      <input
-                        ref={(el) => { serviceDetailImageRefs.current[imageKey] = el; }}
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleServiceDetailImageUpload(detail.id, e)}
-                        className="hidden"
-                      />
-                    </div>
-                  </div>
-                );
-              })}
             </div>
           </div>
         </section>
