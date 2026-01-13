@@ -73,6 +73,10 @@ export default function PostTaskPage() {
       setMsg("කරුණාකර අවම වශයෙන් එක් සේවාවක් තෝරන්න.");
       return;
     }
+    if (files.length === 0) {
+      setMsg("කරුණාකර අවම වශයෙන් එක් ඡායාරූපයක් එක් කරන්න.");
+      return;
+    }
     setSaving(true);
     try {
       const { data: s } = await supabase.auth.getSession();
@@ -196,7 +200,7 @@ export default function PostTaskPage() {
               />
             </FormField>
 
-            <FormField label="ඡායාරූප" hint="උපරිම 5">
+            <FormField label="ඡායාරූප" hint="අවම 1, උපරිම 5" required>
               <PhotoPicker files={files} setFiles={setFiles} max={5} />
             </FormField>
           </div>
