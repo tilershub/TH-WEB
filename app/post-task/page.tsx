@@ -10,6 +10,7 @@ import { Button } from "@/components/Button";
 import { FormField } from "@/components/FormField";
 import ServiceMultiSelect, { ServiceOption } from "@/components/ServiceMultiSelect";
 import PhotoPicker from "@/components/PhotoPicker";
+import { SERVICES } from "@/lib/services";
 
 /**
  * PostTaskPage implements a simplified one‑page workflow for posting a new task
@@ -33,15 +34,10 @@ export default function PostTaskPage() {
   const [suggestion, setSuggestion] = useState("");
 
   // Define the list of available service categories.
-  const serviceOptions: ServiceOption[] = [
-    { id: "floor_tiling", name: "බිම් ටයිල් කිරීම" },
-    { id: "bathroom_renovation", name: "නානකාමර නවීකරණය" },
-    { id: "plumbing", name: "ජල සැපයුම්" },
-    { id: "electrical", name: "විදුලි වැඩ" },
-    { id: "cleaning", name: "පිරිසිදු කිරීම" },
-    { id: "moving", name: "ස්ථානාන්ත කිරීම" },
-    { id: "other", name: "වෙනත්" },
-  ];
+  const serviceOptions: ServiceOption[] = SERVICES.map((service) => ({
+    id: service.key,
+    name: service.label,
+  }));
 
   // Compute a suggested title when services or city change.
   useEffect(() => {
@@ -103,6 +99,10 @@ export default function PostTaskPage() {
             title: finalTitle,
             description: desc,
             location_text: city.trim(),
+            city: city.trim(),
+            start_date_type: startType,
+            start_date: startType === "date" ? startDate : null,
+            service_ids: services,
             status: "open",
             approval_status: "pending",
             approval_note: null,
