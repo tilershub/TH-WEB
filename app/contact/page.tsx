@@ -6,10 +6,23 @@ import { Input } from "@/components/Input";
 import { Textarea } from "@/components/Textarea";
 import { Button } from "@/components/Button";
 
+const services = [
+  "Bathrooms",
+  "Kitchen",
+  "Flooring",
+  "Ceiling",
+  "Glass Work",
+  "Electrical",
+  "Plumbing",
+  "Waterproofing",
+  "Other",
+];
+
 export default function ContactPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("");
+  const [phone, setPhone] = useState("");
+  const [service, setService] = useState("");
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
@@ -18,105 +31,191 @@ export default function ContactPage() {
     setSubmitted(true);
     setName("");
     setEmail("");
-    setSubject("");
+    setPhone("");
+    setService("");
     setMessage("");
   };
 
   return (
-    <Page title="අපව සම්බන්ධ කරන්න">
-      <div className="max-w-3xl mx-auto space-y-6">
-        <section className="rounded-2xl border bg-white p-6">
-          <h2 className="text-xl font-bold mb-3">සම්බන්ධ වන්න</h2>
-          <p className="text-neutral-700 mb-4">
-            ප්‍රශ්න, ප්‍රතිචාර හෝ සහාය අවශ්‍යද? පහත පෝරමය පුරවා අප වෙත යවන්න, හැකි ඉක්මනින් ඔබ වෙත ප්‍රතිචාර දෙන්නම්.
+    <Page title="Contact Us">
+      <div className="max-w-5xl mx-auto">
+        {/* Hero Section */}
+        <div className="text-center mb-10">
+          <h1 className="text-3xl md:text-4xl font-bold text-[#1A1A2E] mb-3">
+            Contact Us
+          </h1>
+          <p className="text-neutral-600 text-lg max-w-2xl mx-auto">
+            Ready to start your project? Get in touch for a free consultation.
           </p>
+        </div>
 
-          {submitted && (
-            <div className="mb-4 rounded-xl bg-green-50 border border-green-200 p-4">
-              <p className="text-green-800 text-sm font-medium">
-                අප වෙත සම්බන්ධ වූවාට ස්තුතියි! ඔබගේ පණිවිඩයට ඉක්මනින් ප්‍රතිචාර දෙන්නම්.
+        <div className="grid md:grid-cols-3 gap-8">
+          {/* Contact Form */}
+          <div className="md:col-span-2">
+            <section className="rounded-2xl border bg-white p-6 md:p-8">
+              <h2 className="text-xl font-bold text-[#1B4D3E] mb-1">
+                Send Us a Message
+              </h2>
+              <p className="text-neutral-600 text-sm mb-6">
+                Fill out the form below and our team will get back to you within 24 hours.
               </p>
-            </div>
-          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-2">
-                නම
-              </label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="ඔබගේ නම"
-                required
-              />
-            </div>
+              {submitted && (
+                <div className="mb-6 rounded-xl bg-green-50 border border-green-200 p-4">
+                  <p className="text-green-800 text-sm font-medium">
+                    Thank you for reaching out! We will respond to your message shortly.
+                  </p>
+                </div>
+              )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-2">
-                ඊමේල්
-              </label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                required
-              />
-            </div>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium mb-2">
+                      Name
+                    </label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="Your full name"
+                      required
+                    />
+                  </div>
 
-            <div>
-              <label htmlFor="subject" className="block text-sm font-medium mb-2">
-                විෂයය
-              </label>
-              <Input
-                id="subject"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder="මෙය කුමක් පිළිබඳද?"
-                required
-              />
-            </div>
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium mb-2">
+                      Email
+                    </label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                    />
+                  </div>
+                </div>
 
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium mb-2">
-                පණිවිඩය
-              </label>
-              <Textarea
-                id="message"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="තවත් විස්තර කියන්න..."
-                rows={6}
-                required
-              />
-            </div>
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label htmlFor="phone" className="block text-sm font-medium mb-2">
+                      Phone
+                    </label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="+94 7X XXX XXXX"
+                    />
+                  </div>
 
-            <Button type="submit">
-              පණිවිඩය යවන්න
-            </Button>
-          </form>
-        </section>
+                  <div>
+                    <label htmlFor="service" className="block text-sm font-medium mb-2">
+                      Service
+                    </label>
+                    <select
+                      id="service"
+                      value={service}
+                      onChange={(e) => setService(e.target.value)}
+                      required
+                      className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 bg-white outline-none transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:border-transparent"
+                    >
+                      <option value="" disabled>
+                        Select a service
+                      </option>
+                      {services.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-        <section className="rounded-2xl border bg-white p-6">
-          <h2 className="text-xl font-bold mb-3">අප වෙත ළඟා වීමට වෙනත් ක්‍රම</h2>
-          <div className="space-y-3 text-sm text-neutral-700">
-            <div>
-              <span className="font-semibold">ඊමේල්:</span> support@tilershub.lk
-            </div>
-            <div>
-              <span className="font-semibold">දුරකථන:</span> +94 11 234 5678
-            </div>
-            <div>
-              <span className="font-semibold">ලිපිනය:</span> කොළඹ, ශ්‍රී ලංකාව
-            </div>
-            <div>
-              <span className="font-semibold">ව්‍යාපාර වේලාවන්:</span> සඳුදා - සිකුරාදා, පෙ.ව. 9:00 - ප.ව. 5:00
-            </div>
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium mb-2">
+                    Message
+                  </label>
+                  <Textarea
+                    id="message"
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Tell us about your project..."
+                    rows={5}
+                    required
+                  />
+                </div>
+
+                <Button type="submit">
+                  Send Message
+                </Button>
+              </form>
+            </section>
           </div>
-        </section>
+
+          {/* Contact Info Sidebar */}
+          <div className="space-y-6">
+            <section className="rounded-2xl border bg-white p-6">
+              <h2 className="text-lg font-bold text-[#1B4D3E] mb-4">
+                Contact Information
+              </h2>
+              <div className="space-y-5 text-sm text-neutral-700">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 text-[#C8A96E]">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                  </span>
+                  <div>
+                    <p className="font-semibold text-[#1A1A2E]">Email</p>
+                    <p>info@tilershub.com</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 text-[#C8A96E]">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                    </svg>
+                  </span>
+                  <div>
+                    <p className="font-semibold text-[#1A1A2E]">Phone</p>
+                    <p>+94 11 234 5678</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 text-[#C8A96E]">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                    </svg>
+                  </span>
+                  <div>
+                    <p className="font-semibold text-[#1A1A2E]">Address</p>
+                    <p>Colombo, Sri Lanka</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 text-[#C8A96E]">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                    </svg>
+                  </span>
+                  <div>
+                    <p className="font-semibold text-[#1A1A2E]">Business Hours</p>
+                    <p>Mon - Fri: 9:00 AM - 5:00 PM</p>
+                    <p>Sat: 9:00 AM - 1:00 PM</p>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
       </div>
     </Page>
   );

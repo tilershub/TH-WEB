@@ -6,7 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin/", "/api/", "/profile/setup", "/profile/edit"],
       },
     ],
     sitemap: "https://tilershub.com/sitemap.xml",
