@@ -24,16 +24,39 @@ export default function ContactPage() {
   const [phone, setPhone] = useState("");
   const [service, setService] = useState("");
   const [message, setMessage] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setName("");
-    setEmail("");
-    setPhone("");
-    setService("");
-    setMessage("");
+    setStatus("loading");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, service, message }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMsg(data.error || "Something went wrong.");
+        setStatus("error");
+        return;
+      }
+
+      setStatus("success");
+      setName("");
+      setEmail("");
+      setPhone("");
+      setService("");
+      setMessage("");
+    } catch {
+      setErrorMsg("Network error. Please check your connection and try again.");
+      setStatus("error");
+    }
   };
 
   return (
@@ -60,10 +83,18 @@ export default function ContactPage() {
                 Fill out the form below and our team will get back to you within 24 hours.
               </p>
 
-              {submitted && (
+              {status === "success" && (
                 <div className="mb-6 rounded-xl bg-green-50 border border-green-200 p-4">
                   <p className="text-green-800 text-sm font-medium">
                     Thank you for reaching out! We will respond to your message shortly.
+                  </p>
+                </div>
+              )}
+
+              {status === "error" && (
+                <div className="mb-6 rounded-xl bg-red-50 border border-red-200 p-4">
+                  <p className="text-red-800 text-sm font-medium">
+                    {errorMsg}
                   </p>
                 </div>
               )}
@@ -149,8 +180,8 @@ export default function ContactPage() {
                   />
                 </div>
 
-                <Button type="submit">
-                  Send Message
+                <Button type="submit" disabled={status === "loading"}>
+                  {status === "loading" ? "Sending..." : "Send Message"}
                 </Button>
               </form>
             </section>
