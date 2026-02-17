@@ -12,6 +12,9 @@ out/
 build/
 dist/
 
+# Cloudflare
+.open-next/
+
 # Production
 *.log
 npm-debug.log*
