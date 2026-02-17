@@ -5,118 +5,71 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const navLinks = [
-  { href: "/home", label: "මුල් පිටුව" },
-  { href: "/tasks", label: "කාර්යයන්" },
-  { href: "/post-task", label: "කාර්යය පළ කරන්න" },
-  { href: "/messages", label: "පණිවිඩ" },
-  { href: "/my-tasks", label: "මගේ කාර්යයන්" },
-  { href: "/profile", label: "පැතිකඩ" },
+  { href: "/", label: "Home" },
+  { href: "/services", label: "Services" },
+  { href: "/portfolio", label: "Portfolio" },
+  { href: "/blog", label: "Blog" },
+  { href: "/guides", label: "Guides" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
 function cx(...classes: Array<string | false | undefined>) {
   return classes.filter(Boolean).join(" ");
 }
 
-function NotificationIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-6 h-6"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
-      />
-    </svg>
-  );
-}
-
 export default function Header() {
   const pathname = usePathname();
-  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="mx-auto max-w-5xl px-4">
-        <div className="h-14 flex items-center justify-between">
+    <header className={cx(
+      "sticky top-0 z-50 bg-white border-b transition-shadow",
+      scrolled ? "shadow-md border-gray-200" : "border-gray-100"
+    )}>
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="relative w-8 h-8">
-              <div className="absolute inset-0 rounded-full border-2 border-navy overflow-hidden">
-                <div className="h-1/2 bg-secondary"></div>
-                <div className="h-1/2 bg-primary"></div>
+            <div className="relative w-9 h-9">
+              <div className="absolute inset-0 rounded-lg bg-primary flex items-center justify-center">
+                <span className="text-white font-bold text-sm">TH</span>
               </div>
             </div>
-            <div className="font-bold text-lg">
+            <div className="font-bold text-lg tracking-tight">
               <span className="text-navy">TILERS</span>
-              <span className="text-primary ml-1">HUB</span>
+              <span className="text-secondary ml-0.5">HUB</span>
             </div>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <nav className="hidden md:flex items-center gap-1">
+            {navLinks.map((l) => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={cx(
+                  "px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                  (pathname === l.href || (l.href !== "/" && pathname.startsWith(l.href)))
+                    ? "text-primary bg-primary/5"
+                    : "text-gray-600 hover:text-navy hover:bg-gray-50"
+                )}
+              >
+                {l.label}
+              </Link>
+            ))}
             <Link
-              href="/notifications"
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-              aria-label="දැනුම්දීම්"
+              href="/contact"
+              className="ml-2 bg-primary text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors"
             >
-              <NotificationIcon />
+              Get a Quote
             </Link>
-
-            <button
-              onClick={() => setOpen((v) => !v)}
-              className="md:hidden h-10 w-10 grid place-items-center rounded-lg border hover:bg-neutral-50"
-              aria-label="මෙනු විවෘත කරන්න"
-            >
-              <div className="space-y-1">
-                <div className="h-0.5 w-5 bg-black" />
-                <div className="h-0.5 w-5 bg-black" />
-                <div className="h-0.5 w-5 bg-black" />
-              </div>
-            </button>
-
-            <nav className="hidden md:flex items-center gap-6 text-sm">
-              {navLinks.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={cx(
-                    "text-gray-600 hover:text-navy transition-colors",
-                    pathname === l.href && "text-navy font-semibold"
-                  )}
-                >
-                  {l.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
+          </nav>
         </div>
-
-        {open && (
-          <div className="md:hidden pb-3">
-            <div className="rounded-2xl border bg-white p-2">
-              {navLinks.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={cx(
-                    "block px-3 py-2 rounded-xl text-sm",
-                    pathname === l.href
-                      ? "bg-black text-white"
-                      : "hover:bg-neutral-50"
-                  )}
-                >
-                  {l.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </header>
   );

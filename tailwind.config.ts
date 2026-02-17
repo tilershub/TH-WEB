@@ -6,23 +6,23 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#4A9B6F',
-          dark: '#3A7D59',
-          light: '#5BAD7F',
+          DEFAULT: '#1B4D3E',
+          dark: '#143A2F',
+          light: '#256B55',
         },
         secondary: {
-          DEFAULT: '#2C5F6F',
-          dark: '#234B57',
-          light: '#3A7A8F',
+          DEFAULT: '#C8A96E',
+          dark: '#B8955A',
+          light: '#D4BB85',
         },
         navy: {
-          DEFAULT: '#2C3E50',
-          dark: '#1A252F',
-          light: '#34495E',
+          DEFAULT: '#1A1A2E',
+          dark: '#0F0F1A',
+          light: '#2A2A45',
         },
         accent: {
-          green: '#4A9B6F',
-          teal: '#2C5F6F',
+          gold: '#C8A96E',
+          green: '#1B4D3E',
         }
       },
       fontFamily: {
@@ -30,7 +30,7 @@ export default {
       },
       boxShadow: {
         'card': '0 2px 8px rgba(0, 0, 0, 0.08)',
-        'card-hover': '0 4px 12px rgba(0, 0, 0, 0.12)',
+        'card-hover': '0 8px 24px rgba(0, 0, 0, 0.12)',
       },
       borderRadius: {
         'xl': '12px',

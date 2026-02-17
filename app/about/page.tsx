@@ -1,59 +1,94 @@
-import { Page } from "@/components/Page";
+import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us",
+  description: "Learn about TILERSHUB - Sri Lanka's trusted interior design and renovation company with 10+ years of experience.",
+};
+
+const processSteps = [
+  { step: "01", title: "Consultation", description: "We visit your space, understand your vision, and discuss requirements, budget, and timeline." },
+  { step: "02", title: "Design & Planning", description: "Our team creates a detailed plan including materials, layout, and cost breakdown for your approval." },
+  { step: "03", title: "Execution", description: "Our skilled craftsmen carry out the work with precision, keeping you informed at every stage." },
+  { step: "04", title: "Handover", description: "We conduct a thorough quality check and hand over your beautifully transformed space." },
+];
 
 export default function AboutPage() {
   return (
-    <Page title="Tilers Hub ගැන">
-      <div className="max-w-3xl mx-auto space-y-6">
-        <section className="rounded-2xl border bg-white p-6">
-          <h2 className="text-xl font-bold mb-3">අපගේ මෙහෙවර</h2>
-          <p className="text-neutral-700 leading-relaxed">
-            Tilers Hub ශ්‍රී ලංකා පුරා ඇති දක්ෂ ටයිල් වෘත්තියවේදීන් හා නිවාස හිමියන් සම්බන්ධ කරයි.
-            සුදුසු කාර්යකරුවන් සොයාගැනීම, මිල ගණන් සසඳීම සහ විශ්වාසයෙන් ඔබගේ ටයිල් ව්‍යාපෘති ඉටු කිරීම අපි පහසු කරමු.
+    <div>
+      <section className="bg-gradient-to-br from-navy to-navy-dark text-white py-16 md:py-24">
+        <div className="max-w-6xl mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-5xl font-bold">About TILERSHUB</h1>
+          <p className="mt-4 text-lg text-gray-300 max-w-2xl mx-auto">
+            Sri Lanka&apos;s trusted partner for premium interior design and renovation services.
           </p>
-        </section>
+        </div>
+      </section>
 
-        <section className="rounded-2xl border bg-white p-6">
-          <h2 className="text-xl font-bold mb-3">එය කෙසේ ක්‍රියා කරන්නේද</h2>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold mb-1">නිවාස හිමියන් සඳහා</h3>
-              <p className="text-neutral-700 text-sm">
-                ඡායාරූප සහ විස්තර සමඟ ඔබගේ ටයිල් ව්‍යාපෘතිය පළ කරන්න. ඔබගේ ප්‍රදේශයේ සුදුසු කාර්යකරුවන්ගෙන් බිඩ් ලබාගන්න.
-                ඔබගේ කාර්යය සඳහා නිවැරදි වෘත්තියවේදියාව තෝරා ගැනීමට පෙර ඔවුන්ගේ පැතිකඩ, ගාස්තු, සහ පෝර්ට්ෆෝලියෝ සමාලෝචනය කරන්න.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold mb-1">කාර්යකරුවන් සඳහා</h3>
-              <p className="text-neutral-700 text-sm">
-                ඔබගේ හැකියාවන්, ගාස්තු සහ පෙර කාර්යයන් පෙන්වන පැතිකඩක් සාදන්න. ඔබගේ ප්‍රදේශයේ ලබාගත හැකි ව්‍යාපෘති
-                සොයා තරඟකාරී බිඩ් ඉදිරිපත් කරන්න. නිවාස හිමියන් සමඟ සෘජුව සම්බන්ධ වී ඔබගේ ව්‍යාපාරය වර්ධනය කරන්න.
-              </p>
-            </div>
+      <section className="py-16 md:py-20">
+        <div className="max-w-3xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-navy mb-6">Our Story</h2>
+          <div className="space-y-4 text-gray-700 leading-relaxed">
+            <p>
+              Founded with a passion for transforming living spaces, TILERSHUB has grown into one of Sri Lanka&apos;s most trusted names in interior design and renovation. What started as a small tiling service has evolved into a comprehensive renovation company offering end-to-end solutions.
+            </p>
+            <p>
+              With over 10 years of experience and hundreds of completed projects, we bring together skilled craftsmen, premium materials, and modern design sensibilities to create spaces that our clients love.
+            </p>
+            <p>
+              From bathroom renovations to full-home makeovers, our team handles every aspect of the process — consultation, design, execution, and quality assurance — so you can enjoy a hassle-free experience.
+            </p>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="rounded-2xl border bg-white p-6">
-          <h2 className="text-xl font-bold mb-3">Tilers Hub තෝරන්නේ ඇයි</h2>
-          <ul className="space-y-2 text-neutral-700">
-            <li className="flex items-start gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-sm">පෝර්ට්ෆෝලියෝ සහිත සත්‍යාපිත ටයිල් වෘත්තියවේදීන්</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-sm">පැහැදිලි මිල ගණන් සහ තරඟකාරී බිඩ්</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-sm">නිවාස හිමියන් හා කාර්යකරුවන් අතර සෘජු සන්නිවේදනය</span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-green-600 font-bold">✓</span>
-              <span className="text-sm">සහජ ව්‍යාපෘති කළමනාකරණය සහ අනුගමනය</span>
-            </li>
-          </ul>
-        </section>
-      </div>
-    </Page>
+      <section className="py-16 md:py-20 bg-gray-50">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-navy mb-10 text-center">Why Choose Us</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { title: "Expert Craftsmen", desc: "Skilled professionals with years of hands-on experience in interior renovation." },
+              { title: "Quality Materials", desc: "We use only premium, durable materials sourced from trusted suppliers." },
+              { title: "On-Time Delivery", desc: "Projects completed on schedule with clear milestones and communication." },
+              { title: "Customer First", desc: "Your satisfaction is our priority. We work closely with you at every step." },
+            ].map((item) => (
+              <div key={item.title} className="bg-white rounded-2xl p-6 shadow-card">
+                <h3 className="font-semibold text-navy text-lg mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 md:py-20">
+        <div className="max-w-6xl mx-auto px-4">
+          <h2 className="text-3xl font-bold text-navy mb-10 text-center">Our Process</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {processSteps.map((item) => (
+              <div key={item.step} className="text-center">
+                <div className="w-14 h-14 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg mx-auto mb-4">
+                  {item.step}
+                </div>
+                <h3 className="font-semibold text-navy text-lg mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 bg-primary text-white">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold">Ready to Work With Us?</h2>
+          <p className="mt-4 text-gray-200 text-lg max-w-xl mx-auto">
+            Get in touch today for a free consultation. Let us help you transform your space.
+          </p>
+          <Link href="/contact" className="mt-8 inline-block bg-secondary text-navy font-semibold px-8 py-4 rounded-xl hover:bg-secondary-light transition-colors">
+            Contact Us
+          </Link>
+        </div>
+      </section>
+    </div>
   );
 }

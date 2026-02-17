@@ -1,44 +1,32 @@
 import { MetadataRoute } from "next";
+import { services } from "@/lib/services-data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://tilershub.com";
-  
+
   const staticPages = [
     "",
-    "/home",
-    "/tilers",
+    "/services",
+    "/portfolio",
     "/blog",
     "/guides",
-    "/post-task",
-    "/login",
-    "/signup",
+    "/about",
+    "/contact",
     "/privacy",
     "/terms",
-  ];
-
-  const services = [
-    "floor-tiling",
-    "wall-tiling",
-    "staircase-tiling",
-    "bathroom-tiling",
-    "pantry-backsplash",
-    "waterproofing",
-    "screed",
-    "demolition",
-    "nosing",
   ];
 
   const staticEntries = staticPages.map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: new Date(),
     changeFrequency: "weekly" as const,
-    priority: path === "" || path === "/home" ? 1 : 0.8,
+    priority: path === "" ? 1 : path === "/services" ? 0.9 : 0.8,
   }));
 
   const serviceEntries = services.map((service) => ({
-    url: `${baseUrl}/services/${service}`,
+    url: `${baseUrl}/services/${service.slug}`,
     lastModified: new Date(),
-    changeFrequency: "weekly" as const,
+    changeFrequency: "monthly" as const,
     priority: 0.7,
   }));
 
