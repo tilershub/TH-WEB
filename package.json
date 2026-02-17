@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:worker": "npx opennextjs-cloudflare build",
+    "build": "if [ -z \"$__NEXT_BUILD\" ]; then __NEXT_BUILD=1 npx opennextjs-cloudflare build; else next build; fi",
     "start": "next start -p $PORT",
     "lint": "next lint"
   },
