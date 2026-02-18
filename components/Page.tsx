@@ -10,11 +10,11 @@ export function Page({
   children: ReactNode;
 }) {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6">
-      <header className="mb-4">
-        <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+    <main className="mx-auto max-w-5xl px-6 py-8">
+      <header className="mb-6">
+        <h1 className="text-2xl font-semibold text-charcoal tracking-tight">{title}</h1>
         {description ? (
-          <p className="mt-1 text-sm text-gray-600">{description}</p>
+          <p className="mt-1 text-sm text-charcoal-muted">{description}</p>
         ) : null}
       </header>
       {children}

@@ -2,58 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --bg: 248 249 250;
-  --fg: 26 26 46;
-  --primary: 27 77 62;
-  --navy: 26 26 46;
-  --secondary: 200 169 110;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
 
-html, body {
-  height: 100%;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
+html, body { height: 100%; }
 
 body {
-  color: rgb(var(--fg));
-  background: rgb(var(--bg));
+  color: #2C2C2C;
+  background: #FAF8F5;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 a { text-decoration: none; }
 
+::selection {
+  background: rgba(139, 158, 139, 0.2);
+}
+
 @layer components {
-  .btn-primary {
-    @apply bg-primary text-white rounded-xl px-6 py-3 font-medium hover:bg-primary-dark transition-colors;
-  }
-
-  .btn-secondary {
-    @apply bg-secondary text-navy rounded-xl px-6 py-3 font-medium hover:bg-secondary-dark transition-colors;
-  }
-
-  .btn-outline {
-    @apply bg-white border-2 border-primary text-primary rounded-xl px-6 py-3 font-medium hover:bg-primary hover:text-white transition-colors;
-  }
-
-  .card {
-    @apply bg-white rounded-2xl shadow-card overflow-hidden;
-  }
-
-  .input-field {
-    @apply w-full px-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
-  }
-
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
-
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

@@ -15,66 +15,55 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t bg-navy text-white">
-      <div className="mx-auto max-w-6xl px-4 py-12">
-        <div className="grid gap-8 md:grid-cols-4">
+    <footer className="border-t border-taupe-100">
+      <div className="mx-auto max-w-6xl px-6 py-16">
+        <div className="grid gap-10 md:grid-cols-4">
           <div>
-            <div className="font-bold text-xl tracking-tight">
-              <span className="text-white">TILERS</span>
-              <span className="text-secondary ml-0.5">HUB</span>
-            </div>
-            <p className="mt-3 text-sm text-gray-300 leading-relaxed">
-              Premium interior design and renovation services in Sri Lanka. Transforming spaces with quality craftsmanship.
+            <span className="text-charcoal tracking-[0.2em] text-sm font-semibold uppercase">Tilershub</span>
+            <p className="mt-4 text-sm text-charcoal-muted leading-relaxed">
+              Thoughtful renovation and interior design across Sri Lanka.
             </p>
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-secondary uppercase tracking-wider">Services</h4>
-            <ul className="mt-3 space-y-2 text-sm">
+            <h4 className="text-xs font-medium tracking-[0.15em] uppercase text-charcoal-muted mb-4">Services</h4>
+            <ul className="space-y-2.5">
               {services.map((s) => (
                 <li key={s.href}>
-                  <Link className="text-gray-300 hover:text-white transition-colors" href={s.href}>
-                    {s.label}
-                  </Link>
+                  <Link className="text-sm text-charcoal-muted hover:text-charcoal transition-colors" href={s.href}>{s.label}</Link>
                 </li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-secondary uppercase tracking-wider">Company</h4>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li><Link className="text-gray-300 hover:text-white transition-colors" href="/about">About Us</Link></li>
-              <li><Link className="text-gray-300 hover:text-white transition-colors" href="/portfolio">Portfolio</Link></li>
-              <li><Link className="text-gray-300 hover:text-white transition-colors" href="/blog">Blog</Link></li>
-              <li><Link className="text-gray-300 hover:text-white transition-colors" href="/guides">Guides</Link></li>
-              <li><Link className="text-gray-300 hover:text-white transition-colors" href="/contact">Contact</Link></li>
+            <h4 className="text-xs font-medium tracking-[0.15em] uppercase text-charcoal-muted mb-4">Company</h4>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link className="text-charcoal-muted hover:text-charcoal transition-colors" href="/about">About</Link></li>
+              <li><Link className="text-charcoal-muted hover:text-charcoal transition-colors" href="/portfolio">Portfolio</Link></li>
+              <li><Link className="text-charcoal-muted hover:text-charcoal transition-colors" href="/blog">Blog</Link></li>
+              <li><Link className="text-charcoal-muted hover:text-charcoal transition-colors" href="/guides">Guides</Link></li>
+              <li><Link className="text-charcoal-muted hover:text-charcoal transition-colors" href="/contact">Contact</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-sm font-semibold text-secondary uppercase tracking-wider">Contact Info</h4>
-            <ul className="mt-3 space-y-2 text-sm text-gray-300">
+            <h4 className="text-xs font-medium tracking-[0.15em] uppercase text-charcoal-muted mb-4">Contact</h4>
+            <ul className="space-y-2.5 text-sm text-charcoal-muted">
               <li>Colombo, Sri Lanka</li>
               <li>info@tilershub.com</li>
               <li>+94 11 234 5678</li>
-              <li className="pt-2">
-                <Link className="text-gray-300 hover:text-white transition-colors" href="/privacy">Privacy Policy</Link>
-              </li>
-              <li>
-                <Link className="text-gray-300 hover:text-white transition-colors" href="/terms">Terms of Service</Link>
-              </li>
             </ul>
+            <div className="mt-6 flex gap-3 text-sm">
+              <Link className="text-charcoal-muted hover:text-charcoal transition-colors" href="/privacy">Privacy</Link>
+              <span className="text-taupe-200">·</span>
+              <Link className="text-charcoal-muted hover:text-charcoal transition-colors" href="/terms">Terms</Link>
+            </div>
           </div>
         </div>
 
-        <div className="mt-10 border-t border-gray-700 pt-6 text-sm text-gray-400 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-          <p>&copy; {year} TILERSHUB. All rights reserved.</p>
-          <div className="flex flex-wrap gap-2">
-            <span className="rounded-full border border-gray-600 px-3 py-1 text-xs">Licensed &amp; Insured</span>
-            <span className="rounded-full border border-gray-600 px-3 py-1 text-xs">Quality Guaranteed</span>
-            <span className="rounded-full border border-gray-600 px-3 py-1 text-xs">Free Consultation</span>
-          </div>
+        <div className="mt-14 pt-6 border-t border-taupe-100 text-xs text-charcoal-muted">
+          &copy; {year} Tilershub. All rights reserved.
         </div>
       </div>
     </footer>

@@ -30,56 +30,66 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
 
   return (
     <div>
-      {/* Hero */}
-      <section className="bg-gradient-to-br from-primary via-primary-dark to-navy text-white py-16 md:py-24">
-        <div className="max-w-6xl mx-auto px-4">
-          <Link href="/services" className="inline-flex items-center gap-2 text-gray-300 hover:text-white text-sm mb-6 transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+      {/* Header */}
+      <section className="py-16 md:py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <Link
+            href="/services"
+            className="inline-flex items-center gap-1.5 text-sm text-charcoal-muted hover:text-charcoal transition-colors mb-8"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
-            Back to All Services
+            All Services
           </Link>
-          <h1 className="text-4xl md:text-5xl font-bold">{service.name}</h1>
-          <p className="mt-4 text-lg text-gray-200 max-w-2xl leading-relaxed">{service.shortDescription}</p>
+          <h1 className="text-3xl md:text-4xl font-semibold text-charcoal tracking-tight">
+            {service.name}
+          </h1>
+          <p className="mt-4 text-lg text-charcoal-muted max-w-2xl leading-relaxed">
+            {service.shortDescription}
+          </p>
         </div>
       </section>
 
       {/* Content */}
-      <section className="py-16 md:py-20">
-        <div className="max-w-6xl mx-auto px-4">
+      <section className="pb-20 md:pb-28">
+        <div className="mx-auto max-w-6xl px-6">
           <div className="grid md:grid-cols-3 gap-10">
-            {/* Main Content */}
-            <div className="md:col-span-2 space-y-8">
+            <div className="md:col-span-2 space-y-10">
               <div>
-                <h2 className="text-2xl font-bold text-navy mb-4">About This Service</h2>
-                <p className="text-gray-700 leading-relaxed">{service.description}</p>
+                <h2 className="text-xs font-medium tracking-[0.15em] uppercase text-charcoal-muted mb-4">
+                  About This Service
+                </h2>
+                <p className="text-charcoal-muted leading-relaxed">{service.description}</p>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-navy mb-4">What We Offer</h2>
+                <h2 className="text-xs font-medium tracking-[0.15em] uppercase text-charcoal-muted mb-4">
+                  What We Offer
+                </h2>
                 <div className="grid sm:grid-cols-2 gap-3">
                   {service.features.map((feature) => (
-                    <div key={feature} className="flex items-start gap-3 p-4 rounded-xl bg-gray-50">
-                      <svg className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                    <div key={feature} className="flex items-start gap-3 p-4 rounded-xl bg-sand/50">
+                      <svg className="w-4 h-4 text-sage flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-sm text-gray-700">{feature}</span>
+                      <span className="text-sm text-charcoal">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               <div>
-                <h2 className="text-2xl font-bold text-navy mb-4">Our Process</h2>
+                <h2 className="text-xs font-medium tracking-[0.15em] uppercase text-charcoal-muted mb-4">
+                  Our Process
+                </h2>
                 <div className="space-y-4">
                   {["Consultation & Assessment", "Design & Planning", "Execution & Installation", "Quality Check & Handover"].map((step, i) => (
                     <div key={step} className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-sand text-charcoal flex items-center justify-center text-sm font-medium flex-shrink-0">
                         {i + 1}
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-navy">{step}</h3>
-                      </div>
+                      <span className="text-sm font-medium text-charcoal">{step}</span>
                     </div>
                   ))}
                 </div>
@@ -88,43 +98,30 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
 
             {/* Sidebar */}
             <div className="space-y-6">
-              <div className="bg-primary text-white rounded-2xl p-6">
-                <h3 className="text-xl font-bold mb-3">Get a Quote for {service.name}</h3>
-                <p className="text-gray-200 text-sm mb-5">
-                  Ready to get started? Contact us for a free, no-obligation consultation and quote.
+              <div className="bg-charcoal text-cream rounded-2xl p-6">
+                <h3 className="text-lg font-semibold mb-2">Get a Quote</h3>
+                <p className="text-cream/70 text-sm mb-5 leading-relaxed">
+                  Ready to get started? Contact us for a free, no-obligation consultation.
                 </p>
-                <Link href="/contact" className="block text-center bg-secondary text-navy font-semibold py-3 px-6 rounded-xl hover:bg-secondary-light transition-colors">
+                <Link
+                  href="/contact"
+                  className="block text-center bg-cream text-charcoal font-medium text-sm py-3 px-6 rounded-full hover:bg-sand transition-colors"
+                >
                   Contact Us
                 </Link>
               </div>
 
-              <div className="border rounded-2xl p-6">
-                <h3 className="font-bold text-navy mb-3">Why Choose Us</h3>
-                <ul className="space-y-3 text-sm text-gray-600">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    10+ years of experience
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Premium quality materials
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    On-time project delivery
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-secondary" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    Free consultation
-                  </li>
+              <div className="border border-taupe-100 rounded-2xl p-6">
+                <h3 className="text-sm font-semibold text-charcoal mb-4">Why Choose Us</h3>
+                <ul className="space-y-3 text-sm text-charcoal-muted">
+                  {["10+ years of experience", "Premium quality materials", "On-time project delivery", "Free consultation"].map((item) => (
+                    <li key={item} className="flex items-center gap-2">
+                      <svg className="w-4 h-4 text-sage flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {item}
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -133,14 +130,20 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
       </section>
 
       {/* Other Services */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-navy mb-8 text-center">Other Services</h2>
+      <section className="py-16 bg-sand/50">
+        <div className="mx-auto max-w-6xl px-6">
+          <h2 className="text-xs font-medium tracking-[0.15em] uppercase text-charcoal-muted mb-6 text-center">
+            Other Services
+          </h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {otherServices.slice(0, 4).map((s) => (
-              <Link key={s.slug} href={`/services/${s.slug}`} className="bg-white rounded-xl p-5 hover:shadow-card-hover transition-shadow border border-gray-100">
-                <h3 className="font-semibold text-navy mb-1">{s.name}</h3>
-                <p className="text-xs text-gray-600">{s.shortDescription}</p>
+              <Link
+                key={s.slug}
+                href={`/services/${s.slug}`}
+                className="bg-cream rounded-xl p-5 border border-taupe-100/60 hover:shadow-soft transition-all"
+              >
+                <h3 className="text-sm font-semibold text-charcoal mb-1">{s.name}</h3>
+                <p className="text-xs text-charcoal-muted leading-relaxed">{s.shortDescription}</p>
               </Link>
             ))}
           </div>

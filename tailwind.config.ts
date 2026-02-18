@@ -5,36 +5,33 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: {
-          DEFAULT: '#1B4D3E',
-          dark: '#143A2F',
-          light: '#256B55',
+        cream: '#FAF8F5',
+        sand: '#F0EBE3',
+        taupe: {
+          100: '#EDE6DE',
+          200: '#D4C8BA',
+          300: '#B8A898',
+          400: '#A89282',
+          500: '#8C7565',
+          600: '#6B5A4D',
         },
-        secondary: {
-          DEFAULT: '#C8A96E',
-          dark: '#B8955A',
-          light: '#D4BB85',
+        sage: {
+          DEFAULT: '#8B9E8B',
+          light: '#A8B8A8',
+          dark: '#6B7F6B',
         },
-        navy: {
-          DEFAULT: '#1A1A2E',
-          dark: '#0F0F1A',
-          light: '#2A2A45',
+        charcoal: {
+          DEFAULT: '#2C2C2C',
+          light: '#4A4A4A',
+          muted: '#7A7A7A',
         },
-        accent: {
-          gold: '#C8A96E',
-          green: '#1B4D3E',
-        }
       },
       fontFamily: {
-        sans: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
       },
       boxShadow: {
-        'card': '0 2px 8px rgba(0, 0, 0, 0.08)',
-        'card-hover': '0 8px 24px rgba(0, 0, 0, 0.12)',
-      },
-      borderRadius: {
-        'xl': '12px',
-        '2xl': '16px',
+        'soft': '0 1px 12px rgba(44, 44, 44, 0.04)',
+        'soft-lg': '0 4px 24px rgba(44, 44, 44, 0.06)',
       },
     },
   },

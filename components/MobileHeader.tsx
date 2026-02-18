@@ -21,64 +21,46 @@ export default function MobileHeader() {
   useEffect(() => setOpen(false), [pathname]);
 
   return (
-    <header className="md:hidden sticky top-0 z-50 bg-white border-b border-gray-200">
-      <div className="mx-auto max-w-5xl px-4">
+    <header className="md:hidden sticky top-0 z-50 bg-cream/90 backdrop-blur-md border-b border-taupe-100/60">
+      <div className="mx-auto max-w-5xl px-5">
         <div className="h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative w-8 h-8">
-              <div className="absolute inset-0 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-white font-bold text-xs">TH</span>
-              </div>
-            </div>
-            <div className="font-bold text-lg tracking-tight">
-              <span className="text-navy">TILERS</span>
-              <span className="text-secondary ml-0.5">HUB</span>
-            </div>
+          <Link href="/" className="text-charcoal tracking-[0.2em] text-sm font-semibold uppercase">
+            Tilershub
           </Link>
 
           <button
             onClick={() => setOpen((v) => !v)}
-            className="h-10 w-10 grid place-items-center rounded-lg border hover:bg-neutral-50"
-            aria-label="Open menu"
+            className="w-9 h-9 grid place-items-center"
+            aria-label={open ? "Close menu" : "Open menu"}
           >
             {open ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             ) : (
-              <div className="space-y-1">
-                <div className="h-0.5 w-5 bg-black" />
-                <div className="h-0.5 w-5 bg-black" />
-                <div className="h-0.5 w-5 bg-black" />
-              </div>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5M3.75 15.75h16.5" />
+              </svg>
             )}
           </button>
         </div>
 
         {open && (
-          <div className="pb-3">
-            <div className="rounded-2xl border bg-white p-2">
-              {navLinks.map((l) => (
-                <Link
-                  key={l.href}
-                  href={l.href}
-                  className={`block px-3 py-2.5 rounded-xl text-sm font-medium ${
-                    (pathname === l.href || (l.href !== "/" && pathname.startsWith(l.href)))
-                      ? "bg-primary text-white"
-                      : "hover:bg-neutral-50 text-gray-700"
-                  }`}
-                >
-                  {l.label}
-                </Link>
-              ))}
+          <nav className="pb-6 pt-2 space-y-1">
+            {navLinks.map((l) => (
               <Link
-                href="/contact"
-                className="block mt-2 text-center bg-secondary text-navy px-3 py-2.5 rounded-xl text-sm font-medium"
+                key={l.href}
+                href={l.href}
+                className={`block px-3 py-2.5 text-sm tracking-wide rounded-lg transition-colors ${
+                  (pathname === l.href || (l.href !== "/" && pathname.startsWith(l.href)))
+                    ? "text-charcoal bg-sand"
+                    : "text-charcoal-muted"
+                }`}
               >
-                Get a Quote
+                {l.label}
               </Link>
-            </div>
-          </div>
+            ))}
+          </nav>
         )}
       </div>
     </header>

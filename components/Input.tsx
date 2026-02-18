@@ -6,10 +6,10 @@ export function Input(props: InputHTMLAttributes<HTMLInputElement>) {
   return (
     <input
       className={clsx(
-        "w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-gray-900 bg-white",
-        "placeholder:text-gray-400",
-        "outline-none transition focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:border-transparent",
-        "disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed",
+        "w-full rounded-xl border border-taupe-200 px-4 py-3 text-sm text-charcoal bg-white",
+        "placeholder:text-taupe-300",
+        "outline-none transition focus-visible:ring-2 focus-visible:ring-sage focus-visible:ring-offset-2 focus-visible:border-transparent",
+        "disabled:bg-sand disabled:text-charcoal-muted disabled:cursor-not-allowed",
         className
       )}
       {...rest}
